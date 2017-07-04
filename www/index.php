@@ -12,22 +12,28 @@
 	function printImgDiv($src, $label){?>
 		<div class="img-wrapper col s6 m4 l3">
 			<img src="<?php echo $src; ?>">
-			<div>
+			<div class="img-footer">
 				<span class="label"><?php echo $label; ?></span>
-				<a class="btn-flat orange-text delete-pic">删除</a>
+				<a class="teal-text infer-pic">识别</a>
+				<a class="orange-text delete-pic">删除</a>
+				
 			</div>
 		</div>
 		<?php
 	}
 ?>
 	<header>
-		<h1>Simple Bed Classifier</h1>
+		<h1 id="page-title" class="teal">Simple Bed Classifier</h1>
 	</header>
 	<main>
 		<div class="container">
 			<div id="upload-dropzone" class="dropzone"></div>
-			<div class="row">
-				<button class="btn right start-infer">识别</button>
+			<!--<div class="row">
+				<button class="btn right ">
+			</div>-->
+			
+			<div class="fixed-action-btn">
+				<button class="btn-floating btn-large waves-effect waves-light start-infer teal lighten-1">识别</button>				
 			</div>
 			<div id="gallery" class="row">
 				<?php 

@@ -34,7 +34,50 @@
 		}
 		echo json_encode($returnArray); 
 	}elseif(isset($_POST['action'])){
+ 	
+ 		$commandStr = 'java -jar tensorflow/FurnishingClassifier.jar '.$filesDir.' ';
+ 		$output="";
+ 		exec($commandStr, $output);
+ 		$resultFile = $output[count($output)-1];
+ 		$results = file($resultFile);
+ 		$map=array();
+ 		for ($i=0; $i < count($results) ; $i++) { 
+ 			# code...
+ 			list($key, $label) = explode($labelSep, trim($results[$i]));
+ 			$map[$key] = $label; 
+ 		}
 
+ 		echo json_encode($map);
+
+	}elseif(isset($_POST['infer'])){
+		//echo $_POST['delete'];
+		if(stripos($_POST['infer'], $filesDir)==0){
+			$commandStr = 'java -jar tensorflow/FurnishingClassifier.jar '.$_POST['infer'].' ';
+	 		$output="";
+	 		exec($commandStr, $output);
+	 		$resultFile = $output[count($output)-1];
+	 		$results = file($resultFile);
+	 		$map=array();
+	 		for ($i=0; $i < count($results) ; $i++) { 
+	 			# code...
+	 			list($key, $label) = explode($labelSep, trim($results[$i]));
+	 			$map[$key] = $label; 
+	 		}
+
+	 		echo json_encode($map);
+		}else{
+			echo "illegal action";
+		}
+ 		
+	}elseif(isset($_POST['delete'])){
+		//echo $_POST['delete'];
+		if(stripos($_POST['delete'], $filesDir)==0){
+			$status = unlink($_POST['delete']);
+			if($status) echo "success";
+		}else{
+			echo "illegal action";
+		}
+ 		
 	}
 	
 ?>

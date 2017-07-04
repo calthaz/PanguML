@@ -17,16 +17,68 @@ $(function(){
     	var files = JSON.parse(response);
     	for(var k in files){
     		$('div#gallery').prepend('<div class="img-wrapper col s6 m4 l3">'+
-				'<img src="../'+files[k]+'"">'+
-				'<div><span class="label">no label</span>'+
-				'<a class="btn-flat orange-text">删除</a></div>'+
+				'<img src="'+files[k]+'"">'+
+				'<div class="img-footer"><span class="label">no label</span>'+
+				'<a class="teal-text infer-pic">识别</a>'+
+				'<a class="orange-text delete-pic">删除</a></div>'+
 			'</div>')
     	}
   	});
 
   	$("button.start-infer").click(function(){
+  		var $btn = $(event.target);
+  		$btn.text("...");
+  		$btn.css("pointer-events", "none");
   		$.post("uploadHandler.php", {action:"start"}).done(function(data){
-  			console.log(data);
+  			//console.log(data);
+            try{
+                data = JSON.parse(data);
+                for(var x in data){
+                	var filename = x.replace(/\\/g, "/");
+                	//console.log(filename+" is "+data[x]);
+                	$('img[src="'+filename+'"]').parent().find("span.label").text(data[x]);
+                }
+                $btn.text("识别");
+                $btn.css("pointer-events", "initial");
+            }catch(e){
+            	console.log(data);
+            }   
+  		});
+  	});
+
+  	$("main").on("click", "a.delete-pic", function(event){
+  		var filename = $(event.target).parents("div.img-wrapper").find("img").attr("src");
+  		//console.log(filename);
+  		$.post("uploadHandler.php", {delete:filename}).done(function(data){
+  			try{
+                data = JSON.parse(data);
+                for(var x in data){
+                	var filename = x.replace(/\\/g, "/");
+                	//console.log(filename+" is "+data[x]);
+                	$('img[src="'+filename+'"]').parent().find("span.label").text(data[x]);
+                }
+                $btn.text("识别");
+                $btn.css("pointer-events", "initial");
+            }catch(e){
+            	console.log(data);
+            }   
+  		});
+  	});
+
+  	$("main").on("click", "a.infer-pic", function(event){
+  		var filename = $(event.target).parents("div.img-wrapper").find("img").attr("src");
+  		//console.log(filename);
+  		$.post("uploadHandler.php", {infer:filename}).done(function(data){
+  			try{
+                data = JSON.parse(data);
+                for(var x in data){
+                	var filename = x.replace(/\\/g, "/");
+                	//console.log(filename+" is "+data[x]);
+                	$('img[src="'+filename+'"]').parent().find("span.label").text(data[x]);
+                }
+            }catch(e){
+            	console.log(data);
+            }  
   		});
   	});
 })

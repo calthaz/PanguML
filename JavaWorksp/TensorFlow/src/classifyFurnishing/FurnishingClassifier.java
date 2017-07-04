@@ -40,7 +40,8 @@ public class FurnishingClassifier {
 	  					  IMG_SIZE, BATCH_SIZE);
   	    ArrayList<String> files = new ArrayList<String>();
   	    long time = System.currentTimeMillis();
-  	    readImageFilesRecursively(new File(rootPath), files);
+  	    File root = new File(rootPath);
+  	    readImageFilesRecursively(root, files);
   	    System.out.println("Checked all files in "+ (System.currentTimeMillis()-time)+"ms");
   	    
   	    System.out.println(files.size());
@@ -48,12 +49,16 @@ public class FurnishingClassifier {
   	    System.out.println("Number of rounds: "+nRounds);
   	    System.out.println("batch size: "+BATCH_SIZE);
   	   
+  	    String resultPath = "";
+  	    if(root.isDirectory()){
+  	    	resultPath = rootPath+SEP+RESULT_FILE_NAME;
+  	    }else{
+  	    	resultPath = root.getParent()+SEP+RESULT_FILE_NAME;
+  	    }
   	    //int counter=0;
   	    try {
-  	    	PrintWriter wr = null;
-			if(!"JSON".equals(mode)) {
-				wr = new PrintWriter(new FileWriter(rootPath+SEP+RESULT_FILE_NAME,false));
-			}
+  	    	PrintWriter wr = null;			
+			wr = new PrintWriter(new FileWriter(resultPath,false));			
 			
 			String[]subset = new String[1];
 			time = System.currentTimeMillis();
@@ -80,10 +85,13 @@ public class FurnishingClassifier {
 				}
 	  	    }
 			System.out.println("Finishing inferring in "+(System.currentTimeMillis()-time)+"ms");
-			if(!"JSON".equals(mode)) {
-				wr.flush();
-				wr.close();
+			
+			if("file".equals(mode)){
+				System.out.println(resultPath);
 			}
+			wr.flush();
+			wr.close();
+			
 			gd.close();
 			gd1.close();
 		} catch (IOException e1) {
@@ -102,7 +110,7 @@ public class FurnishingClassifier {
 				//reads every image in case it were a bad one 
 				BufferedImage img = ImageIO.read(f);
 				if(img!= null&&img.getHeight()!=0){
-					files.add(f.getAbsolutePath());
+					files.add(f.getPath());
 				}else{
 					System.out.println("Probably not an image: "+f.getPath());
 				}

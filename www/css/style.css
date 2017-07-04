@@ -6,3 +6,24 @@
 #gallery span{
 	display: inline-block;
 }
+
+#gallery{
+	margin-top: 40px;
+}
+
+#page-title{
+	padding: 20px;
+    margin: 0px;
+    margin-bottom: 40px;
+    color: #fff;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
+}
+
+div.img-footer{
+	height: 25px;
+}
+
+div.img-footer a{
+	padding-left: 5px;
+	cursor: pointer;
+}
