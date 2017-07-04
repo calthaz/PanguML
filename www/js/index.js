@@ -33,13 +33,14 @@ $(function(){
   			//console.log(data);
             try{
                 data = JSON.parse(data);
-                for(var x in data){
+                for(var x in data.results){
                 	var filename = x.replace(/\\/g, "/");
                 	//console.log(filename+" is "+data[x]);
-                	$('img[src="'+filename+'"]').parent().find("span.label").text(data[x]);
+                	$('img[src="'+filename+'"]').parent().find("span.label").text(data.results[x]);
                 }
                 $btn.text("识别");
                 $btn.css("pointer-events", "initial");
+                Materialize.toast(data.summary, 5000);
             }catch(e){
             	console.log(data);
             }   
@@ -50,18 +51,11 @@ $(function(){
   		var filename = $(event.target).parents("div.img-wrapper").find("img").attr("src");
   		//console.log(filename);
   		$.post("uploadHandler.php", {delete:filename}).done(function(data){
-  			try{
-                data = JSON.parse(data);
-                for(var x in data){
-                	var filename = x.replace(/\\/g, "/");
-                	//console.log(filename+" is "+data[x]);
-                	$('img[src="'+filename+'"]').parent().find("span.label").text(data[x]);
-                }
-                $btn.text("识别");
-                $btn.css("pointer-events", "initial");
-            }catch(e){
-            	console.log(data);
-            }   
+  			if(data==="success"){
+  			 	$('img[src="'+filename+'"]').parent().remove();
+  			}else{
+  				 Materialize.toast(data, 4000);
+  			}
   		});
   	});
 
@@ -71,10 +65,10 @@ $(function(){
   		$.post("uploadHandler.php", {infer:filename}).done(function(data){
   			try{
                 data = JSON.parse(data);
-                for(var x in data){
+                for(var x in data.results){
                 	var filename = x.replace(/\\/g, "/");
                 	//console.log(filename+" is "+data[x]);
-                	$('img[src="'+filename+'"]').parent().find("span.label").text(data[x]);
+                	$('img[src="'+filename+'"]').parent().find("span.label").text(data.results[x]);
                 }
             }catch(e){
             	console.log(data);

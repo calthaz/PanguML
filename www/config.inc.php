@@ -1,4 +1,4 @@
 <?php
 	$filesDir = './upload-files';
-	$labelSep= '[-is-]';
+	$labelSep= '[*v*]';
 ?>

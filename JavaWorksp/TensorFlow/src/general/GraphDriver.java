@@ -54,6 +54,11 @@ public class GraphDriver {
 	 * @return text label
 	 */
 	public String infer(String imagePath){
+		 String r = inferAndGetScore(imagePath);
+		 return r.substring(0,r.indexOf(LabelGenerator.LABEL_SEP));
+	}
+	
+	public String inferAndGetScore(String imagePath){
 		 try (Tensor image = Tensor.create(toMatrix(imagePath))) {
 			
 			 try (//Session s = smb.session();//run() cannot be called on the Session after close()
@@ -86,7 +91,7 @@ public class GraphDriver {
 	    				String.format(
 	    						"BEST MATCH: %s (%.2f%% likely)",
 	    						labels.get(bestLabelIdx), probas[bestLabelIdx]));
-	    		return labels.get(bestLabelIdx);
+	    		return labels.get(bestLabelIdx)+LabelGenerator.LABEL_SEP+String.format("%.2f", probas[bestLabelIdx]);
 	    	}
 		 }
 	}
@@ -97,11 +102,19 @@ public class GraphDriver {
 	 * @return a list of text labels inferred 
 	 */
 	public String[] infer(String[] paths){
+		String[] r = inferAndGetScore(paths);
+		for(String s : r){
+			s = s.substring(0, s.indexOf(LabelGenerator.LABEL_SEP));
+		}
+		return r;
+	}
+	
+	public String[] inferAndGetScore(String[] paths){
 		 try (Tensor image = Tensor.create(toMatrix(paths))) {
-			 System.out.println("my image "+image);
+			 //System.out.println("my image "+image);
 			 try (Tensor result = sess.runner().feed(inputName, image).fetch(outputName).run().get(0)) {
 	    		final long[] rshape = result.shape();
-	    		System.out.println(result);	
+	    		//System.out.println(result);	
 	    		if (result.numDimensions() != 2) {
 	    			throw new RuntimeException(
 	    					String.format(
@@ -119,7 +132,7 @@ public class GraphDriver {
 		    				String.format(
 		    						"No.%d BEST MATCH: %s (%.2f%% likely)",
 		    						i, labels.get(bestLabelIdx), probas[i][bestLabelIdx]));
-		    		textResults[i] = labels.get(bestLabelIdx);
+		    		textResults[i] = labels.get(bestLabelIdx)+LabelGenerator.LABEL_SEP+String.format("%.2f", probas[i][bestLabelIdx]);
 	    		}
 	    		return textResults;
 	    	}

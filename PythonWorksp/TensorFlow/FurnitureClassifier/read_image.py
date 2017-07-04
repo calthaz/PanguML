@@ -2,10 +2,10 @@ import tensorflow as tf
 import numpy as np
 from tensorflow.python import debug as tf_debug 
 
-LABEL_SEP = "[-is-]"
+LABEL_SEP = "[*v*]"
 image_dic = {}
 IMAGE_SIZE = 32
-LABEL_FILE = r"D:\PythonWorksp\TensorFlow\furniture\bed\tf-images-with-labels.txt"
+LABEL_FILE = r"D:\TensorFlowDev\PythonWorksp\TensorFlow\furniture\bed\tf-images-with-labels.txt"
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 500
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 100
 

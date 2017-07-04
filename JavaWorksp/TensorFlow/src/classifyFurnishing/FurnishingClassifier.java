@@ -14,7 +14,7 @@ import tools.LabelGenerator;
 public class FurnishingClassifier {
 	public static final String RESULT_FILE_NAME = "tf-inference-results.txt";
 	public static final int IMG_SIZE = 32;
-	public static final int BATCH_SIZE = 50;
+	public static final int BATCH_SIZE = 20;
 	private static final String SEP = LabelGenerator.SEP;
 	private static final String LABEL_SEP = LabelGenerator.LABEL_SEP;
 	
@@ -42,7 +42,8 @@ public class FurnishingClassifier {
   	    long time = System.currentTimeMillis();
   	    File root = new File(rootPath);
   	    readImageFilesRecursively(root, files);
-  	    System.out.println("Checked all files in "+ (System.currentTimeMillis()-time)+"ms");
+  	    long loadTime = (System.currentTimeMillis()-time);
+  	    System.out.println("Checked all files in "+ loadTime +"ms");
   	    
   	    System.out.println(files.size());
   	    int nRounds = files.size()/BATCH_SIZE;
@@ -72,20 +73,21 @@ public class FurnishingClassifier {
 					subset[i%BATCH_SIZE]=files.get(i);
 				}else{
 					//infer once
-					String result = gd.infer(files.get(i));
+					String result = gd.inferAndGetScore(files.get(i));
 					wr.println(files.get(i)+LABEL_SEP+result);
 				}
 				if(i%BATCH_SIZE==BATCH_SIZE-1){
 					//end of a batch
-					String[] results = gd1.infer(subset);
+					String[] results = gd1.inferAndGetScore(subset);
 					for(int j=0; j<BATCH_SIZE; j++){
 						wr.println(subset[j]+LABEL_SEP+results[j]);
 					}
 					System.out.println("batch ends: "+i);
 				}
 	  	    }
-			System.out.println("Finishing inferring in "+(System.currentTimeMillis()-time)+"ms");
-			
+			long runTime = (System.currentTimeMillis()-time);
+			System.out.println("Finishing inferring in "+runTime+"ms");
+			System.out.println(String.format("Loading %d files in %d ms. Inference has taken %d ms.", files.size(), loadTime, runTime));
 			if("file".equals(mode)){
 				System.out.println(resultPath);
 			}

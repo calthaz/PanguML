@@ -38,16 +38,21 @@
  		$commandStr = 'java -jar tensorflow/FurnishingClassifier.jar '.$filesDir.' ';
  		$output="";
  		exec($commandStr, $output);
+ 		$summary = $output[count($output)-2];
  		$resultFile = $output[count($output)-1];
  		$results = file($resultFile);
+
+ 		$returnArray = array();
  		$map=array();
  		for ($i=0; $i < count($results) ; $i++) { 
  			# code...
- 			list($key, $label) = explode($labelSep, trim($results[$i]));
- 			$map[$key] = $label; 
+ 			list($key, $label, $score) = explode($labelSep, trim($results[$i]));
+ 			$map[$key] = $label."(".$score.")"; 
+	 		#$map[$key."-score"] = $score;
  		}
-
- 		echo json_encode($map);
+ 		$returnArray["results"] = $map;
+ 		$returnArray["summary"] = $summary;
+ 		echo json_encode($returnArray);
 
 	}elseif(isset($_POST['infer'])){
 		//echo $_POST['delete'];
@@ -57,14 +62,17 @@
 	 		exec($commandStr, $output);
 	 		$resultFile = $output[count($output)-1];
 	 		$results = file($resultFile);
+
+	 		$returnArray = array();
 	 		$map=array();
 	 		for ($i=0; $i < count($results) ; $i++) { 
 	 			# code...
-	 			list($key, $label) = explode($labelSep, trim($results[$i]));
-	 			$map[$key] = $label; 
+	 			list($key, $label, $score) = explode($labelSep, trim($results[$i]));
+	 			$map[$key] = $label."(".$score.")"; 
+	 			#$map[$key."-score"] = $score;
 	 		}
-
-	 		echo json_encode($map);
+	 		$returnArray["results"] = $map;
+	 		echo json_encode($returnArray);
 		}else{
 			echo "illegal action";
 		}

@@ -21,7 +21,7 @@ public class LabelGenerator {
 	public static final String LABEL_FILE_NAME = "tf-images-with-labels.txt";
 	public static final String LABEL_TEXT_FILE_NAME = "tf-labels-to-text.txt";
 	public static final String SEP = "\\";
-	public static final String LABEL_SEP = "[-is-]";
+	public static final String LABEL_SEP = "[*v*]";
 	//private int counter = 0;
 	private ArrayList<String> labels = new ArrayList<String>();
 	
@@ -81,8 +81,10 @@ public class LabelGenerator {
 			String line = null;
 			while ((line = br.readLine()) != null) {
 				if(line.indexOf(LABEL_SEP)!=-1){
-					String[] val = line.split("\\"+LABEL_SEP);//+"\\"
-					labels.add(Integer.parseInt(val[0]), val[1]);
+					//String[] val = line.split("\\"+LABEL_SEP+"");
+					String index = line.substring(0,line.indexOf(LABEL_SEP));
+					String name = line.substring(line.indexOf(LABEL_SEP)+LABEL_SEP.length());
+					labels.add(Integer.parseInt(index), name);
 				}
 			}
 			br.close();
