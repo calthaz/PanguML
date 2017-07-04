@@ -102,7 +102,7 @@ public class FurnishingClassifier {
   	    
 	}
 
-	private static void readImageFilesRecursively(File f, ArrayList<String> files) {
+	public static void readImageFilesRecursively(File f, ArrayList<String> files) {
 		if(f.isDirectory()){
 			for(File entry : f.listFiles()){
 				readImageFilesRecursively(entry, files);

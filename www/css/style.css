@@ -4,7 +4,7 @@
 }
 
 #gallery span{
-	display: inline-block;
+	display: block;
 }
 
 #gallery{
@@ -14,13 +14,15 @@
 #page-title{
 	padding: 20px;
     margin: 0px;
-    margin-bottom: 40px;
     color: #fff;
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
 }
+#page-title.inception{
+	margin-bottom: 40px;
+}
 
 div.img-footer{
-	height: 25px;
+	height: 51px;
 }
 
 div.img-footer a{

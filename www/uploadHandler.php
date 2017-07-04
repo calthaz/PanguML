@@ -34,8 +34,11 @@
 		}
 		echo json_encode($returnArray); 
 	}elseif(isset($_POST['action'])){
- 	
- 		$commandStr = 'java -jar tensorflow/FurnishingClassifier.jar '.$filesDir.' ';
+ 		if(isset($_POST['inception'])){
+ 			$commandStr = 'java -jar tensorflow/inception5h.jar D:/TensorFlowDev/javaworksp/HelloTensorFlow/inception5h '.$filesDir.' ';
+ 		}else{
+ 			$commandStr = 'java -jar tensorflow/FurnishingClassifier.jar '.$filesDir.' ';
+ 		}
  		$output="";
  		exec($commandStr, $output);
  		$summary = $output[count($output)-2];
@@ -55,14 +58,19 @@
  		echo json_encode($returnArray);
 
 	}elseif(isset($_POST['infer'])){
-		//echo $_POST['delete'];
+		
 		if(stripos($_POST['infer'], $filesDir)==0){
-			$commandStr = 'java -jar tensorflow/FurnishingClassifier.jar '.$_POST['infer'].' ';
+			if(isset($_POST['inception'])){
+	 			$commandStr = 'java -jar tensorflow/inception5h.jar D:/TensorFlowDev/javaworksp/HelloTensorFlow/inception5h '.$_POST['infer'].' ';
+	 		}else{
+	 			$commandStr = 'java -jar tensorflow/FurnishingClassifier.jar '.$_POST['infer'].' ';
+	 		}
+			
 	 		$output="";
 	 		exec($commandStr, $output);
 	 		$resultFile = $output[count($output)-1];
 	 		$results = file($resultFile);
-
+	 		//print_r($output);
 	 		$returnArray = array();
 	 		$map=array();
 	 		for ($i=0; $i < count($results) ; $i++) { 

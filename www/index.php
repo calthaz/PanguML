@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <head>
 	<meta charset="utf-8">
-	<title>simple bed classifier</title>
+	<title>image classifier</title>
 	<link rel="stylesheet" href="lib/materialize/css/materialize.css">
 	<link rel="stylesheet" href="lib/dropzone/dropzone.css">
 	<link rel="stylesheet" href="css/style.css">
@@ -14,7 +14,8 @@
 			<img src="<?php echo $src; ?>">
 			<div class="img-footer">
 				<span class="label"><?php echo $label; ?></span>
-				<a class="teal-text infer-pic">识别</a>
+				<a class="teal-text infer-pic bed">识别</a>
+				<a class="blue-text infer-pic inception">识别</a>
 				<a class="orange-text delete-pic">删除</a>
 				
 			</div>
@@ -23,7 +24,8 @@
 	}
 ?>
 	<header>
-		<h1 id="page-title" class="teal">Simple Bed Classifier</h1>
+		<h1 id="page-title" class="teal bed">Simple Bed Classifier</h1>
+		<h1 id="page-title" class="blue inception">Inception h5 Classifier</h1>
 	</header>
 	<main>
 		<div class="container">
@@ -33,7 +35,8 @@
 			</div>-->
 			
 			<div class="fixed-action-btn">
-				<button class="btn-floating btn-large waves-effect waves-light start-infer teal lighten-1">识别</button>				
+				<button class="btn-floating btn-large waves-effect waves-light start-infer teal lighten-1 bed">识别</button>	
+				<button class="btn-floating btn-large waves-effect waves-light start-infer blue lighten-1 inception">识别</button>				
 			</div>
 			<div id="gallery" class="row">
 				<?php 
