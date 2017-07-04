@@ -1,0 +1,8 @@
+#gallery img{
+	height:200px;
+	width:200px;
+}
+
+#gallery span{
+	display: inline-block;
+}

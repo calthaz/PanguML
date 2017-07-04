@@ -1,0 +1,3 @@
+<?php
+	$filesDir = './upload-files';
+?>

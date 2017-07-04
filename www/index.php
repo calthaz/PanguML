@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="utf-8">
+	<title>simple bed classifier</title>
+	<link rel="stylesheet" href="lib/materialize/css/materialize.css">
+	<link rel="stylesheet" href="lib/dropzone/dropzone.css">
+	<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<?php 	
+	require "config.inc.php";
+	function printImgDiv($src, $label){?>
+		<div class="img-wrapper col s6 m4 l3">
+			<img src="<?php echo $src; ?>">
+			<div>
+				<span class="label"><?php echo $label; ?></span>
+				<a class="btn-flat orange-text delete-pic">删除</a>
+			</div>
+		</div>
+		<?php
+	}
+?>
+	<header>
+		<h1>Simple Bed Classifier</h1>
+	</header>
+	<main>
+		<div class="container">
+			<div id="upload-dropzone" class="dropzone"></div>
+			<div class="row">
+				<button class="btn right start-infer">识别</button>
+			</div>
+			<div id="gallery" class="row">
+				<?php 
+					$handle = opendir($filesDir);
+					$file=""; 
+			        if ( $handle ){
+			            while ( ( $file = readdir ( $handle ) ) !== false ){
+			            	$type  = pathinfo($file, PATHINFO_EXTENSION);//
+			            	if ( $file != '.' && $file != '..' && ($type == "jpg" || $type == "png" || $type == "jpeg" || $type == "gif")){	
+			            		printImgDiv($filesDir."/".$file, "No label");
+			                }
+			            }
+			        } 
+
+			    ?>
+			</div>
+		</div>
+	</main>
+	<footer>
+
+	</footer>
+	<script src="lib/jquery.min.js"></script>
+	<script src="lib/materialize/js/materialize.js"></script>
+	<script src="lib/dropzone/dropzone.js"></script>
+	<script src="js/index.js"></script>
+
+</body>
+
