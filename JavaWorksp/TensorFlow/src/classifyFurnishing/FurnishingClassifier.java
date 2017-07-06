@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
+import general.DevConstants;
 import general.GraphDriver;
 import tools.LabelGenerator;
 
@@ -30,13 +31,13 @@ public class FurnishingClassifier {
 			rootPath = args[1];
 		}
 		System.out.println(rootPath);
-		GraphDriver gd = new GraphDriver("D:\\TensorFlowDev\\PythonWorksp\\TensorFlow\\FurnitureClassifier\\model", 
+		GraphDriver gd = new GraphDriver(DevConstants.RES_ROOT+"tf-models/model", 
   			  "input_tensor", "softmax_linear/softmax_linear",
-  					  "D:\\TensorFlowDev\\PythonWorksp\\TensorFlow\\furniture\\bed\\tf-labels-to-text.txt",
+  			DevConstants.RES_ROOT+"bed/tf-labels-to-text.txt",
   					  IMG_SIZE);
-		GraphDriver gd1 = new GraphDriver("D:\\TensorFlowDev\\PythonWorksp\\TensorFlow\\FurnitureClassifier\\model"+BATCH_SIZE, 
+		GraphDriver gd1 = new GraphDriver(DevConstants.RES_ROOT+"tf-models/model"+BATCH_SIZE, 
 	  			  "input_tensor", "softmax_linear/softmax_linear",
-	  					  "D:\\TensorFlowDev\\PythonWorksp\\TensorFlow\\furniture\\bed\\tf-labels-to-text.txt",
+	  			  		DevConstants.RES_ROOT+"bed/tf-labels-to-text.txt",
 	  					  IMG_SIZE, BATCH_SIZE);
   	    ArrayList<String> files = new ArrayList<String>();
   	    long time = System.currentTimeMillis();
@@ -59,7 +60,7 @@ public class FurnishingClassifier {
   	    //int counter=0;
   	    try {
   	    	PrintWriter wr = null;			
-			wr = new PrintWriter(new FileWriter(resultPath,false));			
+			wr = new PrintWriter(resultPath,"UTF-8");			
 			
 			String[]subset = new String[1];
 			time = System.currentTimeMillis();

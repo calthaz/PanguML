@@ -32,6 +32,7 @@ import org.tensorflow.Tensor;
 import org.tensorflow.TensorFlow;
 
 import classifyFurnishing.FurnishingClassifier;
+import general.DevConstants;
 import tools.LabelGenerator;
 
 /** Sample use of the TensorFlow Java API to label images using a pre-trained model. */
@@ -39,7 +40,8 @@ public class LabelImage {
   public static final String LABEL_SEP = LabelGenerator.LABEL_SEP;
   static {
 	  try {
-	    System.load("D:\\TensorFlowDev\\javaworksp\\tensorflow_jni.dll");
+	    System.load(DevConstants.RES_ROOT+"jni/libtensorflow_jni.so");
+	    //java.lang.UnsatisfiedLinkError: Expecting an absolute path of the library: tensorflow_jni.dll ) 
 	  } catch (UnsatisfiedLinkError e) {
 	    System.err.println("Native code library failed to load.\n" + e);
 	    System.exit(1);
@@ -63,13 +65,13 @@ public class LabelImage {
   }
 
   public static void main(String[] args) {
-    if (args.length != 2) {
+    if (args.length != 1) {
       printUsage(System.err);
       System.exit(1);
     }
     
-    String modelDir = args[0];
-    String imageFile = args[1];
+    String modelDir = DevConstants.RES_ROOT+"tf-models/inception5h"; //"D:\\TensorFlowDev\\JavaWorksp\\TensorFlow\\inception5h";
+    String imageFile = args[0];
     
     ArrayList<String> files = new ArrayList<String>();
     long time = System.currentTimeMillis();
@@ -80,9 +82,9 @@ public class LabelImage {
 	    
     String resultPath = "";
     if(root.isDirectory()){
-    	resultPath = imageFile+"\\"+FurnishingClassifier.RESULT_FILE_NAME;
+    	resultPath = imageFile+"/"+FurnishingClassifier.RESULT_FILE_NAME;
     }else{
-    	resultPath = root.getParent()+"\\"+FurnishingClassifier.RESULT_FILE_NAME;
+    	resultPath = root.getParent()+"/"+FurnishingClassifier.RESULT_FILE_NAME;
     }
     
     byte[] graphDef = readAllBytesOrExit(Paths.get(modelDir, "tensorflow_inception_graph.pb"));
@@ -92,7 +94,7 @@ public class LabelImage {
                
     PrintWriter wr;
 	try {
-		wr = new PrintWriter(new FileWriter(resultPath,false));	
+		wr = new PrintWriter(resultPath,"UTF-8");	
 		time = System.currentTimeMillis();
 	    for(int i=0; i<files.size(); i++){
 	    	imageBytes = readAllBytesOrExit(Paths.get(files.get(i)));

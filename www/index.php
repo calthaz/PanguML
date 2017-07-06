@@ -25,7 +25,7 @@
 ?>
 	<header>
 		<h1 id="page-title" class="teal bed">Simple Bed Classifier</h1>
-		<h1 id="page-title" class="blue inception">Inception h5 Classifier</h1>
+		<h1 id="page-title" class="blue inception">Inception5h Classifier</h1>
 	</header>
 	<main>
 		<div class="container">
@@ -55,8 +55,17 @@
 			</div>
 		</div>
 	</main>
-	<footer>
-
+	<footer class="page-footer grey lighten-2">
+		<div class="container">
+			<div class=" row">
+				<div class="col s12 m6 teal-text">
+					<p>Simple Bed Classifier改写自<a class="teal-text" href="https://github.com/tensorflow/models/tree/master/tutorials/image/cifar10" target="_blank">TensorFlow CIFAR10 Tutorial</a></p>
+				</div>
+				<div class="col s12 m6 blue-text">
+					<p>Inception5h来自<a class="blue-text" href="https://github.com/tensorflow/tensorflow/blob/r1.2/tensorflow/java/src/main/java/org/tensorflow/examples/LabelImage.java" target="_blank">TensorFlow Java Example</a></p>
+				</div>
+			</div>
+		</div>
 	</footer>
 	<script src="lib/jquery.min.js"></script>
 	<script src="lib/materialize/js/materialize.js"></script>

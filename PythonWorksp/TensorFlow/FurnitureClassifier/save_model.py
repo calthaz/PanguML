@@ -14,15 +14,15 @@ import read_image
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('eval_dir', '/tmp/furniture-eval',
+tf.app.flags.DEFINE_string('save_dir', './logs/furniture-save',
                            """Directory where to write event logs.""")
 tf.app.flags.DEFINE_string('eval_data', 'test',
                            """Either 'test' or 'train_eval'.""")
-tf.app.flags.DEFINE_string('checkpoint_dir', '/tmp/furniture1',
+tf.app.flags.DEFINE_string('checkpoint_dir', '/tmp/furniture1', #不能改，不能移动
                            """Directory where to read model checkpoints.""")
 tf.app.flags.DEFINE_integer('num_examples', 1000,
                             """Number of examples to run.""")
-tf.app.flags.DEFINE_string('model_dir', '.\model', 
+tf.app.flags.DEFINE_string('model_dir', './model', 
                             """Directory where to save model""")
 #tf.app.flags.DEFINE_integer('eval_batch_size', 10,
                             #"""Number of examples to run.""")
@@ -42,7 +42,7 @@ def build_and_save(images, builder):
   # Build the summary operation based on the TF collection of Summaries.
   #summary_op = tf.summary.merge_all()
 
-  #summary_writer = tf.summary.FileWriter(FLAGS.eval_dir, g)
+  summary_writer = tf.summary.FileWriter(FLAGS.save_dir)
 
   with tf.Session() as sess:
     ckpt = tf.train.get_checkpoint_state(FLAGS.checkpoint_dir)
@@ -57,8 +57,7 @@ def build_and_save(images, builder):
       print('No checkpoint file found')
       return
 
-    writer = tf.summary.FileWriter("/tmp/tensorflow/fc/logs/save-md")
-    writer.add_graph(sess.graph)
+    summary_writer.add_graph(sess.graph)
 
     # Start the queue runners.
     coord = tf.train.Coordinator()
@@ -146,9 +145,9 @@ def save_model_50():
 
 def main(argv=None):  # pylint: disable=unused-argument
   #cifar10.maybe_download_and_extract()
-  if tf.gfile.Exists(FLAGS.eval_dir):
-    tf.gfile.DeleteRecursively(FLAGS.eval_dir)
-  tf.gfile.MakeDirs(FLAGS.eval_dir)
+  if tf.gfile.Exists(FLAGS.save_dir):
+    tf.gfile.DeleteRecursively(FLAGS.save_dir)
+  tf.gfile.MakeDirs(FLAGS.save_dir)
   save_model_50()
 
 

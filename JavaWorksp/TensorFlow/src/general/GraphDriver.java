@@ -3,7 +3,6 @@ package general;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -12,8 +11,9 @@ import javax.imageio.ImageIO;
 import org.tensorflow.SavedModelBundle;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
-import general.TFUtils;
+
 import tools.LabelGenerator;
+import tools.TFUtils;
 
 public class GraphDriver {
 	
@@ -27,7 +27,8 @@ public class GraphDriver {
 	
 	static {
 		  try {
-		    System.load("D:\\TensorFlowDev\\JavaWorksp\\tensorflow_jni.dll");
+		    System.load(DevConstants.RES_ROOT+"jni/libtensorflow_jni.so");
+			  //System.load(DevConstants.RES_ROOT+"tensorflow_jni.dll");
 		  } catch (UnsatisfiedLinkError e) {
 		    System.err.println("Native code library failed to load.\n" + e);
 		    System.exit(1);
@@ -188,10 +189,10 @@ public class GraphDriver {
 	}
 	
     public static void main(String[] args) {  
-    	GraphDriver gd = new GraphDriver("D:\\PythonWorksp\\TensorFlow\\FurnitureClassifier\\model", 
+    	GraphDriver gd = new GraphDriver(DevConstants.RES_ROOT+"tf-models\\model", 
     			  "input_tensor", 
     					  "softmax_linear/softmax_linear",
-    					  "D:\\PythonWorksp\\TensorFlow\\furniture\\bed\\tf-labels-to-text.txt",
+    					  DevConstants.RES_ROOT+"bed\\tf-labels-to-text.txt",
     					  32);
     	gd.infer("D:\\PythonWorksp\\TensorFlow\\furniture\\test\\hammock.jpg");
     }

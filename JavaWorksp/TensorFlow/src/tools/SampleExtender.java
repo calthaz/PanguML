@@ -6,8 +6,6 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import general.Transformer;
-
 public class SampleExtender {
 	
 	public static void main(String[] args) {
@@ -27,7 +25,7 @@ public class SampleExtender {
 						
 						try {
 							BufferedImage img = ImageIO.read(entry);
-							BufferedImage output = Transformer.cropImage(img);
+							BufferedImage output = TFUtils.cropImage(img);
 							ImageIO.write(output, "jpg", new File(directoryPath+"\\ext-"+(int)(Math.random()*1000000)+".jpg"));
 						} catch (IOException e) {
 							// TODO Auto-generated catch block

@@ -22,7 +22,7 @@
 					|| $imageFileType == "gif" ) {
 						$title = $name;    
 			        	$filePrefix = rand(1000,9999);		        
-				        $filename = $filePrefix."_".time().$key.".".$imageFileType;
+				        $filename = time()."_".$key.$filePrefix.".".$imageFileType;
 
 					    move_uploaded_file($tmp_name, $filesDir."/".$filename);
 					    
@@ -35,7 +35,7 @@
 		echo json_encode($returnArray); 
 	}elseif(isset($_POST['action'])){
  		if(isset($_POST['inception'])){
- 			$commandStr = 'java -jar tensorflow/inception5h.jar D:/TensorFlowDev/javaworksp/HelloTensorFlow/inception5h '.$filesDir.' ';
+ 			$commandStr = 'java -jar tensorflow/inception5h.jar '.$filesDir.' ';
  		}else{
  			$commandStr = 'java -jar tensorflow/FurnishingClassifier.jar '.$filesDir.' ';
  		}
@@ -61,7 +61,7 @@
 		
 		if(stripos($_POST['infer'], $filesDir)==0){
 			if(isset($_POST['inception'])){
-	 			$commandStr = 'java -jar tensorflow/inception5h.jar D:/TensorFlowDev/javaworksp/HelloTensorFlow/inception5h '.$_POST['infer'].' ';
+	 			$commandStr = 'java -jar tensorflow/inception5h.jar '.$_POST['infer'].' ';
 	 		}else{
 	 			$commandStr = 'java -jar tensorflow/FurnishingClassifier.jar '.$_POST['infer'].' ';
 	 		}

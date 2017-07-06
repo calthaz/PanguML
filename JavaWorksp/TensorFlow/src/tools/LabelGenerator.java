@@ -3,10 +3,12 @@ package tools;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,15 +22,15 @@ public class LabelGenerator {
 	//private PrintWriter wr;
 	public static final String LABEL_FILE_NAME = "tf-images-with-labels.txt";
 	public static final String LABEL_TEXT_FILE_NAME = "tf-labels-to-text.txt";
-	public static final String SEP = "\\";
+	public static final String SEP = "/";
 	public static final String LABEL_SEP = "[*v*]";
 	//private int counter = 0;
 	private ArrayList<String> labels = new ArrayList<String>();
 	
 	public LabelGenerator(File rootDir, File labelDir){
 		try {
-			PrintWriter labelWr=new PrintWriter(new FileWriter(labelDir+SEP+LABEL_FILE_NAME,false));	
-			PrintWriter textWr=new PrintWriter(new FileWriter(labelDir+SEP+LABEL_TEXT_FILE_NAME,false));	
+			PrintWriter labelWr=new PrintWriter(labelDir+SEP+LABEL_FILE_NAME,"UTF-8");	
+			PrintWriter textWr=new PrintWriter(labelDir+SEP+LABEL_TEXT_FILE_NAME,"UTF-8");	
 			for(File dir: rootDir.listFiles()){
 				if(dir.isDirectory()){
 					for(File entry: dir.listFiles()){
@@ -77,11 +79,14 @@ public class LabelGenerator {
 	public static ArrayList<String> readLabelsFromFile(String path){
 		ArrayList<String> labels = new ArrayList<String>();
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(new File(path)));
+			InputStreamReader read = new InputStreamReader(new FileInputStream(new File(path)),"UTF-8");                 
+			BufferedReader br = new BufferedReader(read);
 			String line = null;
 			while ((line = br.readLine()) != null) {
 				if(line.indexOf(LABEL_SEP)!=-1){
 					//String[] val = line.split("\\"+LABEL_SEP+"");
+					line = line.trim();
+					System.out.println(line);
 					String index = line.substring(0,line.indexOf(LABEL_SEP));
 					String name = line.substring(line.indexOf(LABEL_SEP)+LABEL_SEP.length());
 					labels.add(Integer.parseInt(index), name);
