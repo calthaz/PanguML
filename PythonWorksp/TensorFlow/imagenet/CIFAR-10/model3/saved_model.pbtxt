@@ -2825,7 +2825,7 @@ meta_graphs {
       }
     }
     tags: "serve"
-    tensorflow_version: "1.2.0"
+    tensorflow_version: "1.2.1"
     tensorflow_git_version: "b\'unknown\'"
   }
   graph_def {
@@ -24313,7 +24313,7 @@ meta_graphs {
             dtype: DT_STRING
             tensor_shape {
             }
-            string_val: "_temp_d1a231b39e0b4430945be30432d02b14/part"
+            string_val: "_temp_f2b25b5f5e5242018b59be33e7dd3f81/part"
           }
         }
       }

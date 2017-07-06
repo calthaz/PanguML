@@ -7,11 +7,9 @@ cross_entropy = tf.reduce_mean(
 	tf.nn.softmax_cross_entropy_with_logits(logits = x, labels = y))
 
 sess=tf.InteractiveSession()
-
-b = False
-
 print(sess.run(cross_entropy))
 
+b = False
 print("1E-3: %.e, 1e-3: %.2e; bool %d"%(1E-3, 1e-3, b));
 
 class Fish:
@@ -36,7 +34,32 @@ for i in range(5):
 
 age_print(fish)
 
+#https://www.tensorflow.org/tutorials/using_gpu
+# Creates a graph.
+a = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[2, 3], name='a')
+b = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[3, 2], name='b')
+c = tf.matmul(a, b)
+# Creates a session with log_device_placement set to True.
+sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+# Runs the op.
+print(sess.run(c))
 
+# Creates a graph.
+with tf.device('/cpu:0'):
+  a = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[2, 3], name='a')
+  b = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[3, 2], name='b')
+c = tf.matmul(a, b)
+# Creates a session with log_device_placement set to True.
+sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+# Runs the op.
+print(sess.run(c))
 
-
-
+# Creates a graph.
+with tf.device('/gpu:0'):
+  a = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[2, 3], name='a')
+  b = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[3, 2], name='b')
+  c = tf.matmul(a, b)
+# Creates a session with log_device_placement set to True.
+sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+# Runs the op.
+print(sess.run(c))

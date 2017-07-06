@@ -18,7 +18,7 @@ $(function(){
     	for(var k in files){
     		$('div#gallery').prepend('<div class="img-wrapper col s6 m4 l3">'+
 				'<img src="'+files[k]+'"">'+
-				'<div class="img-footer"><span class="label">no label</span>'+
+				'<div class="img-footer"><span class="label">No label</span>'+
 				'<a class="teal-text infer-pic bed">识别</a>'+
 				'<a class="blue-text infer-pic inception">识别</a>'+
 				'<a class="orange-text delete-pic">删除</a></div>'+

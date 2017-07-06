@@ -40,7 +40,8 @@ public class LabelImage {
   public static final String LABEL_SEP = LabelGenerator.LABEL_SEP;
   static {
 	  try {
-	    System.load(DevConstants.RES_ROOT+"jni/libtensorflow_jni.so");
+	    //System.load(DevConstants.RES_ROOT+"jni/libtensorflow_jni.so");
+		  System.load(DevConstants.RES_ROOT+"tensorflow_jni.dll");
 	    //java.lang.UnsatisfiedLinkError: Expecting an absolute path of the library: tensorflow_jni.dll ) 
 	  } catch (UnsatisfiedLinkError e) {
 	    System.err.println("Native code library failed to load.\n" + e);

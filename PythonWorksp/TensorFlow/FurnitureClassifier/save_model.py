@@ -18,7 +18,7 @@ tf.app.flags.DEFINE_string('save_dir', './logs/furniture-save',
                            """Directory where to write event logs.""")
 tf.app.flags.DEFINE_string('eval_data', 'test',
                            """Either 'test' or 'train_eval'.""")
-tf.app.flags.DEFINE_string('checkpoint_dir', '/tmp/furniture1', #不能改，不能移动
+tf.app.flags.DEFINE_string('checkpoint_dir', './logs/furniture2', #不能改，不能移动
                            """Directory where to read model checkpoints.""")
 tf.app.flags.DEFINE_integer('num_examples', 1000,
                             """Number of examples to run.""")
@@ -105,11 +105,11 @@ def save_model_1():
     build_and_save(image, builder)
     
 
-def save_model_50():
+def save_model_20():
   with tf.Graph().as_default() as g:
 
     #这样居然也可以
-    FLAGS.batch_size = 50
+    FLAGS.batch_size = 20
 
     height = read_image.IMAGE_SIZE
     width = read_image.IMAGE_SIZE
@@ -148,7 +148,7 @@ def main(argv=None):  # pylint: disable=unused-argument
   if tf.gfile.Exists(FLAGS.save_dir):
     tf.gfile.DeleteRecursively(FLAGS.save_dir)
   tf.gfile.MakeDirs(FLAGS.save_dir)
-  save_model_50()
+  save_model_20()
 
 
 if __name__ == '__main__':
