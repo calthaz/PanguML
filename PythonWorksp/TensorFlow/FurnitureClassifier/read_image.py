@@ -180,6 +180,8 @@ def inputs(eval_data, batch_size):
 
 	# Subtract off the mean and divide by the variance of the pixels.
 	float_image = tf.image.per_image_standardization(resized_image)
+	#note per_image! input_queue is a list of single examples, so image is also a single image, 
+	#shuffle_batch(enqueue_many=False) is still appropriate. and so on
 
 	# Set the shapes of tensors.
 	float_image.set_shape([height, width, 3])

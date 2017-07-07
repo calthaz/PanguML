@@ -60,7 +60,7 @@ with tf.name_scope("accuracy"):
 sess = tf.InteractiveSession()
 sess.run(tf.global_variables_initializer())
 
-writer = tf.summary.FileWriter("/tmp/tensorflow/mnist/logs/tensorboardex3");
+writer = tf.summary.FileWriter("./logs/tensorboardex3");
 writer.add_graph(sess.graph);
 tf.summary.scalar('cross_entropy', xent)
 tf.summary.scalar('accuracy', accuracy)
@@ -68,7 +68,6 @@ tf.summary.scalar('accuracy', accuracy)
 tf.summary.image('input', x_image, 3)
 
 merged_summary = tf.summary.merge_all()
-writer = tf.summary.FileWriter('/tmp/tensorflow/mnist/logs/tensorboardex3')
 
 for i in range(2000): 
 	batch = mnist.train.next_batch(100)

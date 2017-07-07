@@ -198,6 +198,7 @@ def inference(images):
   # by replacing all instances of tf.get_variable() with tf.Variable().
   #
   # conv1
+  
   with tf.variable_scope('conv1') as scope:
     kernel = _variable_with_weight_decay('weights',
                                          shape=[5, 5, 3, 64],
@@ -208,6 +209,20 @@ def inference(images):
     pre_activation = tf.nn.bias_add(conv, biases)
     conv1 = tf.nn.relu(pre_activation, name=scope.name)
     _activation_summary(conv1)
+    '''
+    with tf.variable_scope('visualization'):
+      # scale weights to [0 1], type is still float
+      x_min = tf.reduce_min(kernel)
+      x_max = tf.reduce_max(kernel)
+      kernel_0_to_1 = (kernel - x_min) / (x_max - x_min)
+  # to tf.image_summary format [batch_size, height, width, channels]
+      kernel_transposed = tf.transpose (kernel_0_to_1, [3, 0, 1, 2])
+  # this will display random 3 filters from the 64 in conv1
+      tf.summary.image('conv1/filters', kernel_transposed, max_outputs=3)
+      layer1_image1 = conv1[0:1, :, :, 0:16]
+      layer1_image1 = tf.transpose(layer1_image1, perm=[3,1,2,0])
+      tf.summary.image("filtered_images_layer1", layer1_image1, max_outputs=16)
+    '''
 
   # pool1
   pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1],
@@ -402,3 +417,4 @@ def maybe_download_and_extract():
   extracted_dir_path = os.path.join(dest_directory, 'cifar-10-batches-bin')
   if not os.path.exists(extracted_dir_path):
     tarfile.open(filepath, 'r:gz').extractall(dest_directory)
+
