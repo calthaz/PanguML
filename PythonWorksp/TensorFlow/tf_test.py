@@ -40,7 +40,7 @@ a = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[2, 3], name='a')
 b = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[3, 2], name='b')
 c = tf.matmul(a, b)
 # Creates a session with log_device_placement set to True.
-sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+#sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 # Runs the op.
 print(sess.run(c))
 
@@ -50,7 +50,7 @@ with tf.device('/cpu:0'):
   b = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[3, 2], name='b')
 c = tf.matmul(a, b)
 # Creates a session with log_device_placement set to True.
-sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+#sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 # Runs the op.
 print(sess.run(c))
 
@@ -60,6 +60,20 @@ with tf.device('/gpu:0'):
   b = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[3, 2], name='b')
   c = tf.matmul(a, b)
 # Creates a session with log_device_placement set to True.
-sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+#sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 # Runs the op.
 print(sess.run(c))
+
+f = tf.constant([[7,0],[2,4],[0,1],[1,3]])
+i = tf.constant([1,2,3,4,5,6], shape=[2,3])
+conv1 = tf.matmul(f,i)
+reverse = tf.matmul(tf.transpose(f), conv1)
+sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+# Runs the op.
+print(sess.run(conv1))
+print(sess.run(reverse))
+
+index = tf.argmax(i, 0)
+zeros = tf.zeros([4, index])
+concat = tf.concat([zeros, i], axis = 1)
+print(concat.eval())

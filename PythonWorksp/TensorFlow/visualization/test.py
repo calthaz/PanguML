@@ -1,12 +1,12 @@
 import tensorflow as tf 
 import general
 
-IMAGE_SIZE = 32
+IMAGE_SIZE = general.IMAGE_SIZE
 
 FLAGS = tf.app.flags.FLAGS
 
 # Basic model parameters.
-tf.app.flags.DEFINE_string('checkpoint_dir', 'D:/TensorFlowDev/PythonWorksp/TensorFlow/FurnitureClassifier/logs/furniture2',
+tf.app.flags.DEFINE_string('checkpoint_dir', 'D:/TensorFlowDev/PythonWorksp/TensorFlow/FurnitureClassifier/logs/furniture128',
 						   """Directory where to read model checkpoints.""")
 tf.app.flags.DEFINE_string('vis_dir', './logs/vis-test',
 						   """Directory where to write event logs """
@@ -17,9 +17,13 @@ def main(_):
 	pic_set = ["D:/TensorFlowDev/PythonWorksp/TensorFlow/furniture/bed/baby-bed/baby-bed356.jpg",
 				"D:/TensorFlowDev/PythonWorksp/TensorFlow/furniture/bed/hammock/hammock1476.jpg",
 				"D:/TensorFlowDev/PythonWorksp/TensorFlow/RetrainInception/flower_photos/tulips/3150964108_24dbec4b23_m.jpg",
-				"D:/TensorFlowDev/PythonWorksp/TensorFlow/RetrainInception/flower_photos/tulips/3105702091_f02ce75226.jpg"]
+				"D:/TensorFlowDev/PythonWorksp/TensorFlow/RetrainInception/flower_photos/tulips/3105702091_f02ce75226.jpg",
+				"D:/TensorFlowDev/www/upload-files/6454_14991605780.jpg",
+				"D:/TensorFlowDev/www/upload-files/4589_14991507381.jpg",
+				"D:/TensorFlowDev/www/upload-files/7255_14991507381.jpg",
+				"D:/TensorFlowDev/PythonWorksp/TensorFlow/furniture/bed/bunk-bed/bunk-bed576.jpg"]
 	with tf.name_scope('input'):#
-		img_path=pic_set[1]
+		img_path=pic_set[7]
 		filename_queue = tf.train.string_input_producer([img_path])#
 		reader = tf.WholeFileReader()
 		key, value = reader.read(filename_queue)
@@ -33,7 +37,8 @@ def main(_):
 		print('here2')
 		tf.summary.image('input-image', image)
 
-	logits = general.inference(image)
+	#logits = general.inference(image)
+	action = general.inference(image)
 
 	# Restore the moving average version of the learned variables for eval.
 	variable_averages = tf.train.ExponentialMovingAverage(
@@ -75,7 +80,23 @@ def main(_):
 			for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
 			  threads.extend(qr.create_threads(sess, coord=coord, daemon=True,
 			                                   start=True))
-			print(sess.run(tf.shape(logits)))
+			  print(sess.run(action))
+			  '''
+			pool1, argmax = sess.run(action)
+
+			raw = [[0 for x in range(FLAGS.batch_size)] for y in range(IMAGE_SIZE*IMAGE_SIZE*64)] 
+			for i in range(int(IMAGE_SIZE/2)*int(IMAGE_SIZE/2)*64):
+				for j in range(FLAGS.batch_size):
+					raw[j][argmax[j][i]] = pool1[j][i]
+
+			unpooled = tf.conver_to_tensor(raw)
+			unpooled = tf.reshape(unpooled, [FLAGS.batch_size, IMAGE_SIZE, IMAGE_SIZE, 64])
+			unpooled_trans = general.deconv1(unpooled, kernel1)
+			tf.summary.image("reverse_pool1_discrete", unpooled_trans, max_outputs=16)
+			#neurons = tf.split(argmax, 64, axis=3)
+			#neurons = tf.squeeze(neurons)
+			#tf.summary.image("argmax_pool1", )
+			'''
 			summary = sess.run(merged_summary)
 			summary_writer.add_summary(summary, 0)
 
