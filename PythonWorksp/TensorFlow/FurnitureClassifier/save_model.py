@@ -18,11 +18,11 @@ tf.app.flags.DEFINE_string('save_dir', './logs/furniture-save',
                            """Directory where to write event logs.""")
 tf.app.flags.DEFINE_string('eval_data', 'test',
                            """Either 'test' or 'train_eval'.""")
-tf.app.flags.DEFINE_string('checkpoint_dir', './logs/furniture2', #不能改，不能移动
+tf.app.flags.DEFINE_string('checkpoint_dir', './logs/furniture128', #不能改，不能移动；不对啊
                            """Directory where to read model checkpoints.""")
 tf.app.flags.DEFINE_integer('num_examples', 1000,
                             """Number of examples to run.""")
-tf.app.flags.DEFINE_string('model_dir', './model', 
+tf.app.flags.DEFINE_string('model_dir', './model128-', 
                             """Directory where to save model""")
 #tf.app.flags.DEFINE_integer('eval_batch_size', 10,
                             #"""Number of examples to run.""")

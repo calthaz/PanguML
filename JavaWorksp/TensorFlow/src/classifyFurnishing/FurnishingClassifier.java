@@ -14,7 +14,7 @@ import tools.LabelGenerator;
 
 public class FurnishingClassifier {
 	public static final String RESULT_FILE_NAME = "tf-inference-results.txt";
-	public static final int IMG_SIZE = 32;
+	public static final int IMG_SIZE = 128;
 	public static final int BATCH_SIZE = 20;
 	private static final String SEP = LabelGenerator.SEP;
 	private static final String LABEL_SEP = LabelGenerator.LABEL_SEP;
@@ -31,11 +31,11 @@ public class FurnishingClassifier {
 			rootPath = args[1];
 		}
 		System.out.println(rootPath);
-		GraphDriver gd = new GraphDriver(DevConstants.RES_ROOT+"tf-models/model", 
+		GraphDriver gd = new GraphDriver(DevConstants.RES_ROOT+"tf-models/model128-", 
   			  "input_tensor", "softmax_linear/softmax_linear",
   			DevConstants.RES_ROOT+"bed/tf-labels-to-text.txt",
   					  IMG_SIZE);
-		GraphDriver gd1 = new GraphDriver(DevConstants.RES_ROOT+"tf-models/model"+BATCH_SIZE, 
+		GraphDriver gd1 = new GraphDriver(DevConstants.RES_ROOT+"tf-models/model128-"+BATCH_SIZE, 
 	  			  "input_tensor", "softmax_linear/softmax_linear",
 	  			  		DevConstants.RES_ROOT+"bed/tf-labels-to-text.txt",
 	  					  IMG_SIZE, BATCH_SIZE);
