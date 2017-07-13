@@ -5,7 +5,7 @@ from tensorflow.python import debug as tf_debug
 LABEL_SEP = "[*v*]"
 image_dic = {}
 IMAGE_SIZE = 128
-LABEL_FILE = r"..\furniture\bed\tf-images-with-labels.txt"
+LABEL_FILE = "../furniture/furpics/tf-images-with-labels.txt"
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 500
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 100
 
@@ -23,7 +23,7 @@ def read_labels_dict(filename):
 				pass
 
 def get_num_classes():
-	return 6
+	return 3
 
 def get_num_examples():
 	read_labels_dict(LABEL_FILE)

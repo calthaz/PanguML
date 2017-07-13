@@ -33,11 +33,13 @@
 	    	}
 		}
 		echo json_encode($returnArray); 
-	}elseif(isset($_POST['action'])){
- 		if(isset($_POST['inception'])){
+	}elseif(isset($_POST['startAll'])){
+ 		if($_POST['startAll'] =='inception'){
  			$commandStr = 'java -jar tensorflow/inception5h.jar '.$filesDir.' ';
- 		}else{
+ 		}elseif($_POST['startAll']=='bed'){
  			$commandStr = 'java -jar tensorflow/FurnishingClassifier.jar '.$filesDir.' ';
+ 		}else{
+ 			$commandStr = 'java -jar tensorflow/furnishing.jar '.$filesDir.' ';
  		}
  		$output="";
  		exec($commandStr, $output);
@@ -57,13 +59,15 @@
  		$returnArray["summary"] = $summary;
  		echo json_encode($returnArray);
 
-	}elseif(isset($_POST['infer'])){
+	}elseif(isset($_POST['infer'])&&isset($_POST['action'])){
 		
 		if(stripos($_POST['infer'], $filesDir)==0){
-			if(isset($_POST['inception'])){
-	 			$commandStr = 'java -jar tensorflow/inception5h.jar '.$_POST['infer'].' ';
+			if($_POST['action']=='inception'){
+	 			$commandStr = 'java -jar tensorflow/inception5h.jar '.$_POST['infer'].' 2>&1';
+	 		}elseif($_POST['action']=='bed'){
+	 			$commandStr = 'java -jar tensorflow/FurnishingClassifier.jar '.$_POST['infer'].' 2>&1';
 	 		}else{
-	 			$commandStr = 'java -jar tensorflow/FurnishingClassifier.jar '.$_POST['infer'].' ';
+	 			$commandStr = 'java -jar tensorflow/furnishing.jar '.$_POST['infer'].' ';
 	 		}
 			
 	 		$output="";

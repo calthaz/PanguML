@@ -18,11 +18,11 @@ tf.app.flags.DEFINE_string('save_dir', './logs/furniture-save',
                            """Directory where to write event logs.""")
 tf.app.flags.DEFINE_string('eval_data', 'test',
                            """Either 'test' or 'train_eval'.""")
-tf.app.flags.DEFINE_string('checkpoint_dir', './logs/furniture128', #不能改，不能移动；不对啊
+tf.app.flags.DEFINE_string('checkpoint_dir', './logs/furnishing128', 
                            """Directory where to read model checkpoints.""")
 tf.app.flags.DEFINE_integer('num_examples', 1000,
                             """Number of examples to run.""")
-tf.app.flags.DEFINE_string('model_dir', './model128-', 
+tf.app.flags.DEFINE_string('model_dir', './models/model-fur-128-', 
                             """Directory where to save model""")
 #tf.app.flags.DEFINE_integer('eval_batch_size', 10,
                             #"""Number of examples to run.""")
@@ -148,7 +148,7 @@ def main(argv=None):  # pylint: disable=unused-argument
   if tf.gfile.Exists(FLAGS.save_dir):
     tf.gfile.DeleteRecursively(FLAGS.save_dir)
   tf.gfile.MakeDirs(FLAGS.save_dir)
-  save_model_20()
+  save_model_1()
 
 
 if __name__ == '__main__':

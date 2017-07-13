@@ -4,7 +4,7 @@ from tensorflow.python import debug as tf_debug
 
 LABEL_SEP = "[*v*]"
 image_dic = {}
-IMAGE_SIZE = 128
+IMAGE_SIZE = 32
 LABEL_FILE = "../furniture/bed/tf-images-with-labels.txt"
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 500
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 100

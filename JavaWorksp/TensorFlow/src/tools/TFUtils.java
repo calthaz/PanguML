@@ -5,7 +5,7 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
 public class TFUtils {
-	public static double cropRate = 0.5;
+	public static double cropRate = 0.7;
 	public static BufferedImage cropImage(BufferedImage img){
 		int w = (int) (img.getWidth()*cropRate);
 		int h = (int)(img.getHeight()*cropRate);

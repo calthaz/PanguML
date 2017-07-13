@@ -31,13 +31,13 @@ public class FurnishingClassifier {
 			rootPath = args[1];
 		}
 		System.out.println(rootPath);
-		GraphDriver gd = new GraphDriver(DevConstants.RES_ROOT+"tf-models/model128-", 
+		GraphDriver gd = new GraphDriver(DevConstants.RES_ROOT+"tf-models/model-fur-128-", 
   			  "input_tensor", "softmax_linear/softmax_linear",
-  			DevConstants.RES_ROOT+"bed/tf-labels-to-text.txt",
+  			DevConstants.RES_ROOT+"furpics/tf-labels-to-text.txt",
   					  IMG_SIZE);
-		GraphDriver gd1 = new GraphDriver(DevConstants.RES_ROOT+"tf-models/model128-"+BATCH_SIZE, 
+		GraphDriver gd1 = new GraphDriver(DevConstants.RES_ROOT+"tf-models/model-fur-128-"+BATCH_SIZE, 
 	  			  "input_tensor", "softmax_linear/softmax_linear",
-	  			  		DevConstants.RES_ROOT+"bed/tf-labels-to-text.txt",
+	  			  		DevConstants.RES_ROOT+"furpics/tf-labels-to-text.txt",
 	  					  IMG_SIZE, BATCH_SIZE);
   	    ArrayList<String> files = new ArrayList<String>();
   	    long time = System.currentTimeMillis();
