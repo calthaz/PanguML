@@ -9,6 +9,18 @@
 <body>
 <?php 	
 	require "config.inc.php";
+	#clean garbage in upload-files：
+	$handle = opendir($filesDir);
+	$file=""; 
+    if ( $handle ){
+        while ( ( $file = readdir ( $handle ) ) !== false ){
+        	$type  = pathinfo($file, PATHINFO_EXTENSION);//
+        	if ($type == "txt"){	
+        		unlink($filesDir.'/'.$file);
+            }
+        }
+    } 
+
 	function printImgDiv($src, $label){?>
 		<div class="img-wrapper col s6 m4 l3">
 			<img src="<?php echo $src; ?>">

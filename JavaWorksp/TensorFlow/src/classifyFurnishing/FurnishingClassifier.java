@@ -14,7 +14,7 @@ import tools.LabelGenerator;
 
 public class FurnishingClassifier {
 	public static final String RESULT_FILE_NAME = "tf-inference-results.txt";
-	public static final int IMG_SIZE = 128;
+	public static final int IMG_SIZE = 32;
 	public static final int BATCH_SIZE = 20;
 	private static final String SEP = LabelGenerator.SEP;
 	private static final String LABEL_SEP = LabelGenerator.LABEL_SEP;
@@ -31,13 +31,13 @@ public class FurnishingClassifier {
 			rootPath = args[1];
 		}
 		System.out.println(rootPath);
-		GraphDriver gd = new GraphDriver(DevConstants.RES_ROOT+"tf-models/model-fur-128-", 
+		GraphDriver gd = new GraphDriver(DevConstants.RES_ROOT+"tf-models/model", 
   			  "input_tensor", "softmax_linear/softmax_linear",
-  			DevConstants.RES_ROOT+"furpics/tf-labels-to-text.txt",
+  			DevConstants.RES_ROOT+"bed/tf-labels-to-text.txt",
   					  IMG_SIZE);
-		GraphDriver gd1 = new GraphDriver(DevConstants.RES_ROOT+"tf-models/model-fur-128-"+BATCH_SIZE, 
+		GraphDriver gd1 = new GraphDriver(DevConstants.RES_ROOT+"tf-models/model"+BATCH_SIZE, 
 	  			  "input_tensor", "softmax_linear/softmax_linear",
-	  			  		DevConstants.RES_ROOT+"furpics/tf-labels-to-text.txt",
+	  			  		DevConstants.RES_ROOT+"bed/tf-labels-to-text.txt",
 	  					  IMG_SIZE, BATCH_SIZE);
   	    ArrayList<String> files = new ArrayList<String>();
   	    long time = System.currentTimeMillis();
@@ -52,10 +52,11 @@ public class FurnishingClassifier {
   	    System.out.println("batch size: "+BATCH_SIZE);
   	   
   	    String resultPath = "";
+  	    String prefix = "furn-"+(int)(Math.random()*100000);
   	    if(root.isDirectory()){
-  	    	resultPath = rootPath+SEP+RESULT_FILE_NAME;
+  	    	resultPath = rootPath+SEP+prefix+RESULT_FILE_NAME;
   	    }else{
-  	    	resultPath = root.getParent()+SEP+RESULT_FILE_NAME;
+  	    	resultPath = root.getParent()+SEP+prefix+RESULT_FILE_NAME;
   	    }
   	    //int counter=0;
   	    try {
