@@ -41,6 +41,7 @@ public class LabelImage {
   static {
 	  try {
 	    System.load(DevConstants.RES_ROOT+"jni/libtensorflow_jni.so");
+		  //System.load(DevConstants.RES_ROOT+"tensorflow_jni.dll");
 	    //java.lang.UnsatisfiedLinkError: Expecting an absolute path of the library: tensorflow_jni.dll ) 
 	  } catch (UnsatisfiedLinkError e) {
 	    System.err.println("Native code library failed to load.\n" + e);
@@ -81,10 +82,11 @@ public class LabelImage {
     System.out.println("Checked all files in "+ loadTime +"ms");
 	    
     String resultPath = "";
+    String prefix = "incep-"+(int)(Math.random()*100000);
     if(root.isDirectory()){
-    	resultPath = imageFile+"/"+FurnishingClassifier.RESULT_FILE_NAME;
+    	resultPath = imageFile+"/"+prefix+FurnishingClassifier.RESULT_FILE_NAME;
     }else{
-    	resultPath = root.getParent()+"/"+FurnishingClassifier.RESULT_FILE_NAME;
+    	resultPath = root.getParent()+"/"+prefix+FurnishingClassifier.RESULT_FILE_NAME;
     }
     
     byte[] graphDef = readAllBytesOrExit(Paths.get(modelDir, "tensorflow_inception_graph.pb"));

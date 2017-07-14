@@ -52,10 +52,11 @@ public class FurnishingClassifier {
   	    System.out.println("batch size: "+BATCH_SIZE);
   	   
   	    String resultPath = "";
+  	    String prefix = "furn-"+(int)(Math.random()*100000);
   	    if(root.isDirectory()){
-  	    	resultPath = rootPath+SEP+RESULT_FILE_NAME;
+  	    	resultPath = rootPath+SEP+prefix+RESULT_FILE_NAME;
   	    }else{
-  	    	resultPath = root.getParent()+SEP+RESULT_FILE_NAME;
+  	    	resultPath = root.getParent()+SEP+prefix+RESULT_FILE_NAME;
   	    }
   	    //int counter=0;
   	    try {

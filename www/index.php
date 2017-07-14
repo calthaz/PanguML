@@ -9,6 +9,18 @@
 <body>
 <?php 	
 	require "config.inc.php";
+	#clean garbage in upload-files：
+	$handle = opendir($filesDir);
+	$file=""; 
+    if ( $handle ){
+        while ( ( $file = readdir ( $handle ) ) !== false ){
+        	$type  = pathinfo($file, PATHINFO_EXTENSION);//
+        	if ($type == "txt"){	
+        		unlink($filesDir.'/'.$file);
+            }
+        }
+    } 
+
 	function printImgDiv($src, $label){?>
 		<div class="img-wrapper col s6 m4 l3">
 			<img src="<?php echo $src; ?>">
@@ -16,6 +28,7 @@
 				<span class="label"><?php echo $label; ?></span>
 				<a class="teal-text infer-pic bed">识别</a>
 				<a class="blue-text infer-pic inception">识别</a>
+				<a class="purple-text infer-pic fur">识别</a>
 				<a class="orange-text delete-pic">删除</a>
 				
 			</div>
@@ -25,7 +38,8 @@
 ?>
 	<header>
 		<h1 id="page-title" class="teal bed">Simple Bed Classifier</h1>
-		<h1 id="page-title" class="blue inception">Inception5h Classifier</h1>
+		<h1 id="page-title" class="blue bed">Inception5h Classifier</h1>
+		<h1 id="page-title" class="purple inception">Furnishing Classifier</h1>
 	</header>
 	<main>
 		<div class="container">
@@ -36,7 +50,8 @@
 			
 			<div class="fixed-action-btn">
 				<button class="btn-floating btn-large waves-effect waves-light start-infer teal lighten-1 bed">识别</button>	
-				<button class="btn-floating btn-large waves-effect waves-light start-infer blue lighten-1 inception">识别</button>				
+				<button class="btn-floating btn-large waves-effect waves-light start-infer blue lighten-1 inception">识别</button>
+				<button class="btn-floating btn-large waves-effect waves-light start-infer purple lighten-1 fur">识别</button>				
 			</div>
 			<div id="gallery" class="row">
 				<?php 
