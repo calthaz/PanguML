@@ -8,6 +8,7 @@ import time
 
 import numpy as np
 import tensorflow as tf
+from tensorflow.python.framework import graph_util
 
 import general
 import read_image
@@ -22,12 +23,12 @@ tf.app.flags.DEFINE_string('checkpoint_dir', './logs/furnishing128',
                            """Directory where to read model checkpoints.""")
 tf.app.flags.DEFINE_integer('num_examples', 1000,
                             """Number of examples to run.""")
-tf.app.flags.DEFINE_string('model_dir', './models/model-fur-128-', 
+tf.app.flags.DEFINE_string('model_dir', './models/model-fur-no-text-', 
                             """Directory where to save model""")
 #tf.app.flags.DEFINE_integer('eval_batch_size', 10,
                             #"""Number of examples to run.""")
-
-def build_and_save(images, builder):
+#https://blog.metaflow.fr/tensorflow-how-to-freeze-a-model-and-serve-it-with-a-python-api-d4f3596b3adc
+def build_and_save(images, builder, output_graph):
   # Build a Graph that computes the logits predictions from the
   # inference model.
   logits = general.inference(images)
@@ -42,7 +43,17 @@ def build_and_save(images, builder):
   # Build the summary operation based on the TF collection of Summaries.
   #summary_op = tf.summary.merge_all()
 
+  # Before exporting our graph, we need to precise what is our output node
+  # This is how TF decides what part of the Graph he has to keep and what part it can dump
+  # NOTE: this variable is plural, because you can have multiple output nodes
+  output_node_names = "softmax_linear/softmax_linear"
+
+  # We clear devices to allow TensorFlow to control on which device it will load operations
+  clear_devices = True
+
   summary_writer = tf.summary.FileWriter(FLAGS.save_dir)
+  graph = tf.get_default_graph()
+  input_graph_def = graph.as_graph_def()
 
   with tf.Session() as sess:
     ckpt = tf.train.get_checkpoint_state(FLAGS.checkpoint_dir)
@@ -66,9 +77,24 @@ def build_and_save(images, builder):
       for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
         threads.extend(qr.create_threads(sess, coord=coord, daemon=True,
                                          start=True))
+      
+
+      # We use a built-in TF helper to export variables to constants
+      output_graph_def = graph_util.convert_variables_to_constants(
+          sess, # The session is used to retrieve the weights
+          input_graph_def, # The graph_def is used to retrieve the nodes 
+          output_node_names.split(",") # The output node names are used to select the usefull nodes
+      ) 
+
+      # Finally we serialize and dump the output graph to the filesystem
+      with tf.gfile.GFile(output_graph, "wb") as f:
+          f.write(output_graph_def.SerializeToString())
+      print("%d ops in the final graph." % len(output_graph_def.node))
+
       #什么也不干
       builder.add_meta_graph_and_variables(sess,[tf.saved_model.tag_constants.SERVING])
-      builder.save(True)
+      #builder.save(True)
+      builder.save()
     except Exception as e:  # pylint: disable=broad-except
       coord.request_stop(e)
 
@@ -88,6 +114,7 @@ def save_model_1():
     orig_image = tf.placeholder(tf.float32, [height, width, 3], name="input_tensor")
 
     builder = tf.saved_model.builder.SavedModelBuilder(FLAGS.model_dir+str(FLAGS.batch_size))
+    output_graph = FLAGS.model_dir+str(FLAGS.batch_size)+"/frozen_graph.pb"
 
     with tf.name_scope("img_processing"):
       # Image processing for evaluation.
@@ -102,7 +129,7 @@ def save_model_1():
     
       image = tf.expand_dims(float_image, 0)
 
-    build_and_save(image, builder)
+    build_and_save(image, builder, output_graph)
     
 
 def save_model_20():
@@ -117,6 +144,7 @@ def save_model_20():
     orig_images = tf.placeholder(tf.float32, [FLAGS.batch_size, height, width, 3], name="input_tensor")
 
     builder = tf.saved_model.builder.SavedModelBuilder(FLAGS.model_dir+str(FLAGS.batch_size))
+    output_graph = FLAGS.model_dir+str(FLAGS.batch_size)+"/frozen_graph.pb"
 
     with tf.name_scope("img_processing"):
       # Image processing for evaluation.
@@ -141,7 +169,7 @@ def save_model_20():
       images = tf.stack(float_images, axis=0)
       #print(images)
 
-    build_and_save(images, builder)
+    build_and_save(images, builder, output_graph)
 
 def main(argv=None):  # pylint: disable=unused-argument
   #cifar10.maybe_download_and_extract()
