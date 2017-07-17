@@ -31,22 +31,26 @@ import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 import org.tensorflow.TensorFlow;
 
-import classifyFurnishing.FurnishingClassifier;
+import general.Classifier;
 import general.DevConstants;
 import tools.LabelGenerator;
+import tools.NativeUtils;
+import tools.TFUtils;
 
 /** Sample use of the TensorFlow Java API to label images using a pre-trained model. */
 public class LabelImage {
   public static final String LABEL_SEP = LabelGenerator.LABEL_SEP;
   static {
-	  try {
-	    System.load(DevConstants.RES_ROOT+"jni/libtensorflow_jni.so");
-		  //System.load(DevConstants.RES_ROOT+"tensorflow_jni.dll");
-	    //java.lang.UnsatisfiedLinkError: Expecting an absolute path of the library: tensorflow_jni.dll ) 
-	  } catch (UnsatisfiedLinkError e) {
-	    System.err.println("Native code library failed to load.\n" + e);
-	    System.exit(1);
-	  }
+		try {
+			//System.load(DevConstants.RES_ROOT+"jni/libtensorflow_jni.so");
+			System.load(DevConstants.RES_ROOT+"tensorflow_jni.dll");
+		} catch (UnsatisfiedLinkError e) {
+			try {    
+				NativeUtils.loadLibraryFromJar("/tensorflow_jni.dll"); 
+			} catch (IOException e2) {    
+				e2.printStackTrace(); // This is probably not the best way to handle exception :-)  
+			}   
+		}
   }
   
   private static void printUsage(PrintStream s) {
@@ -71,22 +75,23 @@ public class LabelImage {
       System.exit(1);
     }
     
-    String modelDir = DevConstants.RES_ROOT+"tf-models/inception5h"; //"D:\\TensorFlowDev\\JavaWorksp\\TensorFlow\\inception5h";
+    //String modelDir = DevConstants.RES_ROOT+"tf-models/inception5h"; //"D:\\TensorFlowDev\\JavaWorksp\\TensorFlow\\inception5h";
+    String modelDir = "/inception5h";
     String imageFile = args[0];
     
     ArrayList<String> files = new ArrayList<String>();
     long time = System.currentTimeMillis();
     File root = new File(imageFile);
-    FurnishingClassifier.readImageFilesRecursively(root, files);
+    TFUtils.readImageFilesRecursively(root, files);
     long loadTime = (System.currentTimeMillis()-time);
     System.out.println("Checked all files in "+ loadTime +"ms");
 	    
     String resultPath = "";
     String prefix = "incep-"+(int)(Math.random()*100000);
     if(root.isDirectory()){
-    	resultPath = imageFile+"/"+prefix+FurnishingClassifier.RESULT_FILE_NAME;
+    	resultPath = imageFile+"/"+prefix+Classifier.RESULT_FILE_NAME;
     }else{
-    	resultPath = root.getParent()+"/"+prefix+FurnishingClassifier.RESULT_FILE_NAME;
+    	resultPath = root.getParent()+"/"+prefix+Classifier.RESULT_FILE_NAME;
     }
     
     byte[] graphDef = readAllBytesOrExit(Paths.get(modelDir, "tensorflow_inception_graph.pb"));
@@ -188,7 +193,7 @@ public class LabelImage {
     return best;
   }
 
-  private static byte[] readAllBytesOrExit(Path path) {
+  public static byte[] readAllBytesOrExit(Path path) {
     try {
       return Files.readAllBytes(path);
     } catch (IOException e) {

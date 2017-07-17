@@ -3,6 +3,8 @@ package tools;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.ArrayList;
 
 public class TFUtils {
 	public static double cropRate = 0.7;
@@ -45,5 +47,15 @@ public class TFUtils {
           }
         }
         return best;
-    }  
+    } 
+    
+	public static void readImageFilesRecursively(File f, ArrayList<String> files) {
+		if(f.isDirectory()){
+			for(File entry : f.listFiles()){
+				readImageFilesRecursively(entry, files);
+			}	
+		}else{
+			files.add(f.getPath());
+		}
+	}
 }

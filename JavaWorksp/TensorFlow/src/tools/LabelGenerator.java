@@ -23,7 +23,7 @@ public class LabelGenerator {
 	public static final String LABEL_FILE_NAME = "tf-images-with-labels.txt";
 	public static final String LABEL_TEXT_FILE_NAME = "tf-labels-to-text.txt";
 	public static final String SEP = "/";
-	public static final String LABEL_SEP = "[*v*]";
+	public static final String LABEL_SEP = "|||";
 	//private int counter = 0;
 	private ArrayList<String> labels = new ArrayList<String>();
 	
@@ -71,7 +71,7 @@ public class LabelGenerator {
 	}
 	
 	/*
-	 * ²»ÏëÈ¥Ñ°ÕÒÇ¶Ì×µÄÎÄ¼þ¼ÐÁË
+	 * ï¿½ï¿½ï¿½ï¿½È¥Ñ°ï¿½ï¿½Ç¶ï¿½×µï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
 	private void readRecursively(File dir, String currentClass){
 		
 	}
@@ -86,7 +86,7 @@ public class LabelGenerator {
 				if(line.indexOf(LABEL_SEP)!=-1){
 					//String[] val = line.split("\\"+LABEL_SEP+"");
 					line = line.trim();
-					System.out.println(line);
+					//System.out.println(line);
 					String index = line.substring(0,line.indexOf(LABEL_SEP));
 					String name = line.substring(line.indexOf(LABEL_SEP)+LABEL_SEP.length());
 					labels.add(Integer.parseInt(index), name);
