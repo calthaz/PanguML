@@ -1,13 +1,9 @@
 package classifyFurnishing;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import javax.imageio.ImageIO;
-
 import general.Classifier;
 import general.DevConstants;
 import general.GraphDriver;
@@ -19,7 +15,6 @@ public class BedClassifier extends Classifier{
 	public static final int IMG_SIZE = 32;
 	public static final int BATCH_SIZE = 20;
 	private static final String SEP = LabelGenerator.SEP;
-	private static final String LABEL_SEP = LabelGenerator.LABEL_SEP;
 	
 	public static void main(String[] args){
 		String rootPath = "";
@@ -34,10 +29,10 @@ public class BedClassifier extends Classifier{
 		}
 		System.out.println(rootPath);
 		long time = System.currentTimeMillis();
-		String modelPath = NativeUtils.loadOrExtract(DevConstants.MOD_ROOT+"model-no-text-1",
+		String modelPath = NativeUtils.loadOrExtract(DevConstants.MOD_ROOT+"model-no-text-1/frozen_graph.pb",
 				"/tf-models/model-no-text-1/frozen_graph.pb");
 		//DevConstants.RES_ROOT+"tf-models/model";
-		String modelPath2 =  NativeUtils.loadOrExtract(DevConstants.MOD_ROOT+"model-no-text-"+BATCH_SIZE,
+		String modelPath2 =  NativeUtils.loadOrExtract(DevConstants.MOD_ROOT+"model-no-text-"+BATCH_SIZE+"/frozen_graph.pb",
 				"/tf-models/model-no-text-"+BATCH_SIZE+"/frozen_graph.pb");
 		//DevConstants.RES_ROOT+"tf-models/model"+BATCH_SIZE;
 		String labelPath = NativeUtils.loadOrExtract(DevConstants.RES_ROOT+"bed/tf-labels-to-text.txt","/labels/bed/tf-labels-to-text.txt");
@@ -62,7 +57,7 @@ public class BedClassifier extends Classifier{
   	    	TFUtils.readFilesRecursively(new File(inputPaths[i]), files);
   	    }
   	    long loadTime = (System.currentTimeMillis()-time);
-  	    System.out.println("Checked all files in "+ loadTime +"ms");
+  	    System.out.println("load all files in "+ loadTime +"ms");
   	    
   	    System.out.println(files.size());
   	    System.out.println("batch size: "+BATCH_SIZE);

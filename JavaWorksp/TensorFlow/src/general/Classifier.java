@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 import tools.LabelGenerator;
 
 public abstract class Classifier {
+
 	public static final String RESULT_FILE_NAME = "tf-inference-results.txt";
 	/**
 	 * Execute Graph by Batch: 

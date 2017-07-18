@@ -1,13 +1,9 @@
 package classifyFurnishing;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import javax.imageio.ImageIO;
-
 import general.Classifier;
 import general.DevConstants;
 import general.GraphDriver;
@@ -24,7 +20,6 @@ public class FurnishingClassifier extends Classifier{
 	public static void main(String[] args){
 		String rootPath = "";
 		String[] inputPaths = new String[1];
-		String mode = "file";
 		if(args.length<1){
 			rootPath = System.getProperty("user.dir");
 			inputPaths[0] = System.getProperty("user.dir");
