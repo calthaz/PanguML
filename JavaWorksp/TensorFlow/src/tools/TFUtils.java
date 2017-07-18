@@ -4,7 +4,10 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
 
 public class TFUtils {
 	public static double cropRate = 0.7;
@@ -49,13 +52,33 @@ public class TFUtils {
         return best;
     } 
     
+	public static void readFilesRecursively(File f, ArrayList<String> files) {
+		if(f.isDirectory()){
+			for(File entry : f.listFiles()){
+				readFilesRecursively(entry, files);
+			}	
+		}else{
+			files.add(f.getPath());
+		}
+	}
+	
 	public static void readImageFilesRecursively(File f, ArrayList<String> files) {
 		if(f.isDirectory()){
 			for(File entry : f.listFiles()){
 				readImageFilesRecursively(entry, files);
 			}	
 		}else{
-			files.add(f.getPath());
+			try{
+					//reads every image in case it were a bad one 
+					BufferedImage img = ImageIO.read(f);
+					if(img!= null&&img.getHeight()!=0){
+						files.add(f.getPath());
+					}else{
+						System.out.println("Probably not an image: "+f.getPath());
+					}
+				}catch  (IOException e){
+					System.out.println("Error while reading "+f.getPath());
+				}
 		}
 	}
 }

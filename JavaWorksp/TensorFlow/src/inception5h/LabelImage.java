@@ -70,21 +70,32 @@ public class LabelImage {
   }
 
   public static void main(String[] args) {
-    if (args.length != 1) {
+    if (args.length < 1) {
       printUsage(System.err);
       System.exit(1);
     }
+	String[] inputPaths = new String[1];	
+	inputPaths = args;
+
+    long time = System.currentTimeMillis();
     
-    //String modelDir = DevConstants.RES_ROOT+"tf-models/inception5h"; //"D:\\TensorFlowDev\\JavaWorksp\\TensorFlow\\inception5h";
-    String modelDir = "/inception5h";
-    String imageFile = args[0];
+    //String modelDir = ; //"D:\\TensorFlowDev\\JavaWorksp\\TensorFlow\\inception5h";
+    String modelDir = NativeUtils.loadOrExtract(DevConstants.RES_ROOT+"tf-models/inception5h/tensorflow_inception_graph.pb", 
+    		"/inception5h/tensorflow_inception_graph.pb");
+    String labelPath = NativeUtils.loadOrExtract(DevConstants.RES_ROOT+"tf-models/inception5h/imagenet_comp_graph_label_strings.txt", 
+    		"/inception5h/imagenet_comp_graph_label_strings.txt");
+    String imageFile = inputPaths[0];
     
     ArrayList<String> files = new ArrayList<String>();
-    long time = System.currentTimeMillis();
+    
     File root = new File(imageFile);
     TFUtils.readImageFilesRecursively(root, files);
+    for(int i = 1; i< inputPaths.length; i++){
+    	TFUtils.readImageFilesRecursively(new File(inputPaths[i]), files);
+    }
+    
     long loadTime = (System.currentTimeMillis()-time);
-    System.out.println("Checked all files in "+ loadTime +"ms");
+    System.out.println("Load files in "+ loadTime +"ms");
 	    
     String resultPath = "";
     String prefix = "incep-"+(int)(Math.random()*100000);
@@ -94,9 +105,9 @@ public class LabelImage {
     	resultPath = root.getParent()+"/"+prefix+Classifier.RESULT_FILE_NAME;
     }
     
-    byte[] graphDef = readAllBytesOrExit(Paths.get(modelDir, "tensorflow_inception_graph.pb"));
+    byte[] graphDef = readAllBytesOrExit(Paths.get(modelDir));
     List<String> labels =
-        readAllLinesOrExit(Paths.get(modelDir, "imagenet_comp_graph_label_strings.txt"));
+        readAllLinesOrExit(Paths.get(labelPath));
     byte[] imageBytes = null;
                
     PrintWriter wr;

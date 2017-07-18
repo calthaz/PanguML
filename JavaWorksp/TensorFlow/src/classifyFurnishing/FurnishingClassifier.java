@@ -23,16 +23,17 @@ public class FurnishingClassifier extends Classifier{
 	
 	public static void main(String[] args){
 		String rootPath = "";
+		String[] inputPaths = new String[1];
+		String mode = "file";
 		if(args.length<1){
 			rootPath = System.getProperty("user.dir");
-		}else if(args.length==1){
+			inputPaths[0] = System.getProperty("user.dir");
+		}else {		
 			rootPath = args[0];
-		}else{
-			//mode = args[0];//JSON or file(default)
-			rootPath = args[1];
+			inputPaths = args;
 		}
 		System.out.println(rootPath);
-		
+		long time = System.currentTimeMillis();
 		String modelPath =  NativeUtils.loadOrExtract(DevConstants.MOD_ROOT+"model-fur-no-text-1"+"/frozen_graph.pb", 
 				"/tf-models/model-fur-no-text-1/frozen_graph.pb");;
 		String modelPath2 =  NativeUtils.loadOrExtract(DevConstants.MOD_ROOT+"model-fur-no-text-"+BATCH_SIZE+"/frozen_graph.pb", 
@@ -52,11 +53,14 @@ public class FurnishingClassifier extends Classifier{
 	  			  			labelPath,
 	  					  IMG_SIZE, BATCH_SIZE);
   	    ArrayList<String> files = new ArrayList<String>();
-  	    long time = System.currentTimeMillis();
+  	    
   	    File root = new File(rootPath);
-  	    TFUtils.readImageFilesRecursively(root, files);
+  	    TFUtils.readFilesRecursively(root, files);
+  	    for(int i = 1; i< inputPaths.length; i++){
+	    	TFUtils.readFilesRecursively(new File(inputPaths[i]), files);
+	    }
   	    long loadTime = (System.currentTimeMillis()-time);
-  	    System.out.println("Checked all files in "+ loadTime +"ms");
+  	    System.out.println("Load files in "+ loadTime +"ms");
   	    
   	    System.out.println(files.size());
   	    System.out.println("batch size: "+BATCH_SIZE);

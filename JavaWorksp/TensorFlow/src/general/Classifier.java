@@ -40,9 +40,11 @@ public abstract class Classifier {
 					count++;
 				}else{
 					System.out.println("Probably not an image: "+f.getPath());
+					continue;
 				}
 			}catch  (IOException e){
 				System.out.println("Error while reading "+f.getPath());
+				continue;
 			}					
 
 			if(count%BATCH_SIZE==0){
