@@ -81,4 +81,9 @@ public class TFUtils {
 				}
 		}
 	}
+	public static BufferedImage getBlankImage(int w, int h) {
+		// TODO Auto-generated method stub
+		BufferedImage ret = new BufferedImage(w,h,BufferedImage.TYPE_INT_ARGB);
+		return ret;
+	}
 }

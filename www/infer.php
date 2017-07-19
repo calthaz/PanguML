@@ -41,6 +41,7 @@ if(isset($_POST['method'])&&isset($_FILES['upload'])){
 	$returnArray["results"] = $map;
 	$returnArray["summary"] = $summary;
 	echo json_encode($returnArray);
+	unlink($resultFile);
 }
 
 ?>
