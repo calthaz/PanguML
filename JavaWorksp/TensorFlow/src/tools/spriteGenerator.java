@@ -9,14 +9,20 @@ import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 
+/**
+ * generate a sprite image of fixed size. <br/>
+ * sprite标准参照<br/>
+ * <a href="https://www.tensorflow.org/versions/master/get_started/embedding_viz">TensorBoard: Embedding Visualization</a>
+ *
+ */
 public class spriteGenerator {
-	/**
-	 * 标准参照
-	 * https://www.tensorflow.org/versions/master/get_started/embedding_viz
-	 */
 	//public static final int MAX_SPRITE_SIZE = 8192;//probably too big
-	public static final int MAX_SPRITE_SIZE = 3000;
-	public static final int THUMB_SIZE = 40;
+	/**
+	 *  maximum size of the sprite image, smaller than the maximun supported size on 
+	 *  <a href="https://www.tensorflow.org/versions/master/get_started/embedding_viz">TensorBoard: Embedding Visualization</a>
+	 */
+	public static int MAX_SPRITE_SIZE = 3000;
+	public static int THUMB_SIZE = 40;
 
 	public static void main(String[] args) {
 		if(args.length!=1){
@@ -46,7 +52,6 @@ public class spriteGenerator {
 							 img = TFUtils.getScaledImage(img, THUMB_SIZE, THUMB_SIZE);
 							 //System.out.println("get thumb");
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
 							System.out.println("Failed to read "+imagePath);
 							System.out.println("Use blank img instead");
 							img = TFUtils.getBlankImage(THUMB_SIZE, THUMB_SIZE);
@@ -69,7 +74,6 @@ public class spriteGenerator {
 			System.out.println("Sprite image saved");
 			System.out.println(rootPath+"/sprite.png");
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			System.err.println("tf-images-with-labels.txt file can't be found at "+args[0]);
 		}
 	}

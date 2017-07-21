@@ -22,6 +22,12 @@ public class LabelGenerator {
 	//private int counter = 0;
 	private ArrayList<String> labels = new ArrayList<String>();
 	
+	/**
+	 * assumes that imgs are stored this way: 
+	 * root/catagory1; root/catagory2; root/catagory3; ... no nesting
+	 * @param rootDir
+	 * @param labelDir where you can find the label files
+	 */
 	public LabelGenerator(File rootDir, File labelDir){
 		try {
 			PrintWriter labelWr=new PrintWriter(labelDir+SEP+LABEL_FILE_NAME,"UTF-8");	
@@ -64,13 +70,12 @@ public class LabelGenerator {
 		}
 		
 	}
-	
-	/*
-	 * ����ȥѰ��Ƕ�׵��ļ�����
-	private void readRecursively(File dir, String currentClass){
-		
-	}
-	*/
+	/**
+	 * 
+	 * @param path path to the label file, utf-8 encoded
+	 * @return an ArrayList of labels read from the label file as separated by LABEL_SEP; 
+	 * for example "0LABEL_SEPtree" => labels.get(0)==tree
+	 */
 	public static ArrayList<String> readLabelsFromFile(String path){
 		ArrayList<String> labels = new ArrayList<String>();
 		try {
@@ -102,7 +107,7 @@ public class LabelGenerator {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		
 		String rootPath = "";
 		if(args.length<1){
 			rootPath = System.getProperty("user.dir");
@@ -122,6 +127,7 @@ public class LabelGenerator {
 		}else{
 			System.out.println("root directory must be a directory.");
 		}
+		System.out.println("Finished.");
 	}
 
 }

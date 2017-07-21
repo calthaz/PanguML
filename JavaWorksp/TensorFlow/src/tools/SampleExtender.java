@@ -6,30 +6,30 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+/**
+ * extend image samples by random crop<br>
+ * jpgs and pngs only
+ *
+ */
 public class SampleExtender {
 	
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		String directoryPath = args[0];
 		File directory = new File(directoryPath);
 		if(directory.isDirectory()){
-			//FileFilter filter = new FileNameExtensionFilter("JPG & GIF & PNG Images", "jpg", "gif","png");
-			for(File entry : directory.listFiles()){//filter
+			//we are only going to crop jpgs and pngs
+			for(File entry : directory.listFiles()){
 				String ext = entry.getPath();
-				//ext=ext.substring(ext.length()-4);
 				System.out.println(ext);
 				ext=ext.toLowerCase();
-				if(ext.endsWith(".jpg")){
+				if(ext.endsWith(".jpg")||ext.endsWith(".png")){
 					double p = Math.random();
 					if(p>0.6){
-						
 						try {
 							BufferedImage img = ImageIO.read(entry);
-							//D:\TensorFlowDev\PythonWorksp\TensorFlow\furniture\furpics\��ש\17f1d7138c1e9e568a90db9448116755ac18387.jpg
-							BufferedImage output = TFUtils.cropImage(img);
+							BufferedImage output = TFUtils.randomCropImage(img);
 							ImageIO.write(output, "jpg", new File(directoryPath+"\\ext-"+(int)(Math.random()*1000000)+".jpg"));
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
