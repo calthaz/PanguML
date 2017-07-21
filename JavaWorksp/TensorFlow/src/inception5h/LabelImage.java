@@ -42,8 +42,8 @@ public class LabelImage {
   public static final String LABEL_SEP = LabelGenerator.LABEL_SEP;
   static {
 		try {
-			//System.load(DevConstants.RES_ROOT+"jni/libtensorflow_jni.so");
-			System.load(DevConstants.RES_ROOT+"tensorflow_jni.dll");
+			System.load(DevConstants.RES_ROOT+"jni/libtensorflow_jni.so");
+			//System.load(DevConstants.RES_ROOT+"tensorflow_jni.dll");
 		} catch (UnsatisfiedLinkError e) {
 			try {    
 				NativeUtils.loadLibraryFromJar("/tensorflow_jni.dll"); 
