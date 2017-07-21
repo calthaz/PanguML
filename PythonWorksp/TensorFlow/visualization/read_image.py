@@ -6,13 +6,33 @@ import random
 
 LABEL_SEP = "|||"
 image_dic = {}
+labels_trans_dic = {}
 IMAGE_SIZE = 128
-LABEL_FILE = "../furniture/furpics/tf-images-with-labels.txt"
+NUM_CLASS = 8
+LABEL_FILE = "C:/tmp/hardware/tf-images-with-labels.txt"
+TRANS_FILE = "C:/tmp/hardware/tf-labels-to-text.txt"
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 500
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 100
 
+def read_labels_trans(filename):
+	with open(filename, encoding='utf8') as f: 
+		lines = [line.rstrip('/\n') for line in f]
+		for x in range(len(lines)):
+			if(lines[x].find(LABEL_SEP)):
+				num, _, label = lines[x].partition(LABEL_SEP)
+			#有点像 find()和 split()的结合体,从 str 出现的第一个位置起,
+			#把 字 符 串 string 分 成 一 个 3 元 素 的 元 组 (string_pre_str,str,string_post_str),
+			#如果 string 中不包含str 则 string_pre_str == string.
+				labels_trans_dic[int(num)]=label
+
+		for x in labels_trans_dic:
+			print(type(x))
+			#print(x+": "+labels_trans_dic[x]+"\n")
+
+			
+
 def read_labels_dict(filename):
-	with open(filename) as f: 
+	with open(filename, encoding='utf8') as f: 
 		lines = [line.rstrip('/\n') for line in f]
 		for x in range(len(lines)):
 			if(lines[x].find(LABEL_SEP)):
@@ -21,11 +41,10 @@ def read_labels_dict(filename):
 			#把 字 符 串 string 分 成 一 个 3 元 素 的 元 组 (string_pre_str,str,string_post_str),
 			#如果 string 中不包含str 则 string_pre_str == string.
 				image_dic[path]=label
-			else:
-				pass
+			
 
 def get_num_classes():
-	return 3
+	return NUM_CLASS
 
 def get_num_examples():
 	read_labels_dict(LABEL_FILE)
@@ -285,7 +304,7 @@ def read_labeled_image_list(image_list_file):
 	Returns:
 	   List with all filenames in file image_list_file
 	"""
-	f = open(image_list_file, 'r')
+	f = open(image_list_file, 'r', encoding='utf8')
 	filenames = []
 	labels = []
 	for line in f:
@@ -306,7 +325,7 @@ def read_shuffled_labeled_image_list(image_list_file, batch_size=-1):
 	   List with all filenames in file image_list_file
 	   in random order
 	"""
-	f = open(image_list_file, 'r')
+	f = open(image_list_file, 'r', encoding='utf8')
 	if(batch_size>0):
 		f=f[:batch_size-1]
 	#TODO
@@ -357,7 +376,7 @@ image_batch, label_batch = tf.train.batch([image, label],
 										  batch_size=batch_size)
 '''
 
-def static_inputs(eval_data, batch_size):
+def static_resize_inputs(eval_data, batch_size):
 	"""Construct input for embedding visualization.
 
 	Args:
@@ -370,11 +389,16 @@ def static_inputs(eval_data, batch_size):
 	labels: Labels. 1D array of [batch_size] size.
 	label_list: standard python list of labels
 	"""
-	
+	read_labels_trans(TRANS_FILE)
 	image_list, label_list = read_shuffled_labeled_image_list(LABEL_FILE)
 	for f in image_list:
 		if not tf.gfile.Exists(f):
 			raise ValueError('Failed to find file: ' + f)
+
+	text_list = list()
+
+	for num in label_list:
+		text_list.append(labels_trans_dic[num])
 
 	images = tf.convert_to_tensor(image_list, dtype=tf.string)
 	labels = tf.convert_to_tensor(label_list, dtype=tf.int64)#todo use 64 from the start?
@@ -394,7 +418,6 @@ def static_inputs(eval_data, batch_size):
 	width = IMAGE_SIZE
 
 	# Image processing for evaluation.
-	# Crop the central [height, width] of the image. no, this shall not work
 	resized_image = tf.image.resize_images(reshaped_image, [height, width])
 
 	# Subtract off the mean and divide by the variance of the pixels.
@@ -414,7 +437,7 @@ def static_inputs(eval_data, batch_size):
 	# Generate a batch of images and labels by building up a queue of examples.
 	return _generate_image_and_label_batch(float_image, label,
 										 min_queue_examples, batch_size,
-										 shuffle=False), label_list
+										 shuffle=False), text_list
 	'''
 	for x in range(len(image_list)):
 		f = image_list[f]
@@ -431,3 +454,59 @@ def static_inputs(eval_data, batch_size):
 
 	images = numpy.stack(images);
 	'''
+
+
+
+def static_crop_inputs(eval_data, batch_size):
+	"""Construct input for embedding visualization.
+	but crop input image instead of resizing them
+	"""
+	read_labels_trans(TRANS_FILE)
+	image_list, label_list = read_shuffled_labeled_image_list(LABEL_FILE)
+	for f in image_list:
+		if not tf.gfile.Exists(f):
+			raise ValueError('Failed to find file: ' + f)
+
+	text_list = []
+
+	for num in label_list:
+		#print(type(num))
+		text_list.append(labels_trans_dic[num])
+	
+	images = tf.convert_to_tensor(image_list, dtype=tf.string)
+	labels = tf.convert_to_tensor(label_list, dtype=tf.int64)#todo use 64 from the start?
+
+	num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_EVAL
+
+	# Makes an input queue
+	input_queue = tf.train.slice_input_producer([images, labels],
+												#num_epochs=num_epochs,
+												shuffle=False)
+
+	image, label = read_images_from_disk(input_queue)
+
+	reshaped_image = tf.cast(image, tf.float32)
+
+	height = IMAGE_SIZE
+	width = IMAGE_SIZE
+
+	# Image processing for evaluation.
+	# Crop the central [height, width] of the image. no, this shall not work
+	resized_image = tf.image.resize_image_with_crop_or_pad(reshaped_image, height, width)
+
+
+	# Subtract off the mean and divide by the variance of the pixels.
+	float_image = tf.image.per_image_standardization(resized_image)
+
+	# Set the shapes of tensors.
+	float_image = tf.reshape(float_image, [height*width*3])
+
+	# Ensure that the random shuffling has good mixing properties.
+	min_fraction_of_examples_in_queue = 0.2
+	min_queue_examples = int(num_examples_per_epoch *
+						   min_fraction_of_examples_in_queue)
+
+	# Generate a batch of images and labels by building up a queue of examples.
+	return _generate_image_and_label_batch(float_image, label,
+										 min_queue_examples, batch_size,
+										 shuffle=False), text_list
