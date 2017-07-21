@@ -34,13 +34,18 @@ $(function(){
       $.post("inferManager.php", {startAll:type}).done(function(data){
             try{
                 data = JSON.parse(data);
-                var output = JSON.parse(data.inferData); 
-                for(var x in output.results){
-                  var filename = "upload-files/"+x.replace(/\\/g, "/");
-                  //console.log(filename+" is "+data[x]);
-                  $('img[src="'+filename+'"]').parent().find("span.label").text(output.results[x]);
+                var summary = "";
+                for (var i = data.inferData.length - 1; i >= 0; i--) {
+                  var output = JSON.parse(data.inferData[i]); 
+                  for(var x in output.results){
+                    var filename = "upload-files/"+x.replace(/\\/g, "/");
+                    //console.log(filename+" is "+data[x]);
+                    $('img[src="'+filename+'"]').parent().find("span.label").text(output.results[x]);
+
+                  }
+                  summary=summary+output.summary+"<br/>";
                 }
-                Materialize.toast(output.summary, 5000);
+                Materialize.toast(summary, 5000);
             }catch(e){
               console.log(data);
             }   
