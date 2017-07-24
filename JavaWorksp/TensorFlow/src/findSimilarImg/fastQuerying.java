@@ -54,7 +54,12 @@ public class fastQuerying {
 	private ArrayList<ImageEntry> candiList = new ArrayList<ImageEntry>();
 	private String RESULT_FILE_NAME = "-fq-result.txt";
 	
-	
+	/**
+	 * 最强大的
+	 * 
+	 * @param draftPath 跟别人比较的图片
+	 * @param inputPaths 用来和draft比较的图片路径/目录路径
+	 */
 	public fastQuerying(String draftPath, String[] inputPaths) {
 		rootPaths = trimFiles(inputPaths);
 		String rootPath = rootPaths.get(0);//inputPaths[0];
@@ -103,9 +108,86 @@ public class fastQuerying {
     	
     	
 	}
+	/**
+	 * 读该目录下所有文件并且在此处生成fqdata文件
+	 */
+	public fastQuerying(){
+		rootPaths = new ArrayList<String>();
+		rootPaths.add(System.getProperty("user.dir"));
+		String rootPath = rootPaths.get(0);//inputPaths[0];
+		File root = new File(rootPath);
+		String prefix = "fq"+(int)(Math.random()*100000);
+	    if(root.isDirectory()){
+	    	dataFile = rootPath+"/"+prefix+dataFile;
+	    	System.out.println("Root dir is "+rootPath);
+	    }else{
+	    	dataFile = root.getParent()+"/"+prefix+dataFile;
+	    	root = root.getParentFile();
+	    	System.out.println("Root dir is "+root.getAbsolutePath());
+	    }
+	    
+	    initSearchArray();
+	    for(File f:root.listFiles()){
+	    	if(f.getName().endsWith(DATA_EXT)){
+	    		f.delete();
+	    	}
+	    }
+	    loadFiles();  
+		addToDataBase();
+		saveFeatureMap(dataFile);
+	}
 	
+	/**
+	 * 传入图片路径在当前目录下寻找保存过的特征图然后比较计算
+	 * 
+	 * @param draftPath
+	 */
+	public fastQuerying(String draftPath){
+		rootPaths = new ArrayList<String>();
+		rootPaths.add(System.getProperty("user.dir"));
+		//rootPaths.add("F:/TensorFlowDev/PythonWorksp/TensorFlow/furniture/furpics");
+		String rootPath = rootPaths.get(0);//inputPaths[0];
+		File root = new File(rootPath);
+		String prefix = "fq"+(int)(Math.random()*100000);
+	    if(root.isDirectory()){
+	    	resultFile = rootPath+"/"+prefix+RESULT_FILE_NAME;
+	    	dataFile = rootPath+"/"+prefix+dataFile;
+	    	System.out.println("Root dir is "+rootPath);
+	    }else{
+	    	System.err.println("Root dir is not a dir: "+root.getAbsolutePath());
+	    	return;
+	    }
+	    long loadTime = System.currentTimeMillis();
+	    initSearchArray();
+	    for(File f:root.listFiles()){
+	    	if(f.getName().endsWith(DATA_EXT)){
+	    		System.out.println("Try to parse "+f.getName());
+	    		try {
+					parseFeatureMapOnly(f.getAbsolutePath());
+				} catch (ClassNotFoundException | IOException e) {
+					System.err.println("Can't parse feature map "+f.getAbsolutePath());
+					return;
+				}
+	    	}
+	    }
+	    if(candiList.size()==0){
+	    	System.out.println("No images to compare with. ");
+			return;
+	    }
+	    System.out.println("Loading Candidates finished in "+(System.currentTimeMillis()-loadTime)+" miliseconds");
+    	try {
+			BufferedImage img = ImageIO.read(new File(draftPath));
+			if(img!= null&&img.getHeight()!=0){
+				findCandidates(img);
+			}else{
+				System.out.println("Probably not an image: "+draftPath);
+			}
+		} catch (IOException e) {
+			System.out.println("Can't read draft "+draftPath);
+		}
+	    
+	}
 	private void initSearchArray(){
-		
 		
 		searchArray=new ArrayList<ArrayList<ArrayList<ArrayList<ImageEntry>>>>();
 		for(int cs=0; cs<3*2; cs++){
@@ -170,6 +252,9 @@ public class fastQuerying {
 	    
 	}
 	
+	/**
+	 * 找所有目录下的保存的特征文件并读取
+	 */
 	private void readSavedData(){
 		for(String str : rootPaths){
   	    	File f = new File(str);
@@ -228,6 +313,7 @@ public class fastQuerying {
 	}
 	
 	/**
+	 * read entries from saved data if it is listed on {@code candiPathList}
 	 * searchArray must be initialized here.<br>
 	 * <b>Note: if multiple ImageEntries that have the same path are parsed, 
 	 * only the first instance is saved into the {@code candiList}, 
@@ -265,6 +351,39 @@ public class fastQuerying {
 		}
 	}
 
+	/**
+	 * ignore {@code candiPathList}
+	 * searchArray must be initialized here.<br>
+	 * <b>Note: if multiple ImageEntries that have the same path are parsed, 
+	 * only the first instance is saved into the {@code candiList}, 
+	 * but all are saved into {@code searchArray}</b>, 
+	 * because the cost to remove all the occurrences of the other ImageEntries 
+	 * in {@code searchArray} is simply not worth it. 
+	 * @param savedMap
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
+	private void parseFeatureMapOnly(String savedMap) throws ClassNotFoundException, IOException{		
+		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(savedMap)));
+		@SuppressWarnings("unchecked")
+		ArrayList<ArrayList<ArrayList<ArrayList<ImageEntry>>>> map =  (ArrayList<ArrayList<ArrayList<ArrayList<ImageEntry>>>>) in.readObject();
+		in.close();		
+		for(int cs=0; cs<3*2; cs++){
+			for(int i=0; i<ImageEntry.H; i++){
+				for(int j=0; j<ImageEntry.W;j++){
+					for(int c = 0; c<map.get(cs).get(i).get(j).size(); c++){
+						ImageEntry entry = map.get(cs).get(i).get(j).get(c);
+						if(pathsRead.indexOf(entry.getPath())==-1){
+							pathsRead.add(entry.getPath());
+							candiList.add(entry);
+						}
+						searchArray.get(cs).get(i).get(j).add(entry);
+					}
+				}
+			}
+		}
+	}
+	
 	private void saveFeatureMap(String path) {
 		ArrayList<ArrayList<ArrayList<ArrayList<ImageEntry>>>> ret 
 			= new ArrayList<ArrayList<ArrayList<ArrayList<ImageEntry>>>>();
@@ -339,6 +458,11 @@ public class fastQuerying {
 		return min(max(i,j),5);
 	}
 	
+	/**
+	 * 主要的搜索过程
+	 * @param draft
+	 * @throws IOException
+	 */
 	private void findCandidates(BufferedImage draft) throws IOException {
 		
 		System.out.println("Processing image...");
@@ -392,12 +516,13 @@ public class fastQuerying {
 	
 	public static void main(String args[]){
 		//String rootPath = "";
-		String draftPath = "";
-		String[] inputPaths = new String[1];
+		//String draftPath = "";
+		//String[] inputPaths = new String[1];
 		if(args.length<1){
+			System.out.println("1st argument should be the path to an image");
 			return;
-		}else if(args.length<2){
-			draftPath = args[0];
+		}/*else if(args.length<2){
+			//draftPath = args[0];
 			//rootPath = System.getProperty("user.dir");
 			inputPaths[0] = System.getProperty("user.dir");
 		}else {		
@@ -410,6 +535,8 @@ public class fastQuerying {
 			System.out.println(p);
 		}
 		//trimFiles(inputPaths);
-		new fastQuerying(draftPath, inputPaths);
+		//new fastQuerying(draftPath, inputPaths);
+		//new fastQuerying();*/
+		new fastQuerying(args[0]);
 	}
 }

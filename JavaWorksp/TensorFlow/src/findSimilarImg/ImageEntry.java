@@ -42,21 +42,6 @@ public class ImageEntry implements Comparable<ImageEntry>,Serializable{
 	
 	/**
 	 * dimension: value<br>
-	 * 1st:       channel [H, S, B]; <br>
-	 * 2nd:       sign [+, -]; <br>
-	 * 3rd:       coordinates;
-	 * int[]      contains coefficients at [i,j]<br>	
-	 * <b>展开就是这样的:</b><br>
-	 * public ArrayList<int[]> posH;<br>
-     * public ArrayList<int[]> negH;<br>
-	 * public ArrayList<int[]> posS;<br>
-	 * public ArrayList<int[]> negS;<br>
-	 * public ArrayList<int[]> posB;<br>
-	 * public ArrayList<int[]> negB;<br>
-	 */
-	//public ArrayList<ArrayList<ArrayList<int[]>>> coefficients;
-	/**
-	 * dimension: value<br>
 	 * 1st:       channel and sign [H+, H-, S+, S-, B+, B-]; <br> 
 	 * 2rd:       coordinates;
 	 * int[]      contains coefficients at [i,j]<br>	
