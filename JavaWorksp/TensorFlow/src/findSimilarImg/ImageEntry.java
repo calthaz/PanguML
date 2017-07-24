@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -13,10 +14,16 @@ import javax.imageio.ImageIO;
 import static java.lang.Math.sqrt;
 import static java.lang.Math.abs;
 
-public class ImageEntry implements Comparable<ImageEntry>{
-	//The interface Comparable cannot be implemented more than once 
-	//with different arguments: Comparable<Candidate> and Comparable<ImageEntry>
-	//private int[][] pixels;
+/**
+ * This class represents an instance in the algorithm described in
+ * <a href="http://grail.cs.washington.edu/projects/query/mrquery.pdf">this paper</a><br>
+ * 现在用的颜色空间其实是YIQ，
+ * 因为改变量名很麻烦所以没改
+ */
+public class ImageEntry implements Comparable<ImageEntry>,Serializable{
+
+	private static final long serialVersionUID = 1L;
+
 	private String path;
 	private double score;
 	private String pairedImprID;
@@ -26,7 +33,6 @@ public class ImageEntry implements Comparable<ImageEntry>{
 	public ArrayList<Float> average;
 	
 	private float[][] matrixH;
-
 	private float[][] matrixS;
 	private float[][] matrixB;
 	
@@ -35,21 +41,31 @@ public class ImageEntry implements Comparable<ImageEntry>{
 	private static int TOP_M=60;//60
 	
 	/**
-	 * 3d: 1st,channel; 2nd, sign; 3rd, coordinates;
-	 * int[] contains coefficients [i,j]
+	 * dimension: value<br>
+	 * 1st:       channel [H, S, B]; <br>
+	 * 2nd:       sign [+, -]; <br>
+	 * 3rd:       coordinates;
+	 * int[]      contains coefficients at [i,j]<br>	
+	 * <b>展开就是这样的:</b><br>
+	 * public ArrayList<int[]> posH;<br>
+     * public ArrayList<int[]> negH;<br>
+	 * public ArrayList<int[]> posS;<br>
+	 * public ArrayList<int[]> negS;<br>
+	 * public ArrayList<int[]> posB;<br>
+	 * public ArrayList<int[]> negB;<br>
 	 */
-	public ArrayList<ArrayList<ArrayList<int[]>>> coefficients;
+	//public ArrayList<ArrayList<ArrayList<int[]>>> coefficients;
+	/**
+	 * dimension: value<br>
+	 * 1st:       channel and sign [H+, H-, S+, S-, B+, B-]; <br> 
+	 * 2rd:       coordinates;
+	 * int[]      contains coefficients at [i,j]<br>	
+	 */
+	public ArrayList<ArrayList<int[]>> coefficients;
 	private String myID;
-	/*
-	public ArrayList<int[]> posH;
-	public ArrayList<int[]> negH;
-	public ArrayList<int[]> posS;
-	public ArrayList<int[]> negS;
-	public ArrayList<int[]> posB;
-	public ArrayList<int[]> negB;
-	*/
+
 	public ImageEntry(BufferedImage src, String ID){
-		//path=null;
+		path=null;
 		myID=ID;
 		process(src);
 	}
@@ -57,11 +73,17 @@ public class ImageEntry implements Comparable<ImageEntry>{
 	public ImageEntry(String path, String ID) throws IOException{
 		myID=ID;
 		this.path=path;
-
 		BufferedImage src = ImageIO.read(new File(path));
 		process(src);
-			
-		
+	}
+	
+	/**
+	 * creat a bare, uninitialized ImageEntry reference with a score field 
+	 * @param path path to the image, no explicit file check
+	 */
+	public ImageEntry(String path) {
+		myID="raw"+(int)Math.random()*100000;
+		this.path=path;
 	}
 
 	private void process(BufferedImage src){
@@ -76,21 +98,28 @@ public class ImageEntry implements Comparable<ImageEntry>{
 		decomposeImage(matrixS);
 		decomposeImage(matrixB);
 		average=new ArrayList<Float>();
-		coefficients = new ArrayList<ArrayList<ArrayList<int[]>>>();
-		//ArrayList<ArrayList<int[]>> rawGroups;
-		coefficients.add(group(matrixH));
 		
-		//coefficients[0][1]=rawGroups.get(1);
-		//rawGroups=group(matrixS);
-		coefficients.add(group(matrixS));
-		//coefficients[1][0]=rawGroups.get(0);
-		//coefficients[1][1]=rawGroups.get(1);
-		//rawGroups=group(matrixB);
-		coefficients.add(group(matrixB));
-		//coefficients[2][0]=rawGroups.get(0);
-		//coefficients[2][1]=rawGroups.get(1);
+		coefficients = new ArrayList<ArrayList<int[]>>();
 		
+		ArrayList<ArrayList<int[]>> h = group(matrixH);
+		ArrayList<ArrayList<int[]>> s = group(matrixS);
+		ArrayList<ArrayList<int[]>> b = group(matrixB);
+				
+		coefficients.add(h.get(0));
+		coefficients.add(h.get(1));
+		coefficients.add(s.get(0));
+		coefficients.add(s.get(1));
+		coefficients.add(b.get(0));
+		coefficients.add(b.get(1));
 		
+		/*
+		System.out.println(coefficients.size());
+		System.out.println(coefficients.get(0).size());
+		System.out.println(coefficients.get(0).get(0).size()+" + "+coefficients.get(0).get(1).size()+" = 60");
+		System.out.println(coefficients.get(1).get(0).size()+" + "+coefficients.get(1).get(1).size()+" = 60");
+		System.out.println(coefficients.get(2).get(0).size()+" + "+coefficients.get(2).get(1).size()+" = 60");
+		System.out.println(coefficients.get(0).get(0).get(0)[0]+","+coefficients.get(0).get(0).get(0)[1]);
+		*/
 	}
 	
 	private void toMatrix(int[] temp) {
@@ -104,7 +133,7 @@ public class ImageEntry implements Comparable<ImageEntry>{
 			//pixels[i/w][i%w]=temp[i];
 			//float[] hsbvals = new float[3];
 			//hsbvals=Color.RGBtoHSB((c>>16)&0xff, (c>>8)&0xff, c&0xff, hsbvals);
-			//YIQ color space now. 
+			//YIQ color space now. !!!
 			int r = (c>>16)&0xff;
 			int g = (c>>8)&0xff;
 			int b = c&0xff;
@@ -131,7 +160,8 @@ public class ImageEntry implements Comparable<ImageEntry>{
 	}
 	
 	/**
-	 * Still I don't know what this method does.
+	 * Still I don't know what this method does.<br>
+	 * It says it's Haar wavelet in <a href="http://grail.cs.washington.edu/projects/query/mrquery.pdf">that paper</a>
 	 * @param arr
 	 */
 	private static void decomposeArray(float[] arr) {
@@ -155,13 +185,13 @@ public class ImageEntry implements Comparable<ImageEntry>{
 	}
 	
 	/**
-	 * |1 2 3|    |1 4 7|
-	 * |4 5 6| -> |2 5 8|
-	 * |7 8 9|    |3 6 9|
+	 * |1 2 3|    |1 4 7|<br>
+	 * |4 5 6| -> |2 5 8|<br>
+	 * |7 8 9|    |3 6 9|<br>
 	 * 
-	 * @param matrix must be a square. I don't want to check it here.
+	 * @param matrix must be a square. No checking here
 	 */
-	public static void transpose(float[][] matrix){
+	public static void transpose(float[][] matrix) throws IndexOutOfBoundsException{
 		for(int row=0;row<matrix.length;row++){
 			for(int col=0; col<row;col++){
 				float temp=matrix[row][col];
@@ -174,7 +204,8 @@ public class ImageEntry implements Comparable<ImageEntry>{
 
 	
 	/**
-	 * @param matrix
+	 * 
+	 * @param matrix matrices of the result of Haar wavelet decomposition
 	 * @return 2 arrayList, each contains a list of coordinates with the same sign
 	 * 0, pos, 1, neg
 	 */
@@ -195,7 +226,7 @@ public class ImageEntry implements Comparable<ImageEntry>{
 			}
 		}
 		
-		average.add(ranking.remove(0));//TODO: several averages. 
+		average.add(ranking.remove(0));//TODO: several averages. ??? 忘记了
 		
 		Collections.sort(ranking);
 		//System.out.println(ranking);
@@ -247,29 +278,6 @@ public class ImageEntry implements Comparable<ImageEntry>{
 		}
 	}
 	
-	/*
-	 * only for testing the algorithms.
-	 */
-	public static void main(String[] args){
-		float[][] matrix = {{(float) 0.7,(float) 0.2,(float) 0.3,(float) 0.5},
-				{(float) 0.4,(float) 0.5,(float) 0.6,(float) 0.9},
-				{(float) 0.7,(float) 0.8,(float) 0.9,(float) 0.3},
-				{(float) 0.7,(float) 0.8,(float) 0.9,(float) 0.5}};
-		printMatrix(matrix);
-		//decomposeArray(matrix[0]);
-		decomposeImage(matrix);
-		printMatrix(matrix);
-		//group(matrix);
-		//transpose(matrix);
-		//printMatrix(matrix);
-		int[] a={1,2,3};
-		int[] b={1,2,3};
-		if(a.equals(b))System.out.println("a=b");
-		else System.out.println("not equal");//why???
-		
-	}
-
-
 	public void setScore(float score) {
 		this.score = score;
 	}
@@ -282,7 +290,7 @@ public class ImageEntry implements Comparable<ImageEntry>{
 		this.pairedImprID = pairedImprID;
 	}
 	
-	//sample: storage\public_photos\zymdxlyx@sina.cn_14778224580.jpg compared with 0zymdxlyx@sina.cn_1477905378.png-imp wins 0 color patches. Score:0.0, 
+	
 	public String toString(){
 		String str=path+" compared with "+pairedImprID;
 		/* No use to print them now+"|Image Entry info: |"
@@ -336,20 +344,39 @@ public class ImageEntry implements Comparable<ImageEntry>{
 	}
 
 	public String getID() {
-		// TODO Auto-generated method stub
 		return myID;
 	}
-/*
-	@Override
-	public void SetWinner(CandiWindow cw) {
-		// TODO Auto-generated method stub
-		myCw = cw;
+
+	/**
+	 * only for testing
+	 */
+	public static void main(String[] args){
+		float[][] matrix = {{(float) 0.7,(float) 0.2,(float) 0.3,(float) 0.5},
+				{(float) 0.4,(float) 0.5,(float) 0.6,(float) 0.9},
+				{(float) 0.7,(float) 0.8,(float) 0.9,(float) 0.3},
+				{(float) 0.7,(float) 0.8,(float) 0.9,(float) 0.5}};
+		printMatrix(matrix);
+		//decomposeArray(matrix[0]);
+		decomposeImage(matrix);
+		printMatrix(matrix);
+		//group(matrix);
+		//transpose(matrix);
+		//printMatrix(matrix);
+		int[] a={1,2,3};
+		int[] b={1,2,3};
+		if(a.equals(b))System.out.println("a=b");
+		else System.out.println("not equal");//why???
+		
+	}
+	
+	/**
+	 * delete unnecessary data so that this entry can be saved in a map
+	 * @return
+	 */
+	public ImageEntry strip() {
+		ImageEntry ret = new ImageEntry(this.path);
+		ret.average = this.average;
+		return ret;
 	}
 
-	@Override
-	public CandiWindow getWinner() {
-		// TODO Auto-generated method stub
-		return myCw;
-	}
-*/
 }

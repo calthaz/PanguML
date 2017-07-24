@@ -7,4 +7,5 @@ public abstract class DevConstants {
 	///var/www/html/tensorflow/www/tensorflow
 	//public static final String RES_ROOT="/var/www/html/tensorflow/www/tensorflow/";
 	//public static final String MOD_ROOT="/var/www/html/tensorflow/www/tensorflow/tf-models/";
+	public static final String IGNORE_PREFIX = "ignore";
 }

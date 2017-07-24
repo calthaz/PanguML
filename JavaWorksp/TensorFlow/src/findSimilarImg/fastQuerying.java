@@ -6,69 +6,90 @@ import static java.lang.Math.min;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-
 import javax.imageio.ImageIO;
 
 import findSimilarImg.ImageEntry;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import tools.TFUtils;
+import general.DevConstants;
+import tools.LabelGenerator;
 
-//import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
-//import javax.js\
 
+/**
+ * This class carries out the algorithm described in
+ * <a href="http://grail.cs.washington.edu/projects/query/mrquery.pdf">this paper</a><br>
+ */
 public class fastQuerying {
+	private static final String DATA_EXT = ".fqdata";
 	private static float[][] w={
 			{(float) 4.04,(float) 0.78,(float) 0.46,(float) 0.43,(float) 0.41,(float) 0.32},
 			{(float) 15.14,(float) 0.92,(float) 0.53,(float) 0.26,(float) 0.14,(float) 0.07},//15.14
 			{(float) 22.62,(float) 0.40,(float) 0.63,(float) 0.25,(float) 0.15,(float) 0.38},//22.62
 			};
-	/**channel, sign, i,j, candi lists(based  on index in candiList)*/
-	private ArrayList<ArrayList<ArrayList<ArrayList<ArrayList<ImageEntry>>>>> searchArray;
-	//private BufferedImage imprDraft;
-	
-	private PrintWriter wr;
-	private String progressFile = "fq-progress.txt";
+	/**channel*2+sign, y, x, candi lists (share instances with candiList)*/
+	private ArrayList<ArrayList<ArrayList<ArrayList<ImageEntry>>>> searchArray;
+
 	private String resultFile;
-	private String dataFile = System.currentTimeMillis()+"fq-data.txt";
-	private String rootPaths[];
+	/**
+	 * stores the feature map of a collection of files
+	 * follows this pattern: {@code [random prefix]-[currentTimeMillis][DATA_EXT]}
+	 * therefore next time the program loads this dir it will look for the latest map and loads it
+	 */
+	private String dataFile = "-"+System.currentTimeMillis()+DATA_EXT;
+	
+	private ArrayList<String> rootPaths;
 	private ArrayList<String> candiPathList = new ArrayList<String>();
+	private ArrayList<String> pathsRead = new ArrayList<String>();
 	private ArrayList<ImageEntry> candiList = new ArrayList<ImageEntry>();
-	private String RESULT_FILE_NAME = "fq-result.txt";
+	private String RESULT_FILE_NAME = "-fq-result.txt";
 	
 	
 	public fastQuerying(String draftPath, String[] inputPaths) {
-		rootPaths = inputPaths;
-		String rootPath = inputPaths[0];
+		rootPaths = trimFiles(inputPaths);
+		String rootPath = rootPaths.get(0);//inputPaths[0];
 		File root = new File(rootPath);
-		String prefix = "fq-"+(int)(Math.random()*100000);
+		String prefix = "fq"+(int)(Math.random()*100000);
   	    if(root.isDirectory()){
   	    	resultFile = rootPath+"/"+prefix+RESULT_FILE_NAME;
-  	    	progressFile  = rootPath+"/"+prefix+progressFile;
   	    	dataFile = rootPath+"/"+prefix+dataFile;
+  	    	System.out.println("Root dir is "+rootPath);
   	    }else{
   	    	resultFile = root.getParent()+"/"+prefix+RESULT_FILE_NAME;
-  	    	progressFile  = root.getParent()+"/"+prefix+progressFile;
   	    	dataFile = root.getParent()+"/"+prefix+dataFile;
+  	    	root = root.getParentFile();
+  	    	System.out.println("Root dir is "+root.getAbsolutePath());
   	    }
-  	    loadFiles();
+  	    long loadTime = System.currentTimeMillis();
   	    initSearchArray();
-  	    //String savedMap = "F:/TensorFlowDev/JavaWorksp/TensorFlow/img/fq-231651500631273277fq-data.txt";
-  	    //searchArray = parseFeatureMap(savedMap);
-  	    
-  	    try {
-			addToDataBase();
-		} catch (IOException e) {
-			System.out.println("can't write progress file");
-		}
-  	    
+  	    loadFiles();
+  	    //System.out.println(candiPathList);
+  	    readSavedData();
+  	    candiPathList.removeAll(pathsRead);
+  	    //System.out.println(candiPathList);
+		addToDataBase();
+		System.out.println("Loading Candidates finished in "+(System.currentTimeMillis()-loadTime)+" miliseconds");
+		//saveFeatureMap(dataFile);
+		/*
+  	    System.out.println(searchArray.size());
+		System.out.println(searchArray.get(0).size());
+		System.out.println(searchArray.get(1).size());
+		System.out.println(searchArray.get(2).size());
+		System.out.println(searchArray.get(3).size());
+		System.out.println(searchArray.get(4).size());
+		System.out.println(searchArray.get(5).size());
+		System.out.println(candiList.size());
+	    */
     	try {
 			BufferedImage img = ImageIO.read(new File(draftPath));
 			if(img!= null&&img.getHeight()!=0){
@@ -77,101 +98,209 @@ public class fastQuerying {
 				System.out.println("Probably not an image: "+draftPath);
 			}
 		} catch (IOException e) {
-			System.out.println("Error reading "+draftPath);
+			System.out.println("Can't read draft "+draftPath);
 		}
     	
-    	
-//    	Gson g = new Gson();
-    	PrintWriter jsonWriter;
-    	ArrayList<ArrayList<ArrayList<ArrayList<ArrayList<String>>>>> dataToSave 
-    		= saveFeatureMap(searchArray);
-		try {
-			jsonWriter = new PrintWriter(new FileWriter(dataFile));
-			jsonWriter.print(JSONArray.fromObject(dataToSave).toString());
-//			jsonWriter.print(g.toJson(dataToSave));
-			jsonWriter.flush();
-			jsonWriter.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
     	
 	}
 	
-	private ArrayList<ArrayList<ArrayList<ArrayList<ArrayList<ImageEntry>>>>> parseFeatureMap(String savedMap) {
-		//Gson g = new Gson();
-		//g.fromJson("xxx",);
-		
-		return null;
-	}
-
-	private ArrayList<ArrayList<ArrayList<ArrayList<ArrayList<String>>>>> saveFeatureMap(
-			ArrayList<ArrayList<ArrayList<ArrayList<ArrayList<ImageEntry>>>>> search) {
-		ArrayList<ArrayList<ArrayList<ArrayList<ArrayList<String>>>>> ret 
-			= new ArrayList<ArrayList<ArrayList<ArrayList<ArrayList<String>>>>>();
-		for(int cc=0; cc<=3; cc++){
-			ret.add(new ArrayList<ArrayList<ArrayList<ArrayList<String>>>>());
-			for(int sign=0;sign<=1; sign++){
-				ret.get(cc).add(new ArrayList<ArrayList<ArrayList<String>>>());
-				for(int i=0; i<ImageEntry.H; i++){
-					ret.get(cc).get(sign).add(new ArrayList<ArrayList<String>>());
-					for(int j=0; j<ImageEntry.W;j++){
-						ret.get(cc).get(sign).get(i).add(new ArrayList<String>());
-						ArrayList<ImageEntry> list = searchArray.get(cc).get(sign).get(i).get(j);
-						for(ImageEntry ime:list){
-							ret.get(cc).get(sign).get(i).get(j).add(ime.getPath());
-						}
-					}
-				}
-			}
-		}		 
-		return ret;
-	}
-
 	private void initSearchArray(){
-		try {
-			wr=new PrintWriter(new FileWriter("fastQuerying log.txt",true));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		int time = (int) System.currentTimeMillis();
-		if(wr!=null)wr.println("\n------"+Calendar.getInstance().getTime()+"------");
 		
-		searchArray=new ArrayList<ArrayList<ArrayList<ArrayList<ArrayList<ImageEntry>>>>>();
-		for(int cc=0; cc<=3; cc++){
-			searchArray.add(new ArrayList<ArrayList<ArrayList<ArrayList<ImageEntry>>>>());
-			for(int sign=0;sign<=1; sign++){
-				searchArray.get(cc).add(new ArrayList<ArrayList<ArrayList<ImageEntry>>>());
-				for(int i=0; i<ImageEntry.H; i++){
-					searchArray.get(cc).get(sign).add(new ArrayList<ArrayList<ImageEntry>>());
-					for(int j=0; j<ImageEntry.W;j++){
-						searchArray.get(cc).get(sign).get(i).add(new ArrayList<ImageEntry>());
-
-					}
+		
+		searchArray=new ArrayList<ArrayList<ArrayList<ArrayList<ImageEntry>>>>();
+		for(int cs=0; cs<3*2; cs++){
+			searchArray.add(new ArrayList<ArrayList<ArrayList<ImageEntry>>>());
+			for(int i=0; i<ImageEntry.H; i++){
+				searchArray.get(cs).add(new ArrayList<ArrayList<ImageEntry>>());
+				for(int j=0; j<ImageEntry.W;j++){
+					searchArray.get(cs).get(i).add(new ArrayList<ImageEntry>());
+	
 				}
 			}
 		}		 
-		time=(int) System.currentTimeMillis()-time;
-		//System.out.println("Setting up database has taken "+time+"ms.");
-	    //if(wr!=null)wr.println("Setting up database has taken "+time+"ms.");
-	    wr.flush();
+	    
+	}
+
+	/**
+	 * delete redundant paths and nonexistent paths. 
+	 * 示例:
+	 * inputPaths: [F:/tmp/foo, F:/tmp/root2, F:/tmp/root/ignore-l3, F:/tmp/root/l2/ignore-l2-2/l2-2-1, F:/tmp/root/l2/l2-1, 
+		F:/tmp/root/l2/ignore-l2-2/sc9.png, F:/tmp/root/l1/sc0.png, F:/tmp/root/l2/l2-1/sc0.png]
+	 * return: [F:/tmp/root2, F:/tmp/root/l2/l2-1, F:/tmp/root/l1/sc0.png]
+	 * @param inputPaths
+	 * @return
+	 */
+	private static ArrayList<String> trimFiles(String[] inputPaths) {
+		//candiPathList is initialized
+		ArrayList<String> paths = new ArrayList<String>();
+		for(String str : inputPaths){
+			Path p = Paths.get(str).normalize().toAbsolutePath();//normalize or not?
+			File f = new File(str);
+			if(!f.exists()){
+				System.out.println("Input path: "+str+" doesn't exist.");
+				continue;
+			}
+			if(f.isDirectory()){
+				if(str.indexOf(DevConstants.IGNORE_PREFIX)!=-1) continue;
+			}else{
+				if(f.getParent().indexOf(DevConstants.IGNORE_PREFIX)!=-1) continue;
+			}
+			//now this file or folder shall not be ignored
+			//check if it's redundant
+			boolean isRedundant = false;
+			for(String old : paths){
+				Path parent = Paths.get(old).toAbsolutePath();
+				if(p.startsWith(parent)){
+					//yes, it is redundant
+					System.out.println(p+" is the children of "+parent);
+					isRedundant = true;
+					break;
+				}
+			}
+			if(!isRedundant)paths.add(p.toString());
+		}
+		System.out.println(paths);
+		return paths;
 	}
 	
 	private void loadFiles(){
 		for(String p : rootPaths){
-			TFUtils.readImageFilesRecursively(new File(p), candiPathList);
+			loadImageFilesRecursively(new File(p), candiPathList);
 		}
 	    
 	}
 	
+	private void readSavedData(){
+		for(String str : rootPaths){
+  	    	File f = new File(str);
+  	    	if(!f.isDirectory()){
+  	    		f = f.getParentFile();
+  	    	}
+  	    	long time = 0l;
+    		String dataFile = null;
+    		for(File c : f.listFiles()){
+    			if(c.getName().endsWith(DATA_EXT)){
+    				String name = c.getName();
+    				try{
+    					long t = Long.parseLong(name.substring(name.lastIndexOf("-")+1, name.indexOf(DATA_EXT)));
+    					if(t>time){
+    						dataFile = c.getAbsolutePath();
+    						time = t;
+    					}
+    				}catch(NumberFormatException e){
+    					System.out.println(c.getAbsolutePath()+"'s time can't be inferred");
+    				}
+    				
+    			}
+    		}
+    		if(dataFile!=null){
+    			try {
+					parseFeatureMap(dataFile);
+					System.out.println("Parsed feature map "+dataFile);
+				} catch (ClassNotFoundException | IOException e) {
+					e.printStackTrace();
+				}
+    		}
+    		
+  	    }
+	}
+	
+	private void loadImageFilesRecursively(File f, ArrayList<String> pathList) {
+		if(f.isDirectory()){
+			if(f.getName().indexOf(DevConstants.IGNORE_PREFIX)==-1){
+				for(File entry : f.listFiles()){
+					loadImageFilesRecursively(entry, pathList);
+				}
+			}	
+		}else{
+			try{
+				//reads every image in case it were a bad one 
+				BufferedImage img = ImageIO.read(f);
+				if(img!= null&&img.getHeight()!=0){
+					pathList.add(f.getPath());
+				}else{
+					System.out.println("Probably not an image: "+f.getPath());
+				}
+			}catch  (IOException e){
+				System.out.println("Error while reading "+f.getPath());
+			}
+		}
+	}
+	
 	/**
-	 * 
+	 * searchArray must be initialized here.<br>
+	 * <b>Note: if multiple ImageEntries that have the same path are parsed, 
+	 * only the first instance is saved into the {@code candiList}, 
+	 * but all are saved into {@code searchArray}</b>, 
+	 * because the cost to remove all the occurrences of the other ImageEntries 
+	 * in {@code searchArray} is simply not worth it. 
+	 * @param savedMap
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
+	private void parseFeatureMap(String savedMap) throws ClassNotFoundException, IOException{		
+		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(savedMap)));
+		@SuppressWarnings("unchecked")
+		ArrayList<ArrayList<ArrayList<ArrayList<ImageEntry>>>> map =  (ArrayList<ArrayList<ArrayList<ArrayList<ImageEntry>>>>) in.readObject();
+		in.close();		
+		//ArrayList<String> localPaths = new ArrayList<String>();
+		//ArrayList<ImageEntry> localCandis = new ArrayList<ImageEntry>();
+		for(int cs=0; cs<3*2; cs++){
+			for(int i=0; i<ImageEntry.H; i++){
+				for(int j=0; j<ImageEntry.W;j++){
+					for(int c = 0; c<map.get(cs).get(i).get(j).size(); c++){
+						ImageEntry entry = map.get(cs).get(i).get(j).get(c);
+						if(candiPathList.indexOf(entry.getPath())==-1){
+							//this file is not in the scope
+							continue;
+						}
+						if(pathsRead.indexOf(entry.getPath())==-1){
+							pathsRead.add(entry.getPath());
+							candiList.add(entry);
+						}
+						searchArray.get(cs).get(i).get(j).add(entry);
+					}
+				}
+			}
+		}
+	}
+
+	private void saveFeatureMap(String path) {
+		ArrayList<ArrayList<ArrayList<ArrayList<ImageEntry>>>> ret 
+			= new ArrayList<ArrayList<ArrayList<ArrayList<ImageEntry>>>>();
+		for(int cs=0; cs<3*2; cs++){
+			ret.add(new ArrayList<ArrayList<ArrayList<ImageEntry>>>());
+				for(int i=0; i<ImageEntry.H; i++){
+					ret.get(cs).add(new ArrayList<ArrayList<ImageEntry>>());
+					for(int j=0; j<ImageEntry.W;j++){
+						ret.get(cs).get(i).add(new ArrayList<ImageEntry>());
+						ArrayList<ImageEntry> list = searchArray.get(cs).get(i).get(j);
+						for(ImageEntry ime:list){
+							ret.get(cs).get(i).get(j).add(ime.strip());
+						}
+					}
+				}
+			
+		}		 
+		try {
+			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File(path)));
+			out.writeObject(ret);
+			out.close();
+			
+			
+		} catch (IOException  e) {
+			e.printStackTrace();
+		}
+		System.out.println("Feature Map saved at "+path);
+	}
+
+	/**
+	 * based on candiPathList, add ImageEntry to both candiList and searchArray 
+	 * so that they <b>share the same set of candis</b>
 	 * @throws IOException if progress file can't be written
 	 */
-	private void addToDataBase() throws IOException{
-		int time = (int) System.currentTimeMillis();
-		PrintWriter progress = new PrintWriter(new FileWriter(progressFile,true),true);
-		System.out.println(progressFile);
-	    progress.println("Progress: Start comparing");
+	private void addToDataBase(){
+
 		int total = candiPathList.size();
 		for(int n=0; n<total; n++){
 			String path = candiPathList.get(n);
@@ -187,9 +316,9 @@ public class fastQuerying {
 								int[] o ={i,j};
 								//int index = entry.coefficients.get(cc).get(sign).indexOf(o);
 								//sadly, they never refer to the same object, so they can never be equal. 
-								for(int[] co:entry.coefficients.get(cc).get(sign)){
+								for(int[] co:entry.coefficients.get(cc*2+sign)){
 									if(co[0]==o[0]&&co[1]==o[1]){
-										searchArray.get(cc).get(sign).get(i).get(j).add(entry);
+										searchArray.get(cc*2+sign).get(i).get(j).add(entry);
 									}
 								}	
 							}
@@ -197,17 +326,15 @@ public class fastQuerying {
 					}
 				}
 				System.out.println(String.format("Processing Candidate %s out of %s", n,total));
-				progress.println("Progress: processing file No."+(n+1)+" out of "+total);
 			}catch(IOException e){
 				System.out.println(String.format("Error: while Processing Candidate %s out of %s, path: %s", n,total,path));
 				e.printStackTrace();
 			}
 		}
-		time = (int)System.currentTimeMillis()-time;
-		progress.println("Progress: Loading Candidates finished in "+time+" seconds");
-		System.out.println("Progress: Loading Candidates finished in "+time+" seconds");
- 	    progress.close();
+		
+ 	    
 	}
+	
 	private int bin(int i, int j){
 		return min(max(i,j),5);
 	}
@@ -215,22 +342,15 @@ public class fastQuerying {
 	private void findCandidates(BufferedImage draft) throws IOException {
 		
 		System.out.println("Processing image...");
-		if(wr!=null)wr.println("\n------"+Calendar.getInstance().getTime()+"------");
+		
 		//Time processing time.
 		int time = (int) System.currentTimeMillis();
 		String imprID = "temp-id";
 		ImageEntry imp = new ImageEntry(draft,imprID);
-		if(wr!=null)wr.println("Current Impression: "+imp.getPath());
-		
 		time = (int)System.currentTimeMillis()-time;
 		System.out.println("Processing has taken "+time+"ms.");
-		if(wr!=null)wr.println("Processing has taken "+time+"ms.");
-		
-		System.out.println(imp);
 		System.out.println("Starts comparing...");
 		time = (int) System.currentTimeMillis();
-		PrintWriter progress = new PrintWriter(new FileWriter(progressFile,true),true);
-		progress.println("Progress: start real comparing");
 		    
 		for(ImageEntry candi: candiList){
 			candi.setPairedImprID(imprID);
@@ -240,65 +360,56 @@ public class fastQuerying {
  	    for(int cChannel = 0; cChannel<3; cChannel++){
  	    	for(ImageEntry candi: candiList){
  	    		candi.setScore(candi.getScore()+w[cChannel][0]*abs(((ImageEntry)candi).average.get(cChannel)-imp.average.get(cChannel)));
- 	    		//candi.score+=w[cChannel][0]*abs(candi.average.get(cChannel)-imp.average.get(cChannel));
  	    	}
  	    	
- 	    	for(int[] coordinate: imp.coefficients.get(cChannel).get(0)){
- 	    		//System.out.print("D+");
- 	    		//list.addAll(searchArray.get(cChannel).get(0).get(coordinate[0]).get(coordinate[1]));
- 	    		//System.out.println(searchArray.get(cChannel).get(0).get(coordinate[0]).get(coordinate[1]).size());
- 	    		for(ImageEntry entry: searchArray.get(cChannel).get(0).get(coordinate[0]).get(coordinate[1])){
- 	    			//candiList.get(index).score-=w[cChannel][bin(coordinate[0],coordinate[1])];
+ 	    	for(int[] coordinate: imp.coefficients.get(cChannel*2)){
+ 	    		for(ImageEntry entry: searchArray.get(cChannel*2).get(coordinate[0]).get(coordinate[1])){
  	    			entry.setScore(entry.getScore()-w[cChannel][bin(coordinate[0],coordinate[1])]);
- 	    			//entry.score-=w[cChannel][bin(coordinate[0],coordinate[1])];
- 	    			//System.out.println(" "+entry.getPath()+" "+entry.score);
  	    		}
  	    	}
  	    	
- 	    	for(int[] coordinate: imp.coefficients.get(cChannel).get(1)){
- 	    		//list.addAll(searchArray.get(cChannel).get(1).get(coordinate[0]).get(coordinate[1]));
- 	    		for(ImageEntry entry: searchArray.get(cChannel).get(1).get(coordinate[0]).get(coordinate[1])){
+ 	    	for(int[] coordinate: imp.coefficients.get(cChannel*2+1)){
+ 	    		for(ImageEntry entry: searchArray.get(cChannel*2+1).get(coordinate[0]).get(coordinate[1])){
  	    			entry.setScore(entry.getScore()-w[cChannel][bin(coordinate[0],coordinate[1])]);
- 	    			//entry.score-=w[cChannel][bin(coordinate[0],coordinate[1])];
  	    		}
  	    	}
  	    }
  	    
  	    System.out.println("Sorting results...");
 	    Collections.sort(candiList);
-
-			
-		PrintWriter result = new PrintWriter(new FileWriter(resultFile,true),true);
-		System.out.println(resultFile);
-		result.println(candiList);
-		result.close();
-
 	    //System.out.println(candiList);
 		time = (int)System.currentTimeMillis()-time;
  	    System.out.println("Comparing has taken "+time+"ms.");
- 	   progress.println("Finished: "+"Comparing has taken "+time+"ms.");
- 	   progress.flush();
- 	   progress.close();
- 	    if(wr!=null)wr.println("Comparing has taken "+time+"ms.");
- 	    wr.flush();
+ 	    PrintWriter result = new PrintWriter(new FileWriter(resultFile,true),true);
+ 	    for(ImageEntry e : candiList){
+ 	    	result.println(e.getPath()+LabelGenerator.LABEL_SEP+e.getScore());
+ 	    }
+		System.out.println(resultFile);
+		result.close();
+ 	   
 	}
 	
+	
 	public static void main(String args[]){
-		String rootPath = "";
+		//String rootPath = "";
 		String draftPath = "";
 		String[] inputPaths = new String[1];
 		if(args.length<1){
 			return;
 		}else if(args.length<2){
 			draftPath = args[0];
-			rootPath = System.getProperty("user.dir");
+			//rootPath = System.getProperty("user.dir");
 			inputPaths[0] = System.getProperty("user.dir");
 		}else {		
 			draftPath = args[0];
-			rootPath = args[1];
+			//rootPath = args[1];
 			inputPaths = Arrays.copyOfRange(args, 1, args.length);
 		}
-		System.out.println(rootPath);
+		//System.out.println(rootPath);
+	    for(String p : inputPaths){
+			System.out.println(p);
+		}
+		//trimFiles(inputPaths);
 		new fastQuerying(draftPath, inputPaths);
 	}
 }

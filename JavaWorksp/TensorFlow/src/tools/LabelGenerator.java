@@ -11,6 +11,8 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
+import general.DevConstants;
+
 public class LabelGenerator {
 	//private File rootDir;
 	//private File labelDir;
@@ -33,7 +35,7 @@ public class LabelGenerator {
 			PrintWriter labelWr=new PrintWriter(labelDir+SEP+LABEL_FILE_NAME,"UTF-8");	
 			PrintWriter textWr=new PrintWriter(labelDir+SEP+LABEL_TEXT_FILE_NAME,"UTF-8");	
 			for(File dir: rootDir.listFiles()){
-				if(dir.isDirectory()&&!dir.getName().startsWith("ignore")){
+				if(dir.isDirectory()&&!dir.getName().startsWith(DevConstants.IGNORE_PREFIX)){
 					for(File entry: dir.listFiles()){
 						if(!entry.isDirectory()){
 							//String ext = entry.getPath();
