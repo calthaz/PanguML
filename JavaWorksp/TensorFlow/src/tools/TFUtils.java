@@ -189,205 +189,10 @@ public class TFUtils {
 		return d;
 	}
 	
-	/**
-	 * copy dir structure and images in inputDir, 
-	 * and output resized images to outputDir/inputDirname/ in corresponding structure. 
-	 * rename images with /[a-z][0-9]/ (?)
-	 * @param inputDir
-	 * @param outputDir
-	 * @param maxSize max size of the output image, all sides are less than or equal to {@code maxSize}
-	 */
-	public static void scaleImageDir(String inputDir, String outputDir, int maxSize){
-		File inputRoot = new File(inputDir);
-		File outputRoot = new File(outputDir);
-		if(!inputRoot.exists()||!outputRoot.exists()){
-			System.out.println("Input dir or output dir doesn't exist");
-			return;
-		}
-		if(inputRoot.isDirectory()){
-			String r = inputRoot.getName();
-			File realOutputRoot = new File(outputDir+SEP+r);
-			int count = 0; 
-			if(realOutputRoot.mkdirs()){
-				scaleImageDirRecursive(inputRoot, realOutputRoot, maxSize, count);
-			}else{
-				System.err.println("Create dir failed "+realOutputRoot.getAbsolutePath());
-			}
-		}else{
-			try{
-				BufferedImage img = ImageIO.read(inputRoot);
-				if(img!= null&&img.getHeight()!=0){
-					BufferedImage st = null;
-					if(img.getWidth()<=maxSize&&img.getHeight()<=maxSize){
-						st = img;
-					}else{
-						Dimension des = scaleUniformFit(img.getWidth(), img.getHeight(), maxSize, maxSize);
-						st = getScaledImage(img, des.width, des.height);
-					}
-					String ext = "png";
-					if(st.getType()==BufferedImage.TYPE_INT_RGB){
-						ext = "jpg";
-					}
-					ImageIO.write(st, ext, new File(outputDir+SEP+inputRoot.getName()));
-				}else{
-					System.out.println("Probably not an image: "+inputRoot.getPath());
-				}
-			}catch  (IOException e){
-				System.out.println("Error while reading "+inputRoot.getPath());
-			}
-		}
-		System.out.println();
-		System.out.println("Finished.");
-	}
-	/**
-	 * 好像不能全删掉，为什么呐？
-	 * @param dir
-	 */
-	private static void deleteEmptyDirs(File dir) {
-		if(dir.list().length==0){
-			dir.delete();
-			return;
-		}
-		for(File f: dir.listFiles()){
-			if(f.isDirectory()){
-				deleteEmptyDirs(f);			
-				//Deletes the file or directory denoted by this abstract pathname. 
-				//If this pathname denotes a directory, then the directory must be empty in order to be deleted. 
-			}
-		}
-	}
-	/**
-	 * 
-	 * @param inputRoot must be a dir
-	 * @param outputRoot must also be a dir
-	 * @param maxSize maxSize of an image
-	 */
-	private static void scaleImageDirRecursive(File inputRoot, File outputRoot, int maxSize, int count) {
-		// TODO Auto-generated method stub
-		for(File f : inputRoot.listFiles()){
-			if(f.isDirectory()){
-				File nextOut = new File(outputRoot+SEP+f.getName());
-				if(nextOut.mkdirs()){
-					scaleImageDirRecursive(f, nextOut, maxSize, count);
-				}else{
-					System.err.println("Create dir failed "+nextOut.getAbsolutePath());
-				}
-				deleteEmptyDirs(nextOut);
-			}else{
-				try{
-					BufferedImage img = ImageIO.read(f);
-					if(img!= null&&img.getHeight()!=0){
-						BufferedImage st = null;
-						if(img.getWidth()<=maxSize&&img.getHeight()<=maxSize){
-							st = img;
-						}else{
-							Dimension des = scaleUniformFit(img.getWidth(), img.getHeight(), maxSize, maxSize);
-							st = getScaledImage(img, des.width, des.height);
-						}
-						String ext = "png";
-						if(st.getType()==BufferedImage.TYPE_INT_RGB){
-							ext = "jpg";
-						}
-						int rand = (int)(Math.random()*100000000);
-						ImageIO.write(st, ext, new File(outputRoot.getAbsolutePath()+SEP+("bai"+count)+rand+"."+ext));
-						System.out.print(".");
-						if(count%100==0){
-							System.out.println();
-						}
-						count++;
-					}else{
-						System.out.println("Probably not an image: "+f.getPath());
-					}
-				}catch  (IOException e){
-					System.out.println("Error while reading "+f.getPath());
-				}
-			}
-		}
-	}
-	/*
-	public static void addPrefixFolder(String root, String prefix){
-		File   file = new   File("D:/gai.jpg");   //指定文件名及路径  
-		String name="123";     
-		String filename = file.getAbsolutePath();     
-		if(filename.indexOf(".")>=0){     
-	       filename   =   filename.substring(0,filename.lastIndexOf("."));     
-	    }     
-	    file.renameTo(new   File(name+".jpg"));   //改名 
-	}*/
-	/**
-	 * Print paths to images that does not meet any of the requirements
-	 * @param rootDir div to be checked
-	 * @param minW
-	 * @param minH
-	 * @param maxW if maxW<=0, it is ignored
-	 * @param maxH if maxH<=0, it is ignored
-	 * @param divs if not null, paths to the unqualified images are stored there
-	 * @param outputDir if not null, unqualified images are moved to this dir
-	 */
-	public static void checkDimensionsRec(File rootDir, int minW, int minH, int maxW, int maxH, ArrayList<String> divs, String outputDir){
-			for(File entry : rootDir.listFiles()){
-				if(entry.isDirectory()){
-					checkDimensionsRec(entry, minW, minH, maxW, maxH, divs, outputDir);
-				}else{
-					try{
-						BufferedImage img = ImageIO.read(entry);
-						if(img!= null&&img.getHeight()!=0){
-							int w = img.getWidth();
-							int h = img.getHeight();
-							boolean add = false;
-							if(w<minW){
-								System.out.println(entry.getPath()+"'s width is smaller than "+minW);
-								add=true;
-							}
-							if(h<minH){
-								System.out.println(entry.getPath()+"'s height is smaller than "+minW);
-								add=true;
-							}
-							if(maxW>0&&w>maxW){
-								System.out.println(entry.getPath()+"'s height is larger than "+maxW);
-								add=true;
-							}
-							if(maxH>0&&h>maxH){
-								System.out.println(entry.getPath()+"'s height is larger than "+maxW);
-								add=true;
-							}
-							if(add&&divs!=null&&outputDir!=null){
-								divs.add(entry.getName());
-								entry.delete();
-								ImageIO.write(img, "jpg", new File(outputDir+SEP+entry.getName()));
-							}
-						}else{
-							System.out.println("Probably not an image: "+entry.getPath());
-						}
-					}catch  (IOException e){
-						System.out.println("Error while reading "+entry.getPath());
-					}
-				}
-			}		
-	}
-	/**
-	 * handy helper function to move inappropriate images to a dir 
-	 * and print filenames in html divs so that these images can be captured in a web page
-	 * @param root dir to be checked
-	 * @param minW
-	 * @param minH
-	 * @param maxW if maxW<=0, it is ignored
-	 * @param maxH if maxH<=0, it is ignored
-	 */
-	private static void checkDimensions(File root, int minW, int minH, int maxW, int maxH) {
-		ArrayList<String> divs = new ArrayList<String>();
-		String webPath = "img/tietu/";
-		checkDimensionsRec(root, minW, minH, maxW, maxH, divs, "F:/tmp");
-		System.out.println("F:/tmp");
-		for(String name : divs){
-			System.out.println(String.format("<div style=\"background-image: url('%s%s');"
-					, webPath, name)+ "height: 536px; width: 100%; border: 2px solid green;\">"
-					+"</div>");
-		}
-		
-	}
+	
 	/**
 	 * Check accuracy in a fool-proof way
+	 * accuracy = (machine got it right)/(machine thought it to be in this class)
 	 * @param resultFile
 	 * @param labelFile
 	 * @return accuracy by category
@@ -407,6 +212,12 @@ public class TFUtils {
 					String path = line.substring(0,line.indexOf(LabelGenerator.LABEL_SEP));
 					String m = line.substring(line.indexOf(LabelGenerator.LABEL_SEP)+LabelGenerator.LABEL_SEP.length());
 					String label = m.substring(0,m.indexOf(LabelGenerator.LABEL_SEP));
+					
+					if(label.indexOf("\\")!=-1){
+						//label = label.substring(0,label.indexOf("\\"));
+						//label = label.substring(label.indexOf("\\")+1);
+					}
+					
 					int index = labels.indexOf(label);
 					sum[index]++;
 					if(path.indexOf(label)!=-1){
@@ -426,20 +237,23 @@ public class TFUtils {
 		}
 		return ret;
 	}
+	public void sortByClass(String resultFile, String labelFile, String outputDir){
+		
+	}
 	public static void main(String args[]){
 		//deleteEmptyDirs(new File("c:/tmp/test"));
 		
-		//String rootPath = "C:/tmp/hardware";
-		/*
-		if(args.length<1){
-			rootPath = System.getProperty("user.dir");
-		}else{
-			rootPath = args[0];
-		}*/
-		//System.out.println(rootPath);
-		//scaleImageDir(rootPath, "c:/tmp/新硬装贴图", 512);
-		//File root = new File(rootPath);
-		//if(root.isDirectory()) checkDimensions(root, 128, 128, -1, -1);
+		String rootPath = "C:/tmp/风格";
+		
+		//if(args.length<1){
+			//rootPath = System.getProperty("user.dir");
+		//}else{
+			//rootPath = args[0];
+		//}
+		
+		System.out.println(rootPath);
+
+		
 		System.out.println("-----------crop----------------");
 		double[] result = checkAccuracy("C:/tmp/hardware/crop-tf-inference-results.txt", "C:/tmp/hardware/tf-labels-to-text.txt");
 		for(double s : result){
@@ -464,6 +278,30 @@ public class TFUtils {
 		for(double s : result){
 			System.out.println(s);
 		}
-
+		
+		System.out.println("----------- styles and rooms ----------------");
+		result = checkAccuracy("F:/tmp/styles/furn-86554tf-inference-results.txt", 
+				"F:/tmp/styles/tf-labels-to-text.txt");
+		ArrayList<String> labels = LabelGenerator.readLabelsFromFile("F:/tmp/styles/tf-labels-to-text.txt");
+		for(int i=0; i<labels.size(); i++){
+			System.out.println(labels.get(i)+":"+result[i]);
+		}
+		System.out.println("total:"+result[labels.size()]);
+		/*System.out.println("----------- BY STYLE ----------------");
+		result = checkAccuracy("F:/tmp/styles/furn-86554tf-inference-results.txt", 
+				"F:/tmp/styles/tf-labels-to-text-collapse-by-style.txt");
+		ArrayList<String> labels = LabelGenerator.readLabelsFromFile("F:/tmp/styles/tf-labels-to-text-collapse-by-style.txt");
+		for(int i=0; i<labels.size(); i++){
+			System.out.println(labels.get(i)+":"+result[i]);
+		}
+		System.out.println("total:"+result[labels.size()]);
+		System.out.println("----------- BY ROOM ----------------");
+		result = checkAccuracy("F:/tmp/styles/furn-86554tf-inference-results.txt", 
+				"F:/tmp/styles/tf-labels-to-text-collapse-by-room.txt");
+		ArrayList<String> labels = LabelGenerator.readLabelsFromFile("F:/tmp/styles/tf-labels-to-text-collapse-by-room.txt");
+		for(int i=0; i<labels.size(); i++){
+			System.out.println(labels.get(i)+":"+result[i]);
+		}
+		System.out.println("total:"+result[labels.size()]);*/
 	}
 }

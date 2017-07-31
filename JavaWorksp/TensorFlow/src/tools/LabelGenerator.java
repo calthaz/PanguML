@@ -7,6 +7,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
@@ -27,6 +29,7 @@ public class LabelGenerator {
 	/**
 	 * assumes that imgs are stored this way: 
 	 * root/catagory1; root/catagory2; root/catagory3; ... no nesting
+	 * acts like {@code LabelGenerator(rootDir, labelDir, 1)}
 	 * @param rootDir
 	 * @param labelDir where you can find the label files
 	 */
@@ -72,10 +75,73 @@ public class LabelGenerator {
 		}
 		
 	}
+	
+	/**
+	 * assumes that imgs are stored this way: <br>
+	 * root/nest1/nest2/xxx.img
+	 * label for "xxx.img" is then "nest1/nest2"
+	 * @param rootDir
+	 * @param labelDir where you can find the label files
+	 */
+	public LabelGenerator(File rootDir, File labelDir, int depth){
+		try {
+			PrintWriter labelWr=new PrintWriter(labelDir+SEP+LABEL_FILE_NAME,"UTF-8");	
+			PrintWriter textWr=new PrintWriter(labelDir+SEP+LABEL_TEXT_FILE_NAME,"UTF-8");	
+			ArrayList<File> dirs = new ArrayList<File>();
+			dirs.add(rootDir);
+			Path rootPath = Paths.get(rootDir.getAbsolutePath());
+			for(int round=0; round<=depth; round++){
+				ArrayList<File> tmp = new ArrayList<File>();
+				while(!dirs.isEmpty()){
+					File father = dirs.remove(dirs.size()-1);
+					for(File child : father.listFiles()){
+						if(child.isDirectory()&&!child.getName().startsWith(DevConstants.IGNORE_PREFIX)){
+							tmp.add(child);
+						}
+						if(round==depth){
+							if(!child.isDirectory()){
+								try{
+									//reads every image in case it were a bad one that could cause the training to fail
+									BufferedImage img = ImageIO.read(child);
+									if(img!= null&&img.getHeight()!=0){
+										//children are image files
+										Path childPath = Paths.get(father.getAbsolutePath()); 
+										Path relative = rootPath.relativize(childPath);
+										String label = relative.toString();
+										if(!labels.contains(label)){
+											labels.add(label);
+											textWr.println((labels.size()-1)+LABEL_SEP+label);
+										}
+										labelWr.println(String.format("%s"+LABEL_SEP+"%s", child.getAbsolutePath(), labels.size()-1));
+									}else{
+											System.out.println("Illegal image skipped: "+child.getPath());
+									}
+								}catch  (IOException e){
+									System.out.println("Illegal image skipped: "+child.getPath());
+								}
+								
+							}
+						}
+					}
+				}
+				dirs = tmp; 
+			}
+			labelWr.flush();
+			labelWr.close();
+			textWr.flush();
+			textWr.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	//private void generateNestedLabels(PrintWriter labelWr, PrintWriter textWr, )
 	/**
 	 * 
 	 * @param path path to the label file, utf-8 encoded
-	 * @return an ArrayList of labels read from the label file as separated by LABEL_SEP; 
+	 * @return an ArrayList of labels read from the label file as separated by LABEL_SEP<br> 
 	 * for example "0LABEL_SEPtree" => labels.get(0)==tree
 	 */
 	public static ArrayList<String> readLabelsFromFile(String path){
@@ -102,6 +168,25 @@ public class LabelGenerator {
 		}
 		return labels;
 	}
+	public static String[] parseResultLine(String line, int fieldCount){
+		String[] result = new String[fieldCount];
+		for(int i=0; i<fieldCount; i++){
+			
+			int index = line.indexOf(LabelGenerator.LABEL_SEP);
+			if(index!=-1){
+				result[i] = line.substring(0,index);
+				line = line.substring(index+LabelGenerator.LABEL_SEP.length());
+			}else{
+				result[i]=line;
+				break;
+			}
+			
+		}
+		for(String s: result){
+			System.out.println(s);
+		}
+		return result;
+	}
 	/**
 	 * creates a label file 
 	 * path\to\filename.jpg[-is-]label
@@ -109,6 +194,7 @@ public class LabelGenerator {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
 		
 		String rootPath = "";
 		if(args.length<1){
@@ -125,7 +211,7 @@ public class LabelGenerator {
 				System.out.println("label file already exists. Overwriting that file");
 				System.out.println(labelFile.getAbsolutePath());
 			}
-			new LabelGenerator(rootDir, rootDir);
+			new LabelGenerator(rootDir, rootDir, 2);
 		}else{
 			System.out.println("root directory must be a directory.");
 		}
