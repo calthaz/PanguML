@@ -15,7 +15,7 @@ public class StyleClassifier extends Classifier{
 				"/tf-models/model-fur-no-text-1/frozen_graph.pb");;
 		batchModelPath =  NativeUtils.loadOrExtract(DevConstants.RES_ROOT+"tf-models/style128-"+BATCH_SIZE+"/frozen_graph.pb", 
 				"/tf-models/model-fur-no-text-"+BATCH_SIZE+"/frozen_graph.pb");
-		labelPath = NativeUtils.loadOrExtract("F:/tmp/styles/tf-labels-to-text.txt",
+		labelPath = NativeUtils.loadOrExtract("F:/TensorFlowDev/training-materials/styles/tf-labels-to-text.txt",
 				"/labels/styles/tf-labels-to-text.txt");
 		
   	    loadAndRun(inputPaths); 

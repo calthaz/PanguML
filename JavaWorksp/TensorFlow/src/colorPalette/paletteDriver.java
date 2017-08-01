@@ -6,7 +6,12 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import tools.ColorPaletteReader;
+
 public class paletteDriver {
+	public static final String FULL_PAL = "palettes/md-full.txt";
+	public static final String BRIGHT_PAL = "palettes/md-original-pure.txt";
+	public static final String DES_PAL = "palettes/md-desaturate-pure.txt";
 	private static void printColorBlocks(int[][] colors){
 		for(int[] i : colors){
 				System.out.println(
@@ -18,13 +23,34 @@ public class paletteDriver {
 		try {
 			//BufferedImage img = ImageIO.read(new File("F:/tmp/styles/mediterranean/bedroom/pipi059126993.png"));
 			//BufferedImage img = ImageIO.read(new File("F:/tmp/styles/mediterranean/bedroom/pipi67132787.png"));
-			BufferedImage img = ImageIO.read(new File("F:/TensorFlowDev/JavaWorksp/TensorFlow/img/dingo.jpg"));
+			BufferedImage img = ImageIO.read(new File("F:/TensorFlowDev/JavaWorksp/TensorFlow/img/rainbow.jpg"));
 			int[][] colors = ColorThief.getPalette(img, 6);
 			printColorBlocks(colors);
 			OctTree ot = new OctTree();
-			System.out.println("-----------------Octree palette------------");
-			colors = ot.getPalatte(img, 10);
+			System.out.println("<div>-----------------Octree palette------------</div>");
+			colors = ot.getRGBPalette(img, 10);
 			printColorBlocks(colors);
+			/*
+			for(int[] i : colors){
+				int c = i[0]<<16|i[1]<<8|i[2];
+				String s = Integer.toHexString(c);
+				while(s.length()<6){
+					s = "0"+s;
+				}
+				//System.out.println("#"+s);
+				System.out.println(
+						String.format("<div class=\"swatch\" style=\"width=65px; height=50px; background-color: #%s\"></div>", 
+								s));
+			}
+			for(int[] i : colors){
+				int c = i[0]<<16|i[1]<<8|i[2];
+				System.out.println("#"+Integer.toHexString(c));(,
+			}*/
+			System.out.println("<div>-----------------Octree with extended material design palette------------</div>");
+			ColorPaletteReader rd = new ColorPaletteReader(BRIGHT_PAL);
+			colors = ot.getPaletteAccordingTo(rd.getRGBPalette(), img, 10);
+			printColorBlocks(colors);
+			
 			int num = 1000;
 			long time = System.currentTimeMillis();
 			for(int i=0; i<num; i++){
@@ -34,7 +60,7 @@ public class paletteDriver {
 			time = System.currentTimeMillis();
 			for(int i=0; i<num; i++){
 				ot.clear();
-				colors = ot.getPalatte(img, 10);
+				colors = ot.getPaletteAccordingTo(rd.getRGBPalette(),img, 10);
 			}
 			System.out.println("Time for oct: "+ (System.currentTimeMillis()-time));
 		} catch (IOException e) {
@@ -45,3 +71,12 @@ public class paletteDriver {
 	}
 
 }
+/*
+580;
+5400
+use array: 5300
+<300: 2861
+<150: 730
+//palette: 790
+<75: 224
+*/

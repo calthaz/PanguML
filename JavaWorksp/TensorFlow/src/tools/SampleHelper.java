@@ -3,6 +3,7 @@ package tools;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,7 +17,22 @@ import javax.imageio.ImageIO;
  */
 public class SampleHelper {
 	
+	/**
+	 * Must implements {@code public BufferedImage process(BufferedImage img);} 
+	 */
+	private interface ImgProcessor{
+		public BufferedImage process(BufferedImage img); 
+		/*
+		  String[] myFiles = directory.list(new FilenameFilter() {
+			    public boolean accept(File directory, String fileName) {
+			        return fileName.endsWith(".txt");
+			    }
+			});
+		 
+		  */
+	}
 	private static final String SEP = "/";
+	private static String outputPrefix = "dfgj";
 	public static void extendSamples(String directoryPath){
 		File directory = new File(directoryPath);
 		if(directory.isDirectory()){
@@ -42,15 +58,8 @@ public class SampleHelper {
 			System.out.println("not a dir");
 		}
 	}
-	/**
-	 * copy dir structure and images in inputDir, 
-	 * and output resized images to outputDir/inputDirname/ in corresponding structure. 
-	 * rename images with /[a-z][0-9]/ (?)
-	 * @param inputDir
-	 * @param outputDir
-	 * @param maxSize max size of the output image, all sides are less than or equal to {@code maxSize}
-	 */
-	public static void scaleImageDir(String inputDir, String outputDir, int maxSize){
+
+	public static void batchEditImages(String inputDir, String outputDir, ImgProcessor processor){
 		File inputRoot = new File(inputDir);
 		File outputRoot = new File(outputDir);
 		if(!inputRoot.exists()||!outputRoot.exists()){
@@ -62,7 +71,7 @@ public class SampleHelper {
 			File realOutputRoot = new File(outputDir+SEP+r);
 			int count = 0; 
 			if(realOutputRoot.mkdirs()){
-				scaleImageDirRecursive(inputRoot, realOutputRoot, maxSize, count);
+				batchEditImagesRecursive(inputRoot, realOutputRoot, processor, count);
 			}else{
 				System.err.println("Create dir failed "+realOutputRoot.getAbsolutePath());
 			}
@@ -70,13 +79,7 @@ public class SampleHelper {
 			try{
 				BufferedImage img = ImageIO.read(inputRoot);
 				if(img!= null&&img.getHeight()!=0){
-					BufferedImage st = null;
-					if(img.getWidth()<=maxSize&&img.getHeight()<=maxSize){
-						st = img;
-					}else{
-						Dimension des = TFUtils.scaleUniformFit(img.getWidth(), img.getHeight(), maxSize, maxSize);
-						st = TFUtils.getScaledImage(img, des.width, des.height);
-					}
+					BufferedImage st = processor.process(img);
 					String ext = "png";
 					if(st.getType()==BufferedImage.TYPE_INT_RGB){
 						ext = "jpg";
@@ -92,6 +95,65 @@ public class SampleHelper {
 		System.out.println();
 		System.out.println("Finished.");
 	}
+
+	private static void batchEditImagesRecursive(File inputRoot, File outputRoot, ImgProcessor processor, int count) {
+		for(File f : inputRoot.listFiles()){
+			if(f.isDirectory()){
+				File nextOut = new File(outputRoot+SEP+f.getName());
+				if(nextOut.mkdirs()){
+					batchEditImagesRecursive(f, nextOut, processor, count);
+				}else{
+					System.err.println("Create dir failed "+nextOut.getAbsolutePath());
+				}
+				deleteEmptyDirs(nextOut);
+			}else{
+				try{
+					BufferedImage img = ImageIO.read(f);
+					if(img!= null&&img.getHeight()!=0){
+						BufferedImage st = processor.process(img);
+						String ext = "png";
+						if(st.getType()==BufferedImage.TYPE_INT_RGB){
+							ext = "jpg";
+						}
+						int rand = (int)(Math.random()*100000000);
+						ImageIO.write(st, ext, new File(outputRoot.getAbsolutePath()+SEP+(outputPrefix+count)+rand+"."+ext));
+						System.out.print(".");
+						if(count%100==0){
+							System.out.println();
+						}
+						count++;
+					}else{
+						System.out.println("Probably not an image: "+f.getPath());
+					}
+				}catch  (IOException e){
+					System.out.println("Error while reading "+f.getPath());
+				}
+			}
+		}
+	}
+	/**
+	 * copy dir structure and images in inputDir, 
+	 * and output resized images to outputDir/inputDirname/ in corresponding structure. 
+	 * rename images with /[a-z][0-9]/ (?)
+	 * @param inputDir
+	 * @param outputDir
+	 * @param maxSize max size of the output image, all sides are less than or equal to {@code maxSize}
+	 */
+	public static void scaleImageDir(String inputDir, String outputDir, int maxSize){
+		batchEditImages(inputDir, outputDir, new ImgProcessor(){
+			@Override
+			public BufferedImage process(BufferedImage img) {
+				BufferedImage st = null;
+				if(img.getWidth()<=maxSize&&img.getHeight()<=maxSize){
+					st = img;
+				}else{
+					Dimension des = TFUtils.scaleUniformFit(img.getWidth(), img.getHeight(), maxSize, maxSize);
+					st = TFUtils.getScaledImage(img, des.width, des.height);
+				}
+				return st;
+			}		
+		});
+	}
 	/**
 	 * 好像不能全删掉，为什么呐？
 	 * @param dir
@@ -106,54 +168,6 @@ public class SampleHelper {
 				deleteEmptyDirs(f);			
 				//Deletes the file or directory denoted by this abstract pathname. 
 				//If this pathname denotes a directory, then the directory must be empty in order to be deleted. 
-			}
-		}
-	}
-	/**
-	 * 
-	 * @param inputRoot must be a dir
-	 * @param outputRoot must also be a dir
-	 * @param maxSize maxSize of an image
-	 */
-	private static void scaleImageDirRecursive(File inputRoot, File outputRoot, int maxSize, int count) {
-		// TODO Auto-generated method stub
-		for(File f : inputRoot.listFiles()){
-			if(f.isDirectory()){
-				File nextOut = new File(outputRoot+SEP+f.getName());
-				if(nextOut.mkdirs()){
-					scaleImageDirRecursive(f, nextOut, maxSize, count);
-				}else{
-					System.err.println("Create dir failed "+nextOut.getAbsolutePath());
-				}
-				deleteEmptyDirs(nextOut);
-			}else{
-				try{
-					BufferedImage img = ImageIO.read(f);
-					if(img!= null&&img.getHeight()!=0){
-						BufferedImage st = null;
-						if(img.getWidth()<=maxSize&&img.getHeight()<=maxSize){
-							st = img;
-						}else{
-							Dimension des = TFUtils.scaleUniformFit(img.getWidth(), img.getHeight(), maxSize, maxSize);
-							st = TFUtils.getScaledImage(img, des.width, des.height);
-						}
-						String ext = "png";
-						if(st.getType()==BufferedImage.TYPE_INT_RGB){
-							ext = "jpg";
-						}
-						int rand = (int)(Math.random()*100000000);
-						ImageIO.write(st, ext, new File(outputRoot.getAbsolutePath()+SEP+("pipi"+count)+rand+"."+ext));
-						System.out.print(".");
-						if(count%100==0){
-							System.out.println();
-						}
-						count++;
-					}else{
-						System.out.println("Probably not an image: "+f.getPath());
-					}
-				}catch  (IOException e){
-					System.out.println("Error while reading "+f.getPath());
-				}
 			}
 		}
 	}
@@ -264,10 +278,12 @@ public class SampleHelper {
 		}
 	}
 	public static void main(String[] args) {
-		String[] roomNames = {"餐厅","厨房","客厅","卧室","书房","卫生间"};
-		putRoomsTogetherWithinAStyle("F:/tmp/风格/pastoral", roomNames);
+		//String[] roomNames = {"餐厅","厨房","客厅","卧室","书房","卫生间"};
+		//putRoomsTogetherWithinAStyle("F:/tmp/风格/pastoral", roomNames);
 		
-		//String rootPath = "C:/tmp/田园";
+		
+		
+		String rootPath = "F:/tmp/styles/pastoral";
 		
 		//if(args.length<1){
 			//rootPath = System.getProperty("user.dir");
@@ -278,7 +294,24 @@ public class SampleHelper {
 		//System.out.println(rootPath);
 		//scaleImageDir(rootPath, "F:/tmp", 512);
 		//File root = new File(rootPath);
-		//if(root.isDirectory()) checkDimensions(root, 128, 128, -1, -1);
+		//if(root.isDirectory()) checkDimensions(root, 433, 251, -1, -1);
+		
+		batchEditImages(rootPath, "F:/TensorFlowDev/training-materials/styles", new ImgProcessor(){
+			@Override
+			public BufferedImage process(BufferedImage img) {
+				//mixed return img.getSubimage(37, 35, 340, 226);
+				//american return img.getSubimage(29, 12, 396, 249);
+				//american-simple return img.getSubimage(47, 14, 360, 244);
+				//european return TFUtils.centerCrop(img,(int)(img.getHeight()*1.5), img.getHeight());
+				//japanese return img.getSubimage(35, 11, 385, 250);
+				//mediterranean return img.getSubimage(37, 0, 395, 256);
+				//modern chinese return img.getSubimage(29, 4, 395, 257);
+				//modern simple return img.getSubimage(37, 2, 395, 255);
+				//northern european return img.getSubimage(43, 1, 390, 250);
+				return img.getSubimage(38, 1, 395, 256);//pastoral
+			}		
+		});
+		
 		
 		
 	}

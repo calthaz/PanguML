@@ -25,7 +25,7 @@ import colorPalette.MMCQ.CMap;
 
 //import de.androidpit.colorthief.MMCQ.CMap;
 
-public class ColorThief
+public class ColorThief implements ColorExtractor
 {
 
     private static final int DEFAULT_QUALITY = 10;
@@ -355,5 +355,16 @@ public class ColorThief
 
         return Arrays.copyOfRange(res, 0, numUsedPixels);
     }
+
+	@Override
+	public int[][] getRGBPalette(BufferedImage img, int maxColors) {
+		
+		return getPalette(img, maxColors);
+	}
+
+	@Override
+	public void clear() {
+
+	}
 
 }

@@ -215,7 +215,7 @@ public class TFUtils {
 					
 					if(label.indexOf("\\")!=-1){
 						//label = label.substring(0,label.indexOf("\\"));
-						//label = label.substring(label.indexOf("\\")+1);
+						label = label.substring(label.indexOf("\\")+1);
 					}
 					
 					int index = labels.indexOf(label);
@@ -280,28 +280,28 @@ public class TFUtils {
 		}
 		
 		System.out.println("----------- styles and rooms ----------------");
-		result = checkAccuracy("F:/tmp/styles/furn-86554tf-inference-results.txt", 
-				"F:/tmp/styles/tf-labels-to-text.txt");
-		ArrayList<String> labels = LabelGenerator.readLabelsFromFile("F:/tmp/styles/tf-labels-to-text.txt");
+		/*result = checkAccuracy("F:/TensorFlowDev/training-materials/styles/furn-55795tf-inference-results.txt", 
+				"F:/TensorFlowDev/training-materials/styles/tf-labels-to-text.txt");
+		ArrayList<String> labels = LabelGenerator.readLabelsFromFile("F:/TensorFlowDev/training-materials/styles/tf-labels-to-text.txt");
 		for(int i=0; i<labels.size(); i++){
 			System.out.println(labels.get(i)+":"+result[i]);
 		}
 		System.out.println("total:"+result[labels.size()]);
-		/*System.out.println("----------- BY STYLE ----------------");
-		result = checkAccuracy("F:/tmp/styles/furn-86554tf-inference-results.txt", 
-				"F:/tmp/styles/tf-labels-to-text-collapse-by-style.txt");
-		ArrayList<String> labels = LabelGenerator.readLabelsFromFile("F:/tmp/styles/tf-labels-to-text-collapse-by-style.txt");
-		for(int i=0; i<labels.size(); i++){
-			System.out.println(labels.get(i)+":"+result[i]);
-		}
-		System.out.println("total:"+result[labels.size()]);
-		System.out.println("----------- BY ROOM ----------------");
-		result = checkAccuracy("F:/tmp/styles/furn-86554tf-inference-results.txt", 
-				"F:/tmp/styles/tf-labels-to-text-collapse-by-room.txt");
-		ArrayList<String> labels = LabelGenerator.readLabelsFromFile("F:/tmp/styles/tf-labels-to-text-collapse-by-room.txt");
+		System.out.println("----------- BY STYLE ----------------");
+		result = checkAccuracy("F:/TensorFlowDev/training-materials/styles/furn-55795tf-inference-results.txt", 
+				"F:/TensorFlowDev/training-materials/styles/tf-labels-to-text-collapse-by-style.txt");
+		ArrayList<String> labels = LabelGenerator.readLabelsFromFile("F:/TensorFlowDev/training-materials/styles/tf-labels-to-text-collapse-by-style.txt");
 		for(int i=0; i<labels.size(); i++){
 			System.out.println(labels.get(i)+":"+result[i]);
 		}
 		System.out.println("total:"+result[labels.size()]);*/
+		System.out.println("----------- BY ROOM ----------------");
+		result = checkAccuracy("F:/TensorFlowDev/training-materials/styles/furn-55795tf-inference-results.txt", 
+				"F:/TensorFlowDev/training-materials/styles/tf-labels-to-text-collapse-by-room.txt");
+		ArrayList<String> labels = LabelGenerator.readLabelsFromFile("F:/TensorFlowDev/training-materials/styles/tf-labels-to-text-collapse-by-room.txt");
+		for(int i=0; i<labels.size(); i++){
+			System.out.println(labels.get(i)+":"+result[i]);
+		}
+		System.out.println("total:"+result[labels.size()]);
 	}
 }

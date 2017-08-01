@@ -1,6 +1,6 @@
 package colorPalette;
 
-import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,17 +9,52 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
-public class OctTree {
-	private ArrayList<OctreeNode> reducible = new ArrayList<OctreeNode>();
+import tools.ColorPaletteReader;
+import tools.TFUtils;
+/**
+ * https://xcoder.in/2014/09/17/theme-color-extract/
+ * https://github.com/XadillaX/theme-color-test
+ * @author XadillaX, zym
+ *
+ */
+public class OctTree implements ColorExtractor{
+	private static final int MIN_COLOR_COUNT = 12;
+	private static final int MAX_PIC_SIZE = 150;
+	//private static final int MAX_PER_CHANNEL = 255;
+	//private static final int MAX_COLOR_VALUE = 16777215;
+	private OctreeNode[] reducible = new OctreeNode[8];
 	private int leafNum = 0; 
 	private OctreeNode root = new OctreeNode();
 	public OctTree(){
-		for(int i = 0; i < 7; i++) reducible.add(null);	
+		for(int i = 0; i < 7; i++) {
+			//reducible.add(null);	
+			reducible[i] = null;
+		}
 	}
-	
-	public int[][] getPalatte(BufferedImage img, int maxColors){
+	/**
+	 * if maxColors is less than the number of nodes in the first layer, 
+	 * IndexOutOfBound will be thrown. so we force it to be more than 12, 
+	 * than we will truncate or fill the return array so it has the same 
+	 * number of colors. 
+	 * @param img
+	 * @param maxColors the number of output colors. 
+	 * 	if not enough colors are extracted, the rgb array will be filled with {-1, -1, -1}
+	 * @return {@code int[maxColors][3]} 
+	 */
+	public int[][] getRGBPalette(BufferedImage img, int maxColors){
+		int outputLength = maxColors;
+		if(maxColors<MIN_COLOR_COUNT){
+			maxColors = MIN_COLOR_COUNT;
+		}
 		int w = img.getWidth();
 		int h = img.getHeight();
+		
+		if(w>MAX_PIC_SIZE||h>MAX_PIC_SIZE){
+			Dimension d = TFUtils.scaleUniformFit(w, h, MAX_PIC_SIZE, MAX_PIC_SIZE);
+			img = TFUtils.getScaledImage(img, d.width, d.height);
+			w = d.width;
+			h = d.height;
+		}
 		int[] data = img.getRGB(0, 0, w, h, null, 0, w);
 
 	    buildOctree(data, maxColors);
@@ -33,19 +68,73 @@ public class OctTree {
 	    	counts[j] = en.getValue();
 	    	j++;
 	    }
+	    while(j<maxColors){
+	    	counts[j] = -1;
+	    	j++;
+	    }
+	    // ascending numerical order
 	    Arrays.sort(counts);
+	    //Arrays.sort
 	    
-	    int[][] ret = new int[maxColors][3];
-	    for(int i=maxColors-1; i>=0; i--){
-	    	if(counts[i]>0){
+	    int[][] ret = new int[outputLength][3];
+	    for(int i=maxColors-1; i>=maxColors-outputLength; i--){
+	    	if(counts[i]>=0){
 	    		int c = getFirstKeyByValue(colors, counts[i]);
 	    		ret[maxColors-1-i][0] = (c>>16)&0xFF;
 	    		ret[maxColors-1-i][1] = (c>>8)&0xFF;
 	    		ret[maxColors-1-i][2] = c&0xFF;
+	    	}else{
+	    		ret[maxColors-1-i][0] = -1;
+	    		ret[maxColors-1-i][1] = -1;
+	    		ret[maxColors-1-i][2] = -1;
 	    	}
 	    	
 	    }
 	    return ret;
+	}
+	
+	/**
+	 * perform the oct-tree algorithm and compared it with a palette
+	 * @param palette path to the palette file, a reader will be constructed to read it
+	 * @param img
+	 * @param maxColors the number of output colors. 
+	 * 	if not enough colors are extracted, the rgb array will be filled with {-1, -1, -1}
+	 * @return
+	 */
+	public int[][] getPaletteAccordingTo(String palette, BufferedImage img, int maxColors){
+		ColorPaletteReader rd = new ColorPaletteReader(palette);
+		ArrayList<int[]> colors = rd.getRGBPalette();
+		return getPaletteAccordingTo(colors, img, maxColors);
+	}
+	
+	/**
+	 * perform the oct-tree algorithm and compared it with a palette
+	 * @param colors
+	 * @param img
+	 * @param maxColors the number of output colors. 
+	 * 	if not enough colors are extracted, the rgb array will be filled with {-1, -1, -1}
+	 * @return array of colors, in rgb arrays
+	 */
+	public int[][] getPaletteAccordingTo(ArrayList<int[]> colors, BufferedImage img, int maxColors){
+		int[][] raw = getRGBPalette(img, maxColors);
+		//int[][] ret = new int[raw.length][3];
+		for(int i=0; i<raw.length; i++){
+			int[] rgb = raw[i];
+			
+			int minDist = Integer.MAX_VALUE; 
+			if(rgb[0]<0){
+				continue;	
+			}
+			for(int[] pal : colors){
+				int dist =  Math.abs(pal[0]-rgb[0])+Math.abs(pal[1]-rgb[1])+Math.abs(pal[2]-rgb[2]);
+				if(dist<minDist){
+					raw[i] = pal;
+					minDist = dist;
+				}
+			}
+			
+		}
+		return raw;
 	}
 	
 	private static <T, E> T getFirstKeyByValue(Map<T, E> map, E value) {
@@ -99,9 +188,11 @@ public class OctTree {
 	        node.isLeaf = true;
 	        leafNum++;
 	    } else {
-	        node.next = reducible.get(level);
-	        //reducible[level] = node;
-	        reducible.set(level, node);
+	        //node.next = reducible.get(level);
+	    	node.next = reducible[level];
+	        //reducible.set(level, node);
+	        reducible[level] = node;
+	        
 	    }
 
 	    return node;
@@ -150,16 +241,18 @@ public class OctTree {
 	private void reduceTree() {
 	    // find the deepest level of node
 	    int lv = 6;
-	    while(null == reducible.get(lv)) {
+	    //while(null == reducible.get(lv)) {
+	    while(null == reducible[lv]){
 	    	lv--;
 	    	if(lv<0)break;//TODO I add this to avoid some overflow problems, but it may cause infinite loops as well. 
 	    }
 
 	    // get the node and remove it from reducible link
-	    OctreeNode node = reducible.get(lv);
-	    //reducible[lv] = node.next;
-	    reducible.set(lv, node.next);
-
+	    //OctreeNode node = reducible.get(lv);
+	    OctreeNode node = reducible[lv];
+	    //reducible.set(lv, node.next);
+	    reducible[lv] = node.next;
+	    
 	    // merge children
 	    int r = 0;
 	    int g = 0;
@@ -230,12 +323,13 @@ public class OctTree {
 	    }
 	}
 
-	public void clear() {
-		// TODO Auto-generated method stub
-		reducible = new ArrayList<OctreeNode>();
+	public void clear() {	
 		leafNum = 0; 
 		root = new OctreeNode();
-		for(int i = 0; i < 7; i++) reducible.add(null);	
+		for(int i = 0; i < 7; i++) {
+			reducible[i] = null;
+			//reducible.set(i, null);	
+		}
 	}
 	
 
