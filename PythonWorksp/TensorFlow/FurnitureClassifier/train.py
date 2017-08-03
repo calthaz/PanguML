@@ -47,7 +47,7 @@ import my_eval
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('train_dir', './logs/furnishing128',
+tf.app.flags.DEFINE_string('train_dir', './logs/beds-Zeiler',
                            """Directory where to write event logs """
                            """and checkpoint.""")
 tf.app.flags.DEFINE_integer('max_steps', 10000, #1000000,

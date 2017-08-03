@@ -4,8 +4,9 @@ from tensorflow.python import debug as tf_debug
 
 LABEL_SEP = "|||"
 image_dic = {}
-IMAGE_SIZE = 128
-LABEL_FILE = "../furniture/bed/tf-images-with-labels.txt"
+IMAGE_SIZE = 224
+TRAIN_LABEL_FILE = "/bed/train/tf-images-with-labels.txt"
+EVAL_LABEL_FILE = "/bed/eval/tf-images-with-labels.txt"
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 500
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 100
 
@@ -23,7 +24,7 @@ def read_labels_dict(filename):
 				pass
 
 def get_num_classes():
-	return 3
+	return 6
 
 def get_num_examples():
 	read_labels_dict(LABEL_FILE)

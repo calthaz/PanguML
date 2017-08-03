@@ -15,15 +15,15 @@ import read_image
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('save_dir', './logs/furniture-save',
+tf.app.flags.DEFINE_string('save_dir', './logs/bed-save',
                            """Directory where to write event logs.""")
 tf.app.flags.DEFINE_string('eval_data', 'test',
                            """Either 'test' or 'train_eval'.""")
-tf.app.flags.DEFINE_string('checkpoint_dir', './logs/furnishing128', 
+tf.app.flags.DEFINE_string('checkpoint_dir', './logs/beds-Zeiler', 
                            """Directory where to read model checkpoints.""")
 tf.app.flags.DEFINE_integer('num_examples', 1000,
                             """Number of examples to run.""")
-tf.app.flags.DEFINE_string('model_dir', './models/model-fur-no-text-', 
+tf.app.flags.DEFINE_string('model_dir', './models/model-bed-224-', 
                             """Directory where to save model""")
 #tf.app.flags.DEFINE_integer('eval_batch_size', 10,
                             #"""Number of examples to run.""")
@@ -177,6 +177,7 @@ def main(argv=None):  # pylint: disable=unused-argument
     tf.gfile.DeleteRecursively(FLAGS.save_dir)
   tf.gfile.MakeDirs(FLAGS.save_dir)
   save_model_1()
+  save_model_20()
 
 
 if __name__ == '__main__':
