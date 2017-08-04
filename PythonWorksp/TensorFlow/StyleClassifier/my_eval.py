@@ -14,15 +14,15 @@ import read_image
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('eval_dir', './logs/furnishing-eval',
+tf.app.flags.DEFINE_string('eval_dir', './logs/hard-eval',
                            """Directory where to write event logs.""")
 tf.app.flags.DEFINE_string('eval_data', 'test',
                            """Either 'test' or 'train_eval'.""")
-tf.app.flags.DEFINE_string('checkpoint_dir', './logs/furnishing128',
+tf.app.flags.DEFINE_string('checkpoint_dir', './logs/hard128',
                            """Directory where to read model checkpoints.""")
 tf.app.flags.DEFINE_integer('num_examples', 1000,
                             """Number of examples to run.""")
-tf.app.flags.DEFINE_integer('eval_batch_size', 10,
+tf.app.flags.DEFINE_integer('eval_batch_size', 100,
                             """Number of examples to run.""")
 def evaluate():
   """Run Eval once.
@@ -92,6 +92,7 @@ def evaluate():
         accuracy_sum = 0;
 
         while step < num_iter and not coord.should_stop():
+          print(step)
           predictions = sess.run([top_k_op])
           accuracy_sum += sess.run(accuracy)
           true_count += np.sum(predictions)

@@ -42,6 +42,7 @@ import tarfile
 
 from six.moves import urllib
 import tensorflow as tf
+
 import read_image
 
 FLAGS = tf.app.flags.FLAGS
@@ -55,17 +56,17 @@ tf.app.flags.DEFINE_boolean('use_fp16', False,
                             """Train the model using fp16.""")
 
 # Global constants describing the CIFAR-10 data set.
-IMAGE_SIZE = 128
-NUM_CLASSES = read_image.NUM_CLASS
-NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 500
-NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 100
+IMAGE_SIZE = read_image.IMAGE_SIZE
+NUM_CLASSES = read_image.get_num_classes();
+NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = read_image.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN
+NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = read_image.NUM_EXAMPLES_PER_EPOCH_FOR_EVAL
 
 
 # Constants describing the training process.
 MOVING_AVERAGE_DECAY = 0.9999     # The decay to use for the moving average.
 NUM_EPOCHS_PER_DECAY = 350.0      # Epochs after which learning rate decays.
 LEARNING_RATE_DECAY_FACTOR = 0.1  # Learning rate decay factor.
-INITIAL_LEARNING_RATE = 0.1       # Initial learning rate.
+INITIAL_LEARNING_RATE = 0.04       # Initial learning rate. 0.1
 
 # If a model is trained with multiple GPUs, prefix all Op names with tower_name
 # to differentiate the operations. Note that this prefix is removed from the
@@ -136,161 +137,111 @@ def _variable_with_weight_decay(name, shape, stddev, wd):
     tf.add_to_collection('losses', weight_decay)
   return var
 
-def deconv1(output, kernel):
-  trans = tf.nn.conv2d_transpose(output, kernel, output_shape=[FLAGS.batch_size, IMAGE_SIZE, IMAGE_SIZE, 3], strides=[1,1,1,1], padding='SAME')
-  return trans
 
-def unpool1(pool, kernel1):
-  #let me use image resize to temporarily achieve this, since I can't find a tf method to do it
-  unpooled = tf.image.resize_images(pool, [IMAGE_SIZE, IMAGE_SIZE])
-  pool1_trans = deconv1(unpooled, kernel1)
-  return pool1_trans
+def distorted_inputs():
+  """Construct distorted input for CIFAR training using the Reader ops.
 
-def devonv2(output, kernel2, kernel1):
-  trans = tf.nn.conv2d_transpose(output, kernel2, output_shape=[FLAGS.batch_size, int(IMAGE_SIZE/2), int(IMAGE_SIZE/2), 64], strides=[1,1,1,1], padding='SAME')
-  trans = unpool1(trans, kernel1)
-  return trans
+  Returns:
+    images: Images. 4D tensor of [batch_size, IMAGE_SIZE, IMAGE_SIZE, 3] size.
+    labels: Labels. 1D tensor of [batch_size] size.
 
-def unpool2(pool, kernel2, kernel1):
-  #let me use image resize to temporarily achieve this, since I can't find a tf method to do it
-  unpooled = tf.image.resize_images(pool, [int(IMAGE_SIZE/2), int(IMAGE_SIZE/2)])
-  pool2_trans = deconv2(unpooled, kernel2, kernel1)
-  return pool2_trans
+  Raises:
+    ValueError: If no data_dir
+  """
+  #if not FLAGS.data_dir:
+    #raise ValueError('Please supply a data_dir')
+  #data_dir = os.path.join(FLAGS.data_dir, 'cifar-10-batches-bin')
+  images, labels = read_image.distorted_inputs(batch_size=FLAGS.batch_size)
+  if FLAGS.use_fp16:
+    images = tf.cast(images, tf.float16)
+    labels = tf.cast(labels, tf.float16)
+  return images, labels
+
+
+def inputs(eval_data):
+  """Construct input for CIFAR evaluation using the Reader ops.
+
+  Args:
+    eval_data: bool, indicating if one should use the train or eval data set.
+
+  Returns:
+    images: Images. 4D tensor of [batch_size, IMAGE_SIZE, IMAGE_SIZE, 3] size.
+    labels: Labels. 1D tensor of [batch_size] size.
+
+  Raises:
+    ValueError: If no data_dir
+  """
+  #if not FLAGS.data_dir:
+    #raise ValueError('Please supply a data_dir')
+  #data_dir = os.path.join(FLAGS.data_dir, 'cifar-10-batches-bin')
+  images, labels = read_image.inputs(eval_data=eval_data,
+                                        #data_dir=data_dir,
+                                        batch_size=FLAGS.batch_size)
+  if FLAGS.use_fp16:
+    images = tf.cast(images, tf.float16)
+    labels = tf.cast(labels, tf.float16)
+  return images, labels
+
 
 def inference(images):
   """Build the CIFAR-10 model.
+
   Args:
     images: Images returned from distorted_inputs() or inputs().
+
   Returns:
     Logits.
   """
-  # conv1 
+  # We instantiate all variables using tf.get_variable() instead of
+  # tf.Variable() in order to share variables across multiple GPU training runs.
+  # If we only ran this model on a single GPU, we could simplify this function
+  # by replacing all instances of tf.get_variable() with tf.Variable().
+  #
+  # conv1
+  
   with tf.variable_scope('conv1') as scope:
-    kernel1 = _variable_with_weight_decay('weights',
+    kernel = _variable_with_weight_decay('weights',
                                          shape=[5, 5, 3, 64],
                                          stddev=5e-2,
                                          wd=0.0)
-    conv = tf.nn.conv2d(images, kernel1, [1, 1, 1, 1], padding='SAME')
-    biases1 = _variable_on_cpu('biases', [64], tf.constant_initializer(0.0))
-    pre_activation = tf.nn.bias_add(conv, biases1)
+    conv = tf.nn.conv2d(images, kernel, [1, 1, 1, 1], padding='SAME')
+    biases = _variable_on_cpu('biases', [64], tf.constant_initializer(0.0))
+    pre_activation = tf.nn.bias_add(conv, biases)
     conv1 = tf.nn.relu(pre_activation, name=scope.name)
     _activation_summary(conv1)
-    
-  with tf.variable_scope('conv1_visualization'):
-    #16 activations
-    # scale weights to [0 1], type is still float
-    x_min = tf.reduce_min(kernel1)
-    x_max = tf.reduce_max(kernel1)
-    kernel_0_to_1 = (kernel1 - x_min) / (x_max - x_min)
-    # to tf.image_summary format [batch_size, height, width, channels]
-    kernel_transposed = tf.transpose (kernel_0_to_1, [3, 0, 1, 2])
-    # this will display random 3 filters from the 64 in conv1
-    tf.summary.image('conv1/filters', kernel_transposed, max_outputs=3)
-    layer1_image1 = conv1[0:1, :, :, 0:16]
-    layer1_image1 = tf.transpose(layer1_image1, perm=[3,1,2,0])
-    tf.summary.image("filtered_images_layer1", layer1_image1, max_outputs=16)
-    
-    #conv1 = tf.subtract(conv1, biases1)
-    #conv1 = tf.nn.relu(conv1, name=scope.name)
-    conv_trans = tf.nn.conv2d_transpose(conv1, kernel1, output_shape=[FLAGS.batch_size, IMAGE_SIZE, IMAGE_SIZE, 3], strides=[1,1,1,1], padding='SAME')
-    tf.summary.image("reverse_conv1", conv_trans)
-    #find strongest activation here?
-    #what is a strongest activation? contrast?
-    #how? anyway let's play
-    flattened_conv1 = tf.reshape(conv1, [FLAGS.batch_size, IMAGE_SIZE*IMAGE_SIZE, 64])#[1,1024,64]
-    mean, variance = tf.nn.moments(flattened_conv1, 1)
-    max_index = tf.argmax(variance, 1)#[1,64] in, out [1, 1]
-    #remove all other filters and revert
-    zeros = tf.zeros([FLAGS.batch_size, IMAGE_SIZE, IMAGE_SIZE, 64])
-    size_temp = tf.convert_to_tensor([FLAGS.batch_size,IMAGE_SIZE,IMAGE_SIZE])
-    max_index = tf.cast(max_index, tf.int32)
-    lower_half_size = tf.concat([size_temp, max_index], 0)
-    upper_half_size = tf.concat([size_temp, 64-max_index-1], 0)
-    lower_half = tf.slice(zeros, [0,0,0,0], lower_half_size)
-    max_index = tf.squeeze(max_index)# out int
-    upper_half = tf.slice(zeros, [0,0,0,max_index+1], upper_half_size)
-    max_slice = tf.slice(conv1, [0,0,0,max_index], [FLAGS.batch_size,IMAGE_SIZE,IMAGE_SIZE,1])    
-    #can't use max_index in these places
-    #lower_half = tf.concat([zeros for x in range(64-max_index-1)], axis=3)
-    #upper_half = tf.concat([zeros for x in range(max_index)], axis=3)
-    #lower_half = tf.slice(conv1, [0,0,0,0], [FLAGS.batch_size,IMAGE_SIZE,IMAGE_SIZE,max_index])
-    #upper_half = tf.slice(conv1, [0,0,0,max_index+1], [FLAGS.batch_size,IMAGE_SIZE,IMAGE_SIZE,64-max_index-1])
-    #lower_half = tf.zeros(shape=[FLAGS.batch_size,IMAGE_SIZE,IMAGE_SIZE, max_index], dtype=tf.float32)
-    #upper_half = tf.zeros(shape=[FLAGS.batch_size,IMAGE_SIZE,IMAGE_SIZE, 64-max_index-1], dtype=tf.float32)    
-    max_filters = tf.concat([lower_half, max_slice, upper_half], axis=3)
-    #if stack: output shape:[1,32,32,64,1]
-    #max_filters = tf.concat([max_slice for x in range(64)], axis=3)
-    #虽然说这样看起来更有道理，但是图片看起来实在没什么区别
-    max_trans = tf.nn.conv2d_transpose(max_filters, kernel1, output_shape=[FLAGS.batch_size, IMAGE_SIZE, IMAGE_SIZE, 3], strides=[1,1,1,1], padding='SAME')
-    tf.summary.image("reverse_max_conv1", max_trans, max_outputs=16)
-    #image input: [batch_size, height, width, channels]
+    '''
+    with tf.variable_scope('visualization'):
+      # scale weights to [0 1], type is still float
+      x_min = tf.reduce_min(kernel)
+      x_max = tf.reduce_max(kernel)
+      kernel_0_to_1 = (kernel - x_min) / (x_max - x_min)
+  # to tf.image_summary format [batch_size, height, width, channels]
+      kernel_transposed = tf.transpose (kernel_0_to_1, [3, 0, 1, 2])
+  # this will display random 3 filters from the 64 in conv1
+      tf.summary.image('conv1/filters', kernel_transposed, max_outputs=3)
+      layer1_image1 = conv1[0:1, :, :, 0:16]
+      layer1_image1 = tf.transpose(layer1_image1, perm=[3,1,2,0])
+      tf.summary.image("filtered_images_layer1", layer1_image1, max_outputs=16)
+    '''
 
   # pool1
-  pool1, argmax= tf.nn.max_pool_with_argmax(conv1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1],
+  pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1],
                          padding='SAME', name='pool1')
-  with tf.name_scope('pool1_visualization'):
-    '''
-    flattened_pool1 = tf.reshape(pool1, [FLAGS.batch_size, 16*16*64])
-    flattened_argmax = tf.reshape(pool1, [FLAGS.batch_size, 16*16*64])
-    raw = [[0 for x in range(FLAGS.batch_size)] for y in range(32*32*64)] 
-    for i in range(16*16*64):
-      for j in range(FLAGS.batch_size):
-        raw[j][flattened_argmax[j][i]] = flattened_pool1[j][i]
-    unpooled = tf.reshape([FLAGS.batch_size, 32, 32, 64])
-    #neurons = tf.split(argmax, 64, axis=3)
-    #neurons = tf.squeeze(neurons)
-    #tf.summary.image("argmax_pool1", )
-    '''
-    #return tf.reshape(pool1, [FLAGS.batch_size, 16*16*64]), tf.reshape(pool1, [FLAGS.batch_size, 16*16*64])
-    #let me use image resize to temporarily achieve this, since I can't find a tf method to do it
-    unpooled = tf.image.resize_images(pool1, [IMAGE_SIZE, IMAGE_SIZE])
-    pool1_trans = tf.nn.conv2d_transpose(unpooled, kernel1, output_shape=[FLAGS.batch_size, IMAGE_SIZE, IMAGE_SIZE, 3], strides=[1,1,1,1], padding='SAME')
-    tf.summary.image("reverse_pool1", pool1_trans, max_outputs=16)
-    
   # norm1
   norm1 = tf.nn.lrn(pool1, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75,
                     name='norm1')
-  #???what is it? just ignore it and see what will happen
 
   # conv2
   with tf.variable_scope('conv2') as scope:
-    kernel2 = _variable_with_weight_decay('weights',
+    kernel = _variable_with_weight_decay('weights',
                                          shape=[5, 5, 64, 64],
                                          stddev=5e-2,
                                          wd=0.0)
-    conv = tf.nn.conv2d(norm1, kernel2, [1, 1, 1, 1], padding='SAME')
-    biases2 = _variable_on_cpu('biases', [64], tf.constant_initializer(0.1))
-    pre_activation = tf.nn.bias_add(conv, biases2)
+    conv = tf.nn.conv2d(norm1, kernel, [1, 1, 1, 1], padding='SAME')
+    biases = _variable_on_cpu('biases', [64], tf.constant_initializer(0.1))
+    pre_activation = tf.nn.bias_add(conv, biases)
     conv2 = tf.nn.relu(pre_activation, name=scope.name)
     _activation_summary(conv2)
-  with tf.name_scope("conv2_visualization"):
-    #find strongest activation here?
-    #what is a strongest activation? contrast?
-    #how? anyway let's play
-    #conv2 = tf.subtract(conv2, biases2)
-    flattened_conv2 = tf.reshape(conv2, [FLAGS.batch_size, int(IMAGE_SIZE/2)**2, 64])#[1,1024,64]
-    mean, variance = tf.nn.moments(flattened_conv2, 1)
-    max_index = tf.argmax(variance, 1)#[1,64] in, int out
-    #remove all other filters and revert
-    max_index = tf.squeeze(max_index)
-    max_slice = tf.slice(conv2, [0,0,0,max_index], [FLAGS.batch_size,int(IMAGE_SIZE/2),int(IMAGE_SIZE/2),1])
-    #max_filters = tf.concat([max_slice for x in range(64)], axis=3) output shape:[1,32,32,64,1]
-    max_filters = tf.concat([max_slice for x in range(64)], axis=3)
-    max_trans = tf.nn.conv2d_transpose(max_filters, kernel2, 
-      output_shape=[FLAGS.batch_size, int(IMAGE_SIZE/2), int(IMAGE_SIZE/2), 64], strides=[1,1,1,1], padding='SAME')
-    trans = unpool1(max_trans, kernel1)
-    tf.summary.image("reverse_max_conv2", trans, max_outputs=16)
-
-    for y in range(16):
-      max_index = y
-      max_slice = tf.slice(conv2, [0,0,0,max_index], [FLAGS.batch_size,int(IMAGE_SIZE/2),int(IMAGE_SIZE/2),1])
-      #max_filters = tf.concat([max_slice for x in range(64)], axis=3) output shape:[1,32,32,64,1]
-      max_filters = tf.concat([max_slice for x in range(64)], axis=3)
-      max_trans = tf.nn.conv2d_transpose(max_filters, kernel2, 
-        output_shape=[FLAGS.batch_size, int(IMAGE_SIZE/2), int(IMAGE_SIZE/2), 64], strides=[1,1,1,1], padding='SAME')
-      trans = unpool1(max_trans, kernel1)
-      tf.summary.image("filtered_images_layer2", trans, max_outputs=16)
-      #image input: [batch_size, height, width, channels]
 
   # norm2
   norm2 = tf.nn.lrn(conv2, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75,
@@ -298,10 +249,6 @@ def inference(images):
   # pool2
   pool2 = tf.nn.max_pool(norm2, ksize=[1, 3, 3, 1],
                          strides=[1, 2, 2, 1], padding='SAME', name='pool2')
-  with tf.name_scope('pool2_visualization'):
-    unpooled = tf.image.resize_images(pool2, [int(IMAGE_SIZE/2), int(IMAGE_SIZE/2)])
-    pool2_trans = devonv2(unpooled, kernel2, kernel1)
-    tf.summary.image("reverse_pool2", pool2_trans, max_outputs=16)
 
   # local3
   with tf.variable_scope('local3') as scope:
@@ -313,14 +260,7 @@ def inference(images):
     biases = _variable_on_cpu('biases', [384], tf.constant_initializer(0.1))
     local3 = tf.nn.relu(tf.matmul(reshape, weights) + biases, name=scope.name)
     _activation_summary(local3)
-    '''
-  with tf.name_scope('local3_visualization'):
-    delocal3 = tf.subtract(local3, biases)
-    #weights are not invertable
-    delocal3 = tf.matmul(delocal3, tf.matrix_inverse(weights))
-    delocal3 = tf.reshape(delocal3, [FLAGS.batch_size, 8, 8, 64])
-    tf.summary.image("reverse_local3", unpool2(delocal3, kernel2, kernel1), max_outputs=16)
-    '''
+
   # local4
   with tf.variable_scope('local4') as scope:
     weights = _variable_with_weight_decay('weights', shape=[384, 192],
