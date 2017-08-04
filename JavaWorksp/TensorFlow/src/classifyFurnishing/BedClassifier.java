@@ -10,15 +10,18 @@ import tools.NativeUtils;
  *
  */
 public class BedClassifier extends Classifier{
-	public static final int IMG_SIZE = 32;
+	public static final int IMG_SIZE = 224;//32;
 	public static final int BATCH_SIZE = 20;
 	private static final String IMG_NORMALIZE_METHOD = "resize";
 	
 	public BedClassifier(String[] inputPaths){
-		modelPath = NativeUtils.loadOrExtract(DevConstants.MOD_ROOT+"model-no-text-1/frozen_graph.pb",
+		String modelDir = "F:/TensorFlowDev/PythonWorksp/TensorFlow/FurnitureClassifier/models/";
+		//modelPath = NativeUtils.loadOrExtract(DevConstants.MOD_ROOT+"model-no-text-1/frozen_graph.pb",
+		modelPath = NativeUtils.loadOrExtract(modelDir+"model-bed-224-1/frozen_graph.pb",
 				"/tf-models/model-no-text-1/frozen_graph.pb");
 		//DevConstants.RES_ROOT+"tf-models/model";
-		batchModelPath =  NativeUtils.loadOrExtract(DevConstants.MOD_ROOT+"model-no-text-"+BATCH_SIZE+"/frozen_graph.pb",
+		//batchModelPath =  NativeUtils.loadOrExtract(DevConstants.MOD_ROOT+"model-no-text-"+BATCH_SIZE+"/frozen_graph.pb",
+		batchModelPath =  NativeUtils.loadOrExtract(modelDir+"model-bed-224-"+BATCH_SIZE+"/frozen_graph.pb",
 				"/tf-models/model-no-text-"+BATCH_SIZE+"/frozen_graph.pb");
 		//DevConstants.RES_ROOT+"tf-models/model"+BATCH_SIZE;
 		labelPath = NativeUtils.loadOrExtract(DevConstants.RES_ROOT+"bed/tf-labels-to-text.txt","/labels/bed/tf-labels-to-text.txt");

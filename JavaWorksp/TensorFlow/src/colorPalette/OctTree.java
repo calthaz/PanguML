@@ -13,8 +13,8 @@ import tools.ColorPaletteReader;
 import tools.TFUtils;
 /**
  * https://xcoder.in/2014/09/17/theme-color-extract/
+ * https://www.microsoft.com/msj/archive/S3F1.aspx
  * https://github.com/XadillaX/theme-color-test
- * @author XadillaX, zym
  *
  */
 public class OctTree implements ColorExtractor{
@@ -137,15 +137,22 @@ public class OctTree implements ColorExtractor{
 		return raw;
 	}
 	
+	/**
+	 * Find the first key in a map with the given value 
+	 * and remove the entry
+	 * @param map
+	 * @param value
+	 * @return the first key in the map that has the given value 
+	 */
 	private static <T, E> T getFirstKeyByValue(Map<T, E> map, E value) {
 		T key = null;
 	    for (Entry<T, E> entry : map.entrySet()) {
 	        if (Objects.equals(value, entry.getValue())) {
 	            key = entry.getKey();
+	            map.remove(key, value);
 	            break;
 	        }
 	    }
-	    map.remove(key);
 	    return key;
 	}
 
@@ -176,10 +183,11 @@ public class OctTree implements ColorExtractor{
 	}
 	/**
 	 * createNode
-	 *
-	 * @param {OctreeNode} parent the parent node of the new node
-	 * @param {Number} idx child index in parent of this node
-	 * @param {Number} level node level
+	 * if level<7 put it in the reducible[level] 
+	 * and link node.next to what was there previously 
+	 * @param parent {OctreeNode} parent the parent node of the new node
+	 * @param idx {Number} idx child index in parent of this node
+	 * @param level {Number} level node level
 	 * @return {OctreeNode} the new node
 	 */
 	private OctreeNode createNode(OctreeNode parent, int idx, int level) {
@@ -198,12 +206,28 @@ public class OctTree implements ColorExtractor{
 	    return node;
 	}
 	/**
-	 * addColor
-	 *
-	 * @param {OctreeNode} node the octree node
-	 * @param {Object} color color object
-	 * @param {Number} level node level
-	 * @return {undefined}
+	 * addColor <b>Note:recursive</b><br>
+	 * add color to the tree. For example:<br>
+	 * <pre>
+	 * R: 0110 1101
+	 * G: 1100 1100
+	 * B: 1010 1010
+	 * </pre>
+	 * the path to its leaf (if not trimmed) is
+	 * <pre>
+	 * index:   011=>110=>101=>000=>111=>110=>001=>100
+	 * children: 3 => 6 => 5 => 0 => 7 => 6 => 1 => 4
+	 * </pre>
+	 * and this leaf will have 
+	 * <pre>
+	 * pixelCount++;
+	 * red+=R;
+	 * green+=G;
+	 * blue+=B;
+	 * </pre>
+	 * @param node {OctreeNode} node the octree node
+	 * @param color {int} color color object
+	 * @param level {int} level node level
 	 */
 	private void addColor(OctreeNode node, int color, int level) {
 		int red = (color>>16)&0xFF;
@@ -234,9 +258,8 @@ public class OctTree implements ColorExtractor{
 	}
 	
 	/**
-	 * reduceTree
-	 *
-	 * @return {undefined}
+	 * trim the leaves<br>
+	 * adds leaves together and change their parent into a leaf node
 	 */
 	private void reduceTree() {
 	    // find the deepest level of node
@@ -277,7 +300,7 @@ public class OctTree implements ColorExtractor{
 	
 	/**
 	 * buildOctree
-	 *
+	 * 
 	 * @param pixels pixels The pixels array
 	 * @param maxColors maxColors The max count for colors
 	 * @return 
@@ -296,7 +319,8 @@ public class OctTree implements ColorExtractor{
 	
 	/**
 	 * colorsStats
-	 *
+	 * reads the colors in the leaves by {@code leaf.color/leaf.pixelCount}<br>
+	 * <b>Note:recursive</b>
 	 * @param {OctreeNode} node the node will be stats
 	 * @param {Object} object color stats
 	 * @return {undefined}
@@ -322,7 +346,9 @@ public class OctTree implements ColorExtractor{
 	        }
 	    }
 	}
-
+	/**
+	 * makes a tree ready for another image
+	 */
 	public void clear() {	
 		leafNum = 0; 
 		root = new OctreeNode();

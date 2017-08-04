@@ -24,12 +24,21 @@ public class LabelGenerator {
 	public static final String SEP = "/";
 	public static final String LABEL_SEP = "|||";
 	//private int counter = 0;
-	private ArrayList<String> labels = new ArrayList<String>();
+	public ArrayList<String> labels = new ArrayList<String>();
+	private File rootDir;
+	private File labelDir;
+	private int depth;
+	private boolean withSeparateEval;
 	
 	/**
-	 * assumes that imgs are stored this way: 
+	 * creates a label file like: <br>
+	 * path\to\filename.jpg[{@code LabelGenerator.LABEL_SEP}]label<br>
+	 * and an int-to-text file like: <br>
+	 * 0[{@code LabelGenerator.LABEL_SEP}]label1<br>
+	 * <br>
+	 * Assumes that imgs are stored this way: 
 	 * root/catagory1; root/catagory2; root/catagory3; ... no nesting
-	 * acts like {@code LabelGenerator(rootDir, labelDir, 1)}
+	 * acts like {@code LabelGenerator(rootDir, labelDir, 1)}but do not need to call run() afterwards
 	 * @param rootDir
 	 * @param labelDir where you can find the label files
 	 */
@@ -70,20 +79,91 @@ public class LabelGenerator {
 			textWr.flush();
 			textWr.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 	}
 	
 	/**
+	 * creates a label file like: <br>
+	 * path\to\filename.jpg[{@code LabelGenerator.LABEL_SEP}]label<br>
+	 * and an int-to-text file like: <br>
+	 * 0[{@code LabelGenerator.LABEL_SEP}]label1<br>
+	 * <br>
 	 * assumes that imgs are stored this way: <br>
 	 * root/nest1/nest2/xxx.img
-	 * label for "xxx.img" is then "nest1/nest2"
-	 * @param rootDir
+	 * label for "xxx.img" is then "nest1/nest2"<br>
+	 * <br>
+	 * must call run() to actually generate the files, 
+	 * before calling run(), {@code this.labels} can be manually filled with 
+	 * specific labels and their indices will be used instead of the order read by {@code dir.listFiles()}
+	 * @param rootDir where the images are
 	 * @param labelDir where you can find the label files
+	 * @param depth the number of parents an image have to reach the rootDir. 
+	 * For example: <br>
+	 * root/nest1/nest2/xxx.png has depth=2<br>
+	 * If the specified depth = 2, root/nest1/foo.jpg will not appear in the label files.
 	 */
 	public LabelGenerator(File rootDir, File labelDir, int depth){
+		this.withSeparateEval = false;
+		this.rootDir = rootDir;
+		this.labelDir = labelDir;
+		this.depth = depth;
+		//generateNestedLabels(rootDir, labelDir, depth);
+	}
+	/**
+	 * creates a label file like: <br>
+	 * path\to\filename.jpg[{@code LabelGenerator.LABEL_SEP}]label<br>
+	 * and an int-to-text file like: <br>
+	 * 0[{@code LabelGenerator.LABEL_SEP}]label1<br>
+	 * <br>
+	 * assumes that imgs are stored this way: <br>
+	 * root/nest1/nest2/xxx.img
+	 * label for "xxx.img" is then "nest1/nest2"<br>
+	 * <br>
+	 * must call run() to actually generate the files, 
+	 * before calling run(), {@code this.labels} can be manually filled with 
+	 * specific labels and their indices will be used instead of the order read by {@code dir.listFiles()}
+	 * @param rootDir where the images are
+	 * @param labelDir where you can find the label files
+	 * @param depth the number of parents an image have to reach the rootDir, 
+	 * <b>or train/eval if {@code withSeparateEval == true}.</b>
+	 * For example: <br>
+	 * root/nest1/nest2/xxx.png has depth=2<br>
+	 * If the specified depth = 2, root/nest1/foo.jpg will not appear in the label files.
+	 * @param withSeparateEval if true, it looks for rootDir/train and rootDir/eval 
+	 * and generate label files in these two folders. the index of the labels are the same
+	 */
+	public LabelGenerator(File rootDir, File labelDir, int depth, boolean withSeparateEval){
+		this.withSeparateEval = withSeparateEval;
+		this.rootDir = rootDir;
+		this.labelDir = labelDir;
+		this.depth = depth;
+	}
+	/**
+	 * generate the label files
+	 */
+	public void run(){
+		if(!withSeparateEval){
+			generateNestedLabels(rootDir, labelDir, depth);
+		}else{
+			File trainDir = new File(rootDir+"/train");
+			if(trainDir.exists()){
+				generateNestedLabels(trainDir, new File(labelDir+"/train"), depth);
+			}else{
+				System.out.println("Can't find train dir.");
+				return;
+			}
+			File evalDir = new File(rootDir+"/eval");
+			if(evalDir.exists()){
+				generateNestedLabels(evalDir, new File(labelDir+"/eval"), depth);
+			}else{
+				System.out.println("Can't find eval dir.");
+				return;
+			}
+		}
+	}
+	private void generateNestedLabels(File rootDir, File labelDir, int depth){
 		try {
 			PrintWriter labelWr=new PrintWriter(labelDir+SEP+LABEL_FILE_NAME,"UTF-8");	
 			PrintWriter textWr=new PrintWriter(labelDir+SEP+LABEL_TEXT_FILE_NAME,"UTF-8");	
@@ -110,9 +190,12 @@ public class LabelGenerator {
 										String label = relative.toString();
 										if(!labels.contains(label)){
 											labels.add(label);
-											textWr.println((labels.size()-1)+LABEL_SEP+label);
+											//textWr.println((labels.size()-1)+LABEL_SEP+label);
+											labelWr.println(String.format("%s"+LABEL_SEP+"%s", child.getAbsolutePath(), labels.size()-1));
+										}else{
+											labelWr.println(String.format("%s"+LABEL_SEP+"%s", child.getAbsolutePath(), labels.indexOf(label)));
 										}
-										labelWr.println(String.format("%s"+LABEL_SEP+"%s", child.getAbsolutePath(), labels.size()-1));
+										
 									}else{
 											System.out.println("Illegal image skipped: "+child.getPath());
 									}
@@ -126,6 +209,9 @@ public class LabelGenerator {
 				}
 				dirs = tmp; 
 			}
+			for(int i=0; i<labels.size(); i++){
+				textWr.println(i+LABEL_SEP+labels.get(i));
+			}
 			labelWr.flush();
 			labelWr.close();
 			textWr.flush();
@@ -134,10 +220,7 @@ public class LabelGenerator {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 	}
-	
-	//private void generateNestedLabels(PrintWriter labelWr, PrintWriter textWr, )
 	/**
 	 * 
 	 * @param path path to the label file, utf-8 encoded
@@ -163,11 +246,19 @@ public class LabelGenerator {
 			br.close();
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return labels;
 	}
+	/**
+	 * Fill the return array with strings separated by {@code LabelGenerator.LABEL_SEP}
+	 * @param line
+	 * @param fieldCount
+	 * @return array of length {@code fieldCount}. 
+	 * if {@code fieldCount} is larger than the actual number of fields in {@code line}, 
+	 * the extra parts of the array are {@code null}; if {@code fieldCount} is less than the actual number of fields, 
+	 * only the first {@code fieldCount} fields are returned.
+	 */
 	public static String[] parseResultLine(String line, int fieldCount){
 		String[] result = new String[fieldCount];
 		for(int i=0; i<fieldCount; i++){
@@ -187,15 +278,16 @@ public class LabelGenerator {
 		}
 		return result;
 	}
-	/**
-	 * creates a label file 
-	 * path\to\filename.jpg[-is-]label
-	 * assume that root directory doesn't contain any image sample
-	 * @param args
-	 */
+	public String toString(){
+		String str = String.format("LabelGenerator: \n rootDir:%s; labelDir:%s; \n depth:%d; withSeparateEval:%s\n", 
+				rootDir, labelDir,depth,withSeparateEval);
+		for(String label: labels){
+			str+=label+"\n";
+		}
+		return str;
+	}
+
 	public static void main(String[] args) {
-		
-		
 		String rootPath = "";
 		if(args.length<1){
 			rootPath = System.getProperty("user.dir");
@@ -211,7 +303,14 @@ public class LabelGenerator {
 				System.out.println("label file already exists. Overwriting that file");
 				System.out.println(labelFile.getAbsolutePath());
 			}
-			new LabelGenerator(rootDir, rootDir, 2);
+			LabelGenerator lg = new LabelGenerator(rootDir, rootDir, 1, true);
+			//String[] labels = {"baby-bed","bunk-bed","double-bed","hammock","round-bed","single-bed"};
+			//ArrayList<String> arr = new ArrayList<String>();
+			//for(String l : labels){
+				//arr.add(l);
+			//}
+			//lg.labels = arr;
+			lg.run();
 		}else{
 			System.out.println("root directory must be a directory.");
 		}

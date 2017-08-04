@@ -3,12 +3,17 @@ package tools;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FilenameFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.imageio.ImageIO;
+
+import general.DevConstants;
 
 /**
  * extend image samples by random crop<br>
@@ -18,21 +23,28 @@ import javax.imageio.ImageIO;
 public class SampleHelper {
 	
 	/**
-	 * Must implements {@code public BufferedImage process(BufferedImage img);} 
+	 * Must implements {@code public BufferedImage process(BufferedImage img);} <br>
+	 * usage: just like FilenameFilter
+	 * <div style="font-family: monospace">
+	 * String[] myFiles = directory.list(new FilenameFilter() {<br>
+		    public boolean accept(File directory, String fileName) {<br>
+		        return fileName.endsWith(".txt");<br>
+		    }<br>
+		});<br>
+	 * </div>
 	 */
 	private interface ImgProcessor{
 		public BufferedImage process(BufferedImage img); 
-		/*
-		  String[] myFiles = directory.list(new FilenameFilter() {
-			    public boolean accept(File directory, String fileName) {
-			        return fileName.endsWith(".txt");
-			    }
-			});
-		 
-		  */
 	}
 	private static final String SEP = "/";
-	private static String outputPrefix = "dfgj";
+	
+	/**
+	 * Extends the number of examples by random cropping.<br>
+	 *  crop portion is specified by {@code TFUtils.cropRate}<br>
+	 *  new images saved in the same dir but with new names starting with "ext-"<br>
+	 *  <b>Note: not recursive</b>
+	 * @param directoryPath
+	 */
 	public static void extendSamples(String directoryPath){
 		File directory = new File(directoryPath);
 		if(directory.isDirectory()){
@@ -58,8 +70,17 @@ public class SampleHelper {
 			System.out.println("not a dir");
 		}
 	}
-
-	public static void batchEditImages(String inputDir, String outputDir, ImgProcessor processor){
+	
+	/**
+	 * Copy the entire structure of {@code inputDir} to {@code outputDir/inputDirName} 
+	 * with images processed by processor inside. <br>
+	 * <b>Note:recursive</b>
+	 * @param inputDir
+	 * @param outputDir
+	 * @param prefix rename images with "prefix"+randInt<br>
+	 * @param processor {@code outputImg = processor.process(inputImg);}
+	 */
+	public static void batchEditImages(String inputDir, String outputDir, String prefix, ImgProcessor processor){
 		File inputRoot = new File(inputDir);
 		File outputRoot = new File(outputDir);
 		if(!inputRoot.exists()||!outputRoot.exists()){
@@ -71,7 +92,7 @@ public class SampleHelper {
 			File realOutputRoot = new File(outputDir+SEP+r);
 			int count = 0; 
 			if(realOutputRoot.mkdirs()){
-				batchEditImagesRecursive(inputRoot, realOutputRoot, processor, count);
+				batchEditImagesRecursive(inputRoot, realOutputRoot, prefix, processor, count);
 			}else{
 				System.err.println("Create dir failed "+realOutputRoot.getAbsolutePath());
 			}
@@ -96,12 +117,12 @@ public class SampleHelper {
 		System.out.println("Finished.");
 	}
 
-	private static void batchEditImagesRecursive(File inputRoot, File outputRoot, ImgProcessor processor, int count) {
+	private static void batchEditImagesRecursive(File inputRoot, File outputRoot, String prefix, ImgProcessor processor, int count) {
 		for(File f : inputRoot.listFiles()){
 			if(f.isDirectory()){
 				File nextOut = new File(outputRoot+SEP+f.getName());
 				if(nextOut.mkdirs()){
-					batchEditImagesRecursive(f, nextOut, processor, count);
+					batchEditImagesRecursive(f, nextOut, prefix, processor, count);
 				}else{
 					System.err.println("Create dir failed "+nextOut.getAbsolutePath());
 				}
@@ -116,7 +137,7 @@ public class SampleHelper {
 							ext = "jpg";
 						}
 						int rand = (int)(Math.random()*100000000);
-						ImageIO.write(st, ext, new File(outputRoot.getAbsolutePath()+SEP+(outputPrefix+count)+rand+"."+ext));
+						ImageIO.write(st, ext, new File(outputRoot.getAbsolutePath()+SEP+(prefix+count)+rand+"."+ext));
 						System.out.print(".");
 						if(count%100==0){
 							System.out.println();
@@ -134,13 +155,15 @@ public class SampleHelper {
 	/**
 	 * copy dir structure and images in inputDir, 
 	 * and output resized images to outputDir/inputDirname/ in corresponding structure. 
-	 * rename images with /[a-z][0-9]/ (?)
+	 * rename images with "scale-"+randInt<br>
+	 * <b>Note:recursive</b>
 	 * @param inputDir
 	 * @param outputDir
-	 * @param maxSize max size of the output image, all sides are less than or equal to {@code maxSize}
+	 * @param maxSize max size of the output image, 
+	 * whose all sides are less than or equal to {@code maxSize}
 	 */
 	public static void scaleImageDir(String inputDir, String outputDir, int maxSize){
-		batchEditImages(inputDir, outputDir, new ImgProcessor(){
+		batchEditImages(inputDir, outputDir, "scale-", new ImgProcessor(){
 			@Override
 			public BufferedImage process(BufferedImage img) {
 				BufferedImage st = null;
@@ -155,20 +178,34 @@ public class SampleHelper {
 		});
 	}
 	/**
-	 * 好像不能全删掉，为什么呐？
+	 * <b>Note:recursive</b>
 	 * @param dir
 	 */
 	private static void deleteEmptyDirs(File dir) {
 		if(dir.list().length==0){
-			dir.delete();
+			//dir.delete();
+			System.out.println("Delete"+dir.getPath());
+			try {
+				Files.delete(Paths.get(dir.getAbsolutePath()));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			return;
 		}
 		for(File f: dir.listFiles()){
 			if(f.isDirectory()){
 				deleteEmptyDirs(f);			
-				//Deletes the file or directory denoted by this abstract pathname. 
-				//If this pathname denotes a directory, then the directory must be empty in order to be deleted. 
 			}
+		}
+		if(dir.list().length==0){
+			//dir.delete();
+			System.out.println("Delete "+dir.getPath());
+			try {
+				Files.delete(Paths.get(dir.getAbsolutePath()));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return;
 		}
 	}
 	/*
@@ -183,6 +220,7 @@ public class SampleHelper {
 	}*/
 	/**
 	 * Print paths to images that does not meet any of the requirements
+	 * <b>Note:recursive</b>
 	 * @param rootDir div to be checked
 	 * @param minW
 	 * @param minH
@@ -235,6 +273,7 @@ public class SampleHelper {
 	/**
 	 * handy helper function to move inappropriate images to a dir 
 	 * and print filenames in html divs so that these images can be captured in a web page
+	 * <b>Note:recursive</b>
 	 * @param root dir to be checked
 	 * @param minW
 	 * @param minH
@@ -253,6 +292,22 @@ public class SampleHelper {
 		}
 		
 	}
+	/**
+	 * For styleClassifier data preparation.<b>For example:<br></b>
+	 * with rooms = {"living-room", "dining-room"}<br>
+	 * and dirPath = "chinese";
+	 * chinese/suit1/living-room<br>
+	 * chinese/suit1/dining-room<br>
+	 * chinese/suit2/living-room<br>
+	 * chinese/suit2/dining-room<br>
+	 * chinese/suit2/foo<br>
+	 * <b>will become<br></b>
+	 * chinese/living-room<br>
+	 * chinese/dining-room<br>
+	 * <b>Note:not recursive</b>
+	 * @param dirPath
+	 * @param rooms
+	 */
 	private static void putRoomsTogetherWithinAStyle(String dirPath, String[] rooms){
 		File f = new File(dirPath);
 		if(f.isDirectory()){
@@ -262,40 +317,175 @@ public class SampleHelper {
 				File roomDir = new File(dirPath+SEP+r);
 				if(!roomDir.mkdirs()){
 					System.err.println("Failed to creat dir for room: "+ r);
+					return;
 				}
 			}
+			System.out.println("Copying files");
+			FileInputStream fis; 
+		    FileOutputStream fos; 
+		    byte[] b = new byte[1024]; 
+		    int a; 
 			for(File su: suits){
+				if(su.getAbsolutePath().indexOf(DevConstants.IGNORE_PREFIX)!=-1)continue;
 				for(File room: su.listFiles()){
 					if(Arrays.asList(rooms).contains(room.getName())){
 						for(File img: room.listFiles()){
-							if(!img.renameTo(new File(dirPath+SEP+room.getName()+SEP+img.getName()))){
+							if(img.getParentFile().getAbsolutePath().indexOf(DevConstants.IGNORE_PREFIX)!=-1)continue;
+							try{
+								fis = new FileInputStream(img); 
+						        fos = new FileOutputStream(new File(dirPath+SEP+room.getName()+SEP+img.getName())); 
+						        while ((a = fis.read(b)) != -1) { 
+						          fos.write(b, 0, a); 
+						        } 
+							}catch(IOException  e){
+								e.printStackTrace();
 								System.out.println("Cannot move file: "+img.getAbsolutePath());
 							}
+							
+							//if(!img.renameTo(new File(dirPath+SEP+room.getName()+SEP+img.getName()))){
+								
+							//}
 						}
 					}
 				}
 			}
 		}
 	}
+	/**
+	 * generate randomly selected files for training and evaluation from a processed dataset
+	 * <b>Note:recursive</b>
+	 * @param rootPath create folders "train" and "eval" under the root dir and
+	 * keep the structure of the root dir inside these new dirs. 
+	 * @param percentForEval with a probability of percentForEval/1, 
+	 * files in the root dir are copied to the eval dir, the rest are copied to the train dir
+	 */
+	public static void generateTrainAndEvalSets(String rootPath, double percentForEval){
+		File f = new File(rootPath);
+		if(f.isDirectory()){
+			File[] children = f.listFiles();
+			if(children.length==0)return;
+			
+			File trainDir = new File(rootPath+SEP+"train");
+			if(!trainDir.mkdirs()){
+				System.err.println("Failed to creat dir for training.");
+				return;
+			}
+			
+			File evalDir = new File(rootPath+SEP+"eval");
+			if(!evalDir.mkdirs()){
+				System.err.println("Failed to creat dir for evaluation.");
+				return;
+			}
+			System.out.println("Copying files");
+			FileInputStream fis; 
+		    FileOutputStream fos; 
+		    byte[] b = new byte[1024]; 
+		    int a; 
+			for(File sub: children){//NEVER USE list() HERE! causes infinite loops
+				if(sub.isDirectory()){
+					if(sub.getAbsolutePath().indexOf(DevConstants.IGNORE_PREFIX)==-1){
+						generateTrainAndEvalSetsRec(sub, trainDir, evalDir, percentForEval);
+					}
+				}else{
+					if(sub.getParentFile().getAbsolutePath().indexOf(DevConstants.IGNORE_PREFIX)!=-1)continue;
+					try{
+						fis = new FileInputStream(sub); 
+						String target;
+						if(Math.random()>percentForEval){
+							target = trainDir.getAbsolutePath()+SEP+sub.getName();
+						}else{
+							target = evalDir.getAbsolutePath()+SEP+sub.getName();
+						}
+				        fos = new FileOutputStream(new File(target)); 
+				        while ((a = fis.read(b)) != -1) { 
+				          fos.write(b, 0, a); 
+				        } 
+					}catch(IOException  e){
+						e.printStackTrace();
+						System.out.println("Cannot copy file: "+sub.getAbsolutePath());
+					}
+				}
+			}
+		}else{
+			System.err.println("Must supply a root directory.");
+		}
+	}
+	private static void generateTrainAndEvalSetsRec(File dir, File trainDir, File evalDir, double percentForEval) {
+		File[] children = dir.listFiles();
+		if(children.length==0)return;
+		trainDir = new File(trainDir+SEP+dir.getName());
+		if(!trainDir.mkdirs()){
+			System.err.println("Failed to creat dir for training.");
+			return;
+		}
+		evalDir = new File(evalDir+SEP+dir.getName());
+		if(!evalDir.mkdirs()){
+			System.err.println("Failed to creat dir for evaluation.");
+			return;
+		}
+		FileInputStream fis; 
+	    FileOutputStream fos; 
+	    byte[] b = new byte[1024]; 
+	    int a; 
+		for(File sub: children){
+			if(sub.isDirectory()){
+				if(sub.getAbsolutePath().indexOf(DevConstants.IGNORE_PREFIX)==-1){
+					generateTrainAndEvalSetsRec(sub, trainDir, evalDir, percentForEval);
+				}
+			}else{
+				if(sub.getParentFile().getAbsolutePath().indexOf(DevConstants.IGNORE_PREFIX)!=-1)continue;
+				try{
+					fis = new FileInputStream(sub); 
+					String target;
+					if(Math.random()>percentForEval){
+						target = trainDir.getAbsolutePath()+SEP+sub.getName();
+					}else{
+						target = evalDir.getAbsolutePath()+SEP+sub.getName();
+					}
+			        fos = new FileOutputStream(new File(target)); 
+			        while ((a = fis.read(b)) != -1) { 
+			          fos.write(b, 0, a); 
+			        } 
+				}catch(IOException  e){
+					e.printStackTrace();
+					System.out.println("Cannot copy file: "+sub.getAbsolutePath());
+				}
+			}
+		}
+		
+	}
+
 	public static void main(String[] args) {
+		//deleteEmptyDirs(new File("));
+
+		//generateTrainAndEvalSets("F:/TensorFlowDev/training-materials/styles/style-only", 0.3);
 		//String[] roomNames = {"餐厅","厨房","客厅","卧室","书房","卫生间"};
-		//putRoomsTogetherWithinAStyle("F:/tmp/风格/pastoral", roomNames);
-		
-		
-		
-		String rootPath = "F:/tmp/styles/pastoral";
-		
-		//if(args.length<1){
-			//rootPath = System.getProperty("user.dir");
-		//}else{
-			//rootPath = args[0];
-		//}
+		//putRoomsTogetherWithinAStyle("F:\\TensorFlowDev\\training-materials\\styles\\ready\\eastern-luxurious", roomNames);
+		//System.out.println("Done");
+		//String rootPath = "F:\\TensorFlowDev\\training-materials\\styles\\ready\\w-lux";
+		//scaleImageDir(rootPath, "F:\\TensorFlowDev\\training-materials\\styles\\style-only", 512);
+		//rootPath = "F:\\TensorFlowDev\\training-materials\\styles\\ready\\w-sim";
+		//scaleImageDir(rootPath, "F:\\TensorFlowDev\\training-materials\\styles\\style-only", 512);
 		
 		//System.out.println(rootPath);
 		//scaleImageDir(rootPath, "F:/tmp", 512);
 		//File root = new File(rootPath);
 		//if(root.isDirectory()) checkDimensions(root, 433, 251, -1, -1);
-		
+		/*batchEditImages("F:\\TensorFlowDev\\网页\\北欧风格装修_百度图片搜索_files", 
+				"F:/TensorFlowDev/网页上的图", "baidu", new ImgProcessor(){
+			@Override
+			public BufferedImage process(BufferedImage img) {
+				int h = img.getHeight();
+				int w = img.getWidth();
+				if(h<300||w<300){
+					Dimension d = TFUtils.scaleUniformFill(w, h, 300, 300);
+					BufferedImage ret = TFUtils.getScaledImage(img, d.width, d.height);
+					return ret;
+				}else{
+					return img;
+				}
+			}		
+		});
 		batchEditImages(rootPath, "F:/TensorFlowDev/training-materials/styles", new ImgProcessor(){
 			@Override
 			public BufferedImage process(BufferedImage img) {
@@ -314,5 +504,24 @@ public class SampleHelper {
 		
 		
 		
+		batchEditImages(rootPath, "F:/TensorFlowDev/training-materials/styles/tmp", new ImgProcessor(){
+			@Override
+			public BufferedImage process(BufferedImage img) {
+				int X = 176;
+				int Y = 20;
+				int W = 2575;//picture width
+				int H = 1440;//picture height
+				double xMin = (double)img.getWidth()/W*X; 
+				double yMin = (double)img.getHeight()/H*Y; 
+				double wMax = (double)img.getWidth()/W*2290;//window width
+				double hMax = (double)img.getHeight()/H*1300;//window height
+				double w = wMax*(100-Math.random()*15)/100;
+				double h = hMax*(100-Math.random()*15)/100;
+				double xMax = xMin+wMax-w;
+				double yMax = yMin+hMax-h;
+				return img.getSubimage((int)(xMin+Math.random()*(xMax-xMin)), (int)(yMin+Math.random()*(yMax-yMin)), 
+						(int)w, (int)h);
+			}		
+		});	*/
 	}
 }

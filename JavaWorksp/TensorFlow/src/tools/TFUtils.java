@@ -5,7 +5,9 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -39,7 +41,7 @@ public class TFUtils {
 	 * @param width
 	 * @param height
 	 * @return cropped img
-	 * @throws Exception if img is smaller than the desired size
+	 * @throws if img is smaller than the desired size
 	 */
 	public static BufferedImage centerCrop(BufferedImage img, int width, int height) throws IllegalArgumentException{
 		int w = img.getWidth();
@@ -90,12 +92,16 @@ public class TFUtils {
     } 
     
     /**
-     * read files and put paths to the files in 
+     * read files and put paths to the files in ArrayList files
+     * 
      * @param f
      * @param files 
      * @return
      */
 	public static void readFilesRecursively(File f, ArrayList<String> files) {
+		if(null==files){
+			return;
+		}
 		if(f.isDirectory()){
 			for(File entry : f.listFiles()){
 				readFilesRecursively(entry, files);
@@ -113,6 +119,9 @@ public class TFUtils {
      * @return
      */
 	public static void readImageFilesRecursively(File f, ArrayList<String> files) {
+		if(null==files){
+			return;
+		}
 		if(f.isDirectory()){
 			for(File entry : f.listFiles()){
 				readImageFilesRecursively(entry, files);
@@ -192,10 +201,15 @@ public class TFUtils {
 	
 	/**
 	 * Check accuracy in a fool-proof way
-	 * accuracy = (machine got it right)/(machine thought it to be in this class)
+	 * <pre>
+	 * if(path.indexOf(label)!=-1)correct[index]++;
+	 * </pre>
+	 * 
 	 * @param resultFile
 	 * @param labelFile
-	 * @return accuracy by category
+	 * @return accuracy = (machine got it right)/(machine thought it to be in this class)<br>
+	 * i.e. 1-accuracy = false positive rate<br>
+	 * <br>
 	 */
 	public static double[] checkAccuracy(String resultFile, String labelFile){
 		ArrayList<String> labels = LabelGenerator.readLabelsFromFile(labelFile);
@@ -237,9 +251,62 @@ public class TFUtils {
 		}
 		return ret;
 	}
-	public void sortByClass(String resultFile, String labelFile, String outputDir){
+	
+	/**
+	 * Copy files into separate folders according to machine's classification in outputDir
+	 * @param resultFile
+	 * @param labelFile
+	 * @param outputPath
+	 */
+	public static void sortByClass(String resultFile, String labelFile, String outputPath){
 		
+		ArrayList<String> labels = LabelGenerator.readLabelsFromFile(labelFile);
+		File outputDir = new File(outputPath);
+		if(!outputDir.isDirectory()){
+			System.out.println("output path "+outputPath+" should be a directory.");
+		}
+		if(labels.size()>0){
+			for(String l:labels){
+				new File(outputPath+SEP+l).mkdirs();
+			}
+			
+			try {
+				Scanner sc = new Scanner(new File(resultFile));
+				FileInputStream fis; 
+				FileOutputStream fos; 
+				byte[] b = new byte[1024]; 
+				int a; 
+				while(sc.hasNextLine()){
+					String str = sc.nextLine();
+					//System.out.println(str);
+					String[] line = LabelGenerator.parseResultLine(str, 2);
+					if(null!=line[0]&&null!=line[1]){
+						File sub = new File(line[0]);
+						String label = line[1];
+						if(labels.indexOf(label)==-1){
+							System.out.println(label+" is not in the label list.");
+						}
+						try{
+							fis = new FileInputStream(sub); 
+							String target = outputPath+SEP+label+SEP+sub.getName();
+					        fos = new FileOutputStream(new File(target)); 
+					        while ((a = fis.read(b)) != -1) { 
+					          fos.write(b, 0, a); 
+					        } 
+						}catch(IOException  e){
+							System.out.println("Cannot copy file: "+sub.getAbsolutePath());
+						} 
+					}
+					
+				}
+				sc.close();
+			} catch (FileNotFoundException e1) {
+				e1.printStackTrace();
+			}
+
+		}
 	}
+	
 	public static void main(String args[]){
 		//deleteEmptyDirs(new File("c:/tmp/test"));
 		
@@ -251,26 +318,52 @@ public class TFUtils {
 			//rootPath = args[0];
 		//}
 		
-		System.out.println(rootPath);
-
+		/*System.out.println(rootPath);
+		sortByClass("F:/TensorFlowDev/training-materials/styles/style-only/eval/furn-224-tf-inference-results.txt",
+				"F:/TensorFlowDev/training-materials/styles/style-only/eval/tf-labels-to-text.txt",
+				"F:\\TensorFlowDev\\training-materials\\styles\\tmp");*/
 		
 		System.out.println("-----------crop----------------");
-		double[] result = checkAccuracy("C:/tmp/hardware/crop-tf-inference-results.txt", "C:/tmp/hardware/tf-labels-to-text.txt");
+		double[] result = checkAccuracy("F:/TensorFlowDev/training-materials/hardware/crop-tf-inference-results.txt", 
+				"F:/TensorFlowDev/training-materials/hardware/tf-labels-to-text.txt");
 		for(double s : result){
 			System.out.println(s);
 		}
 		System.out.println("-----------resize----------------");
-		result = checkAccuracy("C:/tmp/hardware/resize-tf-inference-results.txt", "C:/tmp/hardware/tf-labels-to-text.txt");
+		result = checkAccuracy("F:/TensorFlowDev/training-materials/hardware/resize-tf-inference-results.txt", 
+				"F:/TensorFlowDev/training-materials/hardware/tf-labels-to-text.txt");
 		for(double s : result){
 			System.out.println(s);
 		}
 		System.out.println("-----------beds----------------");
-		//
-		result = checkAccuracy("F:/TensorFlowDev/PythonWorksp/TensorFlow/furniture/bed/furn-91126tf-inference-results.txt", 
+		//F:\TensorFlowDev\PythonWorksp\TensorFlow\furniture\bed/furn-47010tf-inference-results.txt91126
+		result = checkAccuracy("F:/TensorFlowDev/PythonWorksp/TensorFlow/furniture/bed/furn-224-tf-inference-results.txt", 
 				"F:/TensorFlowDev/PythonWorksp/TensorFlow/furniture/bed/tf-labels-to-text.txt");
-		for(double s : result){
-			System.out.println(s);
+		ArrayList<String> labels = LabelGenerator.readLabelsFromFile("F:/TensorFlowDev/PythonWorksp/TensorFlow/furniture/bed/tf-labels-to-text.txt");
+		for(int i=0; i<labels.size(); i++){
+			System.out.println(labels.get(i)+":"+result[i]);
 		}
+		System.out.println("total:"+result[labels.size()]);
+		/*
+		 * 32
+		baby-bed:0.9955947136563876
+		bunk-bed:0.9873873873873874
+		double-bed:0.9588744588744589
+		hammock:0.9858407079646018
+		round-bed:0.9743589743589743
+		single-bed:0.9563758389261745
+		total:0.9361170592433976
+		 * 224
+		baby-bed:0.9420935412026726
+		bunk-bed:0.9229390681003584
+		double-bed:0.904862579281184
+		hammock:0.9507908611599297
+		round-bed:0.9572649572649573
+		single-bed:0.9403508771929825
+		total:0.9782298358315489
+		 * 
+		 * 
+		 * */
 		System.out.println("-----------3 furn----------------");
 		//
 		result = checkAccuracy("F:/TensorFlowDev/PythonWorksp/TensorFlow/furniture/furpics/furn-5955tf-inference-results.txt", 
@@ -294,14 +387,55 @@ public class TFUtils {
 		for(int i=0; i<labels.size(); i++){
 			System.out.println(labels.get(i)+":"+result[i]);
 		}
-		System.out.println("total:"+result[labels.size()]);*/
+		System.out.println("total:"+result[labels.size()]);
 		System.out.println("----------- BY ROOM ----------------");
 		result = checkAccuracy("F:/TensorFlowDev/training-materials/styles/furn-55795tf-inference-results.txt", 
 				"F:/TensorFlowDev/training-materials/styles/tf-labels-to-text-collapse-by-room.txt");
-		ArrayList<String> labels = LabelGenerator.readLabelsFromFile("F:/TensorFlowDev/training-materials/styles/tf-labels-to-text-collapse-by-room.txt");
+		labels = LabelGenerator.readLabelsFromFile("F:/TensorFlowDev/training-materials/styles/tf-labels-to-text-collapse-by-room.txt");
 		for(int i=0; i<labels.size(); i++){
 			System.out.println(labels.get(i)+":"+result[i]);
 		}
 		System.out.println("total:"+result[labels.size()]);
+		F:/TensorFlowDev/training-materials/styles/style-only/eval/furn-35858tf-inference-results.txt*/
+		result = checkAccuracy("F:/TensorFlowDev/training-materials/styles/style-only/train/furn-128-tf-inference-results.txt", 
+				"F:/TensorFlowDev/training-materials/styles/style-only/eval/tf-labels-to-text.txt");
+		labels = LabelGenerator.readLabelsFromFile("F:/TensorFlowDev/training-materials/styles/style-only/eval/tf-labels-to-text.txt");
+		for(int i=0; i<labels.size(); i++){
+			System.out.println(labels.get(i)+":"+result[i]);
+		}
+		System.out.println("total:"+result[labels.size()]);
+		result = checkAccuracy("F:/TensorFlowDev/training-materials/styles/style-only/eval/furn-128-tf-inference-results.txt", 
+				"F:/TensorFlowDev/training-materials/styles/style-only/eval/tf-labels-to-text.txt");
+		labels = LabelGenerator.readLabelsFromFile("F:/TensorFlowDev/training-materials/styles/style-only/eval/tf-labels-to-text.txt");
+		for(int i=0; i<labels.size(); i++){
+			System.out.println(labels.get(i)+":"+result[i]);
+		}
+		System.out.println("total:"+result[labels.size()]);
+		/*
+		128 train
+		western-sim:0.9964912280701754
+		western-lux:0.99822695035461
+		japanese:1.0
+		chinese:1.0
+		total:0.9986498649864987
+		128 eval
+		western-sim:0.41509433962264153
+		western-lux:0.4122448979591837
+		japanese:0.46875
+		chinese:0.5037878787878788
+		total:0.4498997995991984
+		224 train
+		western-sim:0.9185441941074524
+		western-lux:0.9290780141843972
+		japanese:0.9583333333333334
+		chinese:0.9376083188908145
+		total:0.9351935193519352
+		224 eval
+		western-sim:0.5225563909774437
+		western-lux:0.5311203319502075
+		japanese:0.6220095693779905
+		chinese:0.5957446808510638
+		total:0.5661322645290581
+		 */
 	}
 }
