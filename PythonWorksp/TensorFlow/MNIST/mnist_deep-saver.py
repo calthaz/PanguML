@@ -133,10 +133,12 @@ def main(_):
 	train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 	correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))
 	accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+	# create a Saver object as normal in Python to save your variables
+	saver = tf.train.Saver()
 
 	with tf.Session() as sess:
 		sess.run(tf.global_variables_initializer())
-		for i in range(1000):#20000
+		for i in range(2000):#20000
 			batch = mnist.train.next_batch(50)
 			if i % 100 == 0:
 				train_accuracy = accuracy.eval(feed_dict={
@@ -146,16 +148,9 @@ def main(_):
 
 		print('test accuracy %g' % accuracy.eval(feed_dict={
 				x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0}))
-		# create a Saver object as normal in Python to save your variables
-		saver = tf.train.Saver(sess,"model-with-saver")
-		# Use a saver_def to get the "magic" strings to restore
-		saver_def = saver.as_saver_def()
-		print saver_def.filename_tensor_name
-		print saver_def.restore_op_name
-		# write out 3 files
-		saver.save(sess, 'trained_model-s.sd')
-		tf.train.write_graph(sess.graph_def, '.', 'trained_model-s.proto', as_text=False)
-		tf.train.write_graph(sess.graph_def, '.', 'trained_model-s.txt', as_text=True)
+		
+		saver.save(sess, 'ckpt/newpath', global_step=2000)
+		#newpath is the prefix: newpath-2000.data-00000-of-00001
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
