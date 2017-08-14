@@ -21,18 +21,15 @@ def scale_uniform_fill(img, destiW,destiH):
 	return cv2.resize(img, (width,height))
 
 #print (cv2.__version__)
-img = cv2.imread('img/digits_on_paper.jpg')
+img = cv2.imread('img/front_page.png')
 #print(img.shape)
 height, width, _ = img.shape
-if height>MAX_IMG_SIZE or width>MAX_IMG_SIZE:
-	img = scale_uniform_fill(img, MAX_IMG_SIZE, MAX_IMG_SIZE)
 if height<MIN_IMG_SIZE or width<MIN_IMG_SIZE:
 	img = scale_uniform_fill(img, MIN_IMG_SIZE, MIN_IMG_SIZE)
 #cv2.imshow("original", img)
 kernel = np.array([[0,-0.5,0], [-0.5,3,-0.5], [0,-0.5,0]])
 img = cv2.filter2D(img, -1, kernel)
 #cv2.imshow("sharpened", img)
-img= cv2.copyMakeBorder(img,10,10,10,10,cv2.BORDER_CONSTANT,value=(0,255,0))
 hsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
 height, width, _ = hsv.shape
 '''
@@ -75,8 +72,8 @@ kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
 closed = cv2.morphologyEx(dilate_img, cv2.MORPH_CLOSE, kernel)
 cv2.imwrite('img/test-sharpened-padded-canny-dilated-closed-10-250.png', closed)
 
-canny_img_dirty = closed.copy()#cv2.RETR_EXTERNAL
-_, contours, hierarchy = cv2.findContours(canny_img_dirty,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+canny_img_dirty = closed.copy()#cv2.RETR_TREE
+_, contours, hierarchy = cv2.findContours(canny_img_dirty,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 canny_img_dirty = img.copy()
 img_after = cv2.drawContours(canny_img_dirty, contours, -1, (0,0,255), 3)#img == img_after
 #cv2.imwrite('img/test-padded-canny-dilated-closed-10-250-cont.png',img_after)
@@ -106,7 +103,7 @@ for c in contours:
 	#box = cv2.convexHull(c)
 	# if the approximated contour has four points, then assume that the
 	# contour is a book -- a book is a rectangle and thus has four vertices
-	if len(approx) < 100 and cv2.contourArea(box)>width*height/300:
+	if len(approx) < 100:
 		#print box
 		cv2.drawContours(img_dirty, [box], -1, (255, 180, 255*(total%10)/10), 2)
 		total += 1
@@ -115,7 +112,7 @@ for c in contours:
 		cv2.imwrite('img/crop'+str(total)+'.png', crop_img)
 
 cv2.imshow('box.png', img_dirty)
-cv2.imwrite('img/test-sharpened-padded-canny-dilated-closed-10-250-cont-100-vertices-300big-straight-box.png', img_dirty)
+cv2.imwrite('img/test-sharpened-padded-canny-dilated-closed-10-250-cont-100-vertices-box.png', img_dirty)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 '''
