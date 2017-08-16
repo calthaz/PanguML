@@ -1,2 +1,31 @@
-#TensorFlow
-基于tensorflow的混合项目
+# TensorFlow
+__基于tensorflow的混合项目__  
+* Python
+* Java
+* Web
+* MATLAB
+* C, C++
+
+# Before leaving Sub-horizon
+## Environment requirements 
+### Python - TensorFlow related
+>Env:
+> * Python 3
+> * TensorFlow 1.2 with GPU support
+> * and its dependencies...
+
+### Python - OpenCV related
+>Env:
+> * Python 2
+> * OpenCV 3
+> * and its dependencies... I was using Anaconda. [See: managing packages.](https://conda.io/docs/using/pkgs.html)
+
+### Java
+>Env:
+> * Java 8
+> * TensorFlow libs for java
+
+### Web
+>Env:
+> * php
+> * Apache Tomcat
