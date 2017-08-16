@@ -23,8 +23,21 @@ import java.util.Arrays;
 
 import colorPalette.MMCQ.CMap;
 
-//import de.androidpit.colorthief.MMCQ.CMap;
-
+/**
+ * Java Color Thief<br>
+ * <a href="http://www.androidpit.com">http://www.androidpit.com</a><br>
+ * License<br>
+ * -------<br>
+ * Creative Commons Attribution 2.5 License:<br>
+ * http://creativecommons.org/licenses/by/2.5/<br>
+ *<br>
+ * Thanks<br>
+ * ------<br>
+ * Lokesh Dhakar - for the original Color Thief JavaScript version<br>
+ * available at <a href="http://lokeshdhakar.com/projects/color-thief/">
+ * http://lokeshdhakar.com/projects/color-thief/</a><br>
+ * @author Sven Woltmann, Fonpit AG
+ */
 public class ColorThief implements ColorExtractor
 {
 

@@ -10,8 +10,8 @@ import java.util.Scanner;
 import javax.imageio.ImageIO;
 
 /**
- * generate a sprite image of fixed size. <br/>
- * sprite标准参照<br/>
+ * generate a sprite image of fixed size. <br>
+ * sprite标准参照<br>
  * <a href="https://www.tensorflow.org/versions/master/get_started/embedding_viz">TensorBoard: Embedding Visualization</a>
  *
  */

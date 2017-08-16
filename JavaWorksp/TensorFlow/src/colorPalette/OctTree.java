@@ -12,10 +12,13 @@ import java.util.Objects;
 import tools.ColorPaletteReader;
 import tools.TFUtils;
 /**
- * https://xcoder.in/2014/09/17/theme-color-extract/
- * https://www.microsoft.com/msj/archive/S3F1.aspx
- * https://github.com/XadillaX/theme-color-test
- *
+ * <div class="en">Use an Octree to extract main colors. See the links below.</div>
+ * <div class="zh">用八叉树提取主要颜色，参见下面的链接</div>
+ * <a href="https://xcoder.in/2014/09/17/theme-color-extract/">https://xcoder.in/2014/09/17/theme-color-extract/</a><br>
+ * <a href="https://www.microsoft.com/msj/archive/S3F1.aspx">https://www.microsoft.com/msj/archive/S3F1.aspx</a><br>
+ * <div class="en">This file is translated from JS and C++ at this repo:</div>
+ * <div class="zh">这个文件是从下面这个仓库的JS和C++文件改写成java的</div>
+ * <a href="https://github.com/XadillaX/theme-color-test">https://github.com/XadillaX/theme-color-test</a>
  */
 public class OctTree implements ColorExtractor{
 	private static final int MIN_COLOR_COUNT = 12;
@@ -25,6 +28,10 @@ public class OctTree implements ColorExtractor{
 	private OctreeNode[] reducible = new OctreeNode[8];
 	private int leafNum = 0; 
 	private OctreeNode root = new OctreeNode();
+	/**
+	 * <div class="en">initialize the seven elements in {@code this.reducible} as null</div>
+	 * <div class="zh">把 {@code this.reducible}中的七个元素初始化为null</div>
+	 */
 	public OctTree(){
 		for(int i = 0; i < 7; i++) {
 			//reducible.add(null);	
@@ -32,13 +39,17 @@ public class OctTree implements ColorExtractor{
 		}
 	}
 	/**
-	 * if maxColors is less than the number of nodes in the first layer, 
+	 * <div class="en">if maxColors is less than the number of nodes in the first layer, 
 	 * IndexOutOfBound will be thrown. so we force it to be more than 12, 
 	 * than we will truncate or fill the return array so it has the same 
-	 * number of colors. 
+	 * number of colors. </div>
+	 * <div class="zh">如果需要的颜色小于第一层节点数（8）会报错，所以强制设为12以上。
+	 * 返回前截取需要个数的颜色，如果没有足够颜色数组用{-1, -1, -1}填充</div>
+	 * 
 	 * @param img
-	 * @param maxColors the number of output colors. 
-	 * 	if not enough colors are extracted, the rgb array will be filled with {-1, -1, -1}
+	 * @param maxColors <div class="en">the number of output colors.
+	 * if not enough colors are extracted, the rgb array will be filled with {-1, -1, -1}</div>
+	 * <div class="zh">返回的颜色个数，如果没有足够颜色数组用{-1, -1, -1}填充</div> 
 	 * @return {@code int[maxColors][3]} 
 	 */
 	public int[][] getRGBPalette(BufferedImage img, int maxColors){
@@ -94,12 +105,16 @@ public class OctTree implements ColorExtractor{
 	}
 	
 	/**
-	 * perform the oct-tree algorithm and compared it with a palette
-	 * @param palette path to the palette file, a reader will be constructed to read it
+	 * 
+	 * <div class="en">perform the oct-tree algorithm and compared it with a palette</div>
+	 * <div class="zh">进行八叉树运算并和已有色板比较</div>
+	 * @param palette <span class="en">path to the palette file, a reader will be constructed to read it</span>
+	 * <span class="zh">色板文件的路径，一个reader会构建来读它</span>
 	 * @param img
-	 * @param maxColors the number of output colors. 
-	 * 	if not enough colors are extracted, the rgb array will be filled with {-1, -1, -1}
-	 * @return
+	 * @param maxColors <div class="en">the number of output colors.
+	 * if not enough colors are extracted, the rgb array will be filled with {-1, -1, -1}</div>
+	 * <div class="zh">返回的颜色个数，如果没有足够颜色数组用{-1, -1, -1}填充</div> 
+	 * @return {@code int[maxColors][3]} 
 	 */
 	public int[][] getPaletteAccordingTo(String palette, BufferedImage img, int maxColors){
 		ColorPaletteReader rd = new ColorPaletteReader(palette);
@@ -108,11 +123,13 @@ public class OctTree implements ColorExtractor{
 	}
 	
 	/**
-	 * perform the oct-tree algorithm and compared it with a palette
-	 * @param colors
+	 * <div class="en">perform the oct-tree algorithm and compared it with a palette</div>
+	 * <div class="zh">进行八叉树运算并和已有色板比较</div>
+	 * @param colors <span class="en">rgb[] list</span><span class="zh">rgb[] 颜色列表</span>
 	 * @param img
-	 * @param maxColors the number of output colors. 
-	 * 	if not enough colors are extracted, the rgb array will be filled with {-1, -1, -1}
+	 * @param maxColors <div class="en">the number of output colors.
+	 * if not enough colors are extracted, the rgb array will be filled with {-1, -1, -1}</div>
+	 * <div class="zh">返回的颜色个数，如果没有足够颜色数组用{-1, -1, -1}填充</div> 
 	 * @return array of colors, in rgb arrays
 	 */
 	public int[][] getPaletteAccordingTo(ArrayList<int[]> colors, BufferedImage img, int maxColors){
@@ -138,13 +155,15 @@ public class OctTree implements ColorExtractor{
 	}
 	
 	/**
-	 * Find the first key in a map with the given value 
-	 * and remove the entry
+	 * 
+	 * <div class="en">Find the first key in a map with the given value 
+	 * and remove the entry</div>
+	 * <div class="zh">找到map中第一个有给定值的key，然后删除这个键值对</div>
 	 * @param map
-	 * @param value
-	 * @return the first key in the map that has the given value 
+	 * @param value <span class="en"></span><span class="zh">给定的值</span>
+	 * @return <span class="en">the key removed</span><span class="zh">被删除的key</span>
 	 */
-	private static <T, E> T getFirstKeyByValue(Map<T, E> map, E value) {
+	public static <T, E> T getFirstKeyByValue(Map<T, E> map, E value) {
 		T key = null;
 	    for (Entry<T, E> entry : map.entrySet()) {
 	        if (Objects.equals(value, entry.getValue())) {
@@ -182,11 +201,14 @@ public class OctTree implements ColorExtractor{
 		}
 	}
 	/**
-	 * createNode
+	 * <div class="en">createNode
 	 * if level<7 put it in the reducible[level] 
-	 * and link node.next to what was there previously 
-	 * @param parent {OctreeNode} parent the parent node of the new node
-	 * @param idx {Number} idx child index in parent of this node
+	 * and link node.next to what was there previously </div>
+	 * <div class="zh">创建新节点，如果level<7 则放入reducible链表并且连上之前在那个位置的节点</div>
+	 * @param parent {OctreeNode} <span class="en">the parent node of the new node</span>
+	 * <span class="zh">新节点的父节点</span>
+	 * @param idx {Number} idx <span class="en">child index in parent of this node</span>
+	 * <span class="zh">该节点在父节点的子节点中的编号</span>
 	 * @param level {Number} level node level
 	 * @return {OctreeNode} the new node
 	 */
@@ -206,19 +228,24 @@ public class OctTree implements ColorExtractor{
 	    return node;
 	}
 	/**
-	 * addColor <b>Note:recursive</b><br>
-	 * add color to the tree. For example:<br>
+	 * <b>Note:recursive</b><br>
+	 * <span class="en">add color to the tree. For example:</span> <br>
+	 * <span class="zh">往树里添加颜色。举个例子：</span>
+	 * <br>
 	 * <pre>
 	 * R: 0110 1101
 	 * G: 1100 1100
 	 * B: 1010 1010
 	 * </pre>
-	 * the path to its leaf (if not trimmed) is
+	 * 
+	 * <span class="en">the path to its leaf (if not trimmed) is</span> <br>
+	 * <span class="zh">通往这个叶子节点（如果没有被合并）的路径为</span>
 	 * <pre>
 	 * index:   011=>110=>101=>000=>111=>110=>001=>100
 	 * children: 3 => 6 => 5 => 0 => 7 => 6 => 1 => 4
 	 * </pre>
-	 * and this leaf will have 
+	 * <span class="en">and this leaf will have </span> <br>
+	 * <span class="zh">于是这个叶子节点就会</span>
 	 * <pre>
 	 * pixelCount++;
 	 * red+=R;
@@ -258,8 +285,10 @@ public class OctTree implements ColorExtractor{
 	}
 	
 	/**
-	 * trim the leaves<br>
-	 * adds leaves together and change their parent into a leaf node
+	 * <div class="en">trim the leaves<br>
+	 * adds leaves together and change their parent into a leaf node</div>
+	 * <div class="zh">合并叶子，并把父节点设为叶子节点</div>
+	 * 
 	 */
 	private void reduceTree() {
 	    // find the deepest level of node
@@ -318,8 +347,8 @@ public class OctTree implements ColorExtractor{
 	}
 	
 	/**
-	 * colorsStats
-	 * reads the colors in the leaves by {@code leaf.color/leaf.pixelCount}<br>
+	 * <div class="en">reads the colors in the leaves by {@code leaf.color/leaf.pixelCount}</div>
+	 * <div class="zh">读取树上的颜色，按照{@code leaf.color/leaf.pixelCount}计算</div>
 	 * <b>Note:recursive</b>
 	 * @param {OctreeNode} node the node will be stats
 	 * @param {Object} object color stats
@@ -346,9 +375,7 @@ public class OctTree implements ColorExtractor{
 	        }
 	    }
 	}
-	/**
-	 * makes a tree ready for another image
-	 */
+
 	public void clear() {	
 		leafNum = 0; 
 		root = new OctreeNode();

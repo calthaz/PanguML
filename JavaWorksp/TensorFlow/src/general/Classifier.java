@@ -11,12 +11,15 @@ import tools.LabelGenerator;
 import tools.TFUtils;
 
 /**
- * 
- * contains methods shared among all classifiers
- *
+ *	<span class="en">contains methods shared among all classifiers</span>
+ *  <span class="zh">所有分类器的公用方法</span>
  */
 public abstract class Classifier {
-
+	
+	/**
+	 * <span class="en">There can be a random prefix before this filename</span>
+	 * <span class="zh">结果文件的基础名称，前面有随机前缀</span>
+	 */
 	public static final String RESULT_FILE_NAME = "tf-inference-results.txt";	
 	protected String labelPath;
 	protected String modelPath;
@@ -25,24 +28,53 @@ public abstract class Classifier {
 	protected GraphDriver bgd;
 	private static final String SEP = LabelGenerator.SEP;
 	
-	
+	/**
+	 * 
+	 * <div class="en">
+	 * Create a Classifier with uninitialized params
+	 * </div>
+	 * <div class="zh">创建一个参数未初始化的分类器</div>
+	 */
 	public Classifier(){
 		
 	}
 	
+	/**
+	 * 
+	 * @return <span class="en"></span>
+	 * <span class="zh">分类器要求的正方形图片边长</span>
+	 */
 	public abstract int getImageSize();
+	
+	/**
+	 * 
+	 * @return <span class="en">The supported batch size of a graph.pb when using batch processing</span>
+	 * <span class="zh">graph批量处理时支持的BatchSize</span>
+	 */
 	public abstract int getBatchSize();
+	/**
+	 * 
+	 * @return <span class="en">Image preprocessing method</span>
+	 * <span class="zh">图片预处理方法</span>
+	 */
 	public abstract String getNormMethod();
 	
 	/**
-	 * load images, run graphs, print results as {@code System.out} and save results to {@code RESULT_FILE_NAME} under rootDir
-	 * 
+	 * <div class="en">load images, run graphs, 
+	 * print results as {@code System.out} 
+	 * and save results to {@code RESULT_FILE_NAME} under rootDir</div>
+	 * <div class="zh">加载图片, run graphs, 
+	 * 用{@code System.out} 输出结果，
+	 * 并把结果保存在rootDir下的{@code RESULT_FILE_NAME}文件里</div>
 	 * @param inputPaths paths to all inputs<br>
-	 *  {@code rootPath} is the first element of this array. if it is a dir, the result file is saved there;
-	 *  if not, the result file is saved alongside with this file<br>
+	 * <span class="en">{@code rootPath} is the first element of this array. if first element of this array is a dir, 
+	 * the result file is saved there; if not, 
+	 * the result file is saved alongside with this file</span>
+	 * <span class="zh">如果该数组的第一个元素{@code rootPath} 是文件夹，
+	 * 结果列表储存在该文件夹中，否则储存在第一个文件所在的文件夹中</span>
 	 *  
 	 */
-	protected void loadAndRun(String[] inputPaths){
+	public void loadAndRun(String[] inputPaths){
 		long time = System.currentTimeMillis();
 		if(modelPath==null||batchModelPath==null||labelPath==null){
 			System.err.println("Resources failed to load");
@@ -97,12 +129,10 @@ public abstract class Classifier {
 	}
 	/**
 	 * Execute Graph by Batch: 
-	 * self-evident
+	 * self-evident<br>
+	 * <span class="en"></span><span class="zh">批量处理图片，余数单个处理</span>
 	 * @param files list of paths to unchecked files
-	 * @param BATCH_SIZE
-	 * @param wr writer to write the result file
-	 * @param gd Graph with batch size = 1
-	 * @param gd1 Graph with batch size = BATCH_SIZE
+	 * @param wr <span class="en">writer to write the result file</span><span class="zh">写结果列表的{@code PrintWriter writer}</span>
 	 */
 	private void executeGraphByBatch(ArrayList<String> files, PrintWriter wr) {
 		int BATCH_SIZE = getBatchSize();

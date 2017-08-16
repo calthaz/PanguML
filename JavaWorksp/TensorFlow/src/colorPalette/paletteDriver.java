@@ -8,10 +8,29 @@ import javax.imageio.ImageIO;
 
 import tools.ColorPaletteReader;
 
+/**
+ * <div class="en">test ColorPalette and algorithms to extract colors</div>
+ * <div class="zh">测试ColorPalette和颜色提取算法</div>
+ *
+ */
 public class paletteDriver {
+	/**
+	 * <span class="en">palette that contains all colors</span>
+	 * <span class="zh">有所有颜色的色卡</span>
+	 */
 	public static final String FULL_PAL = "palettes/md-full.palette";
+	/**
+	 * <span class="en">palette that contains bright colors</span>
+	 * <span class="zh">有所有明亮颜色的色卡</span>
+	 */
 	public static final String BRIGHT_PAL = "palettes/md-original-pure.palette";
+	/**
+	 * <span class="en">palette that contains colors selected from desaturated colors</span>
+	 * <span class="zh">有所有降低饱和度的颜色的色卡</span>
+	 */
 	public static final String DES_PAL = "palettes/md-desaturate-pure.palette";
+	
+	
 	private static void printColorBlocks(int[][] colors){
 		for(int[] i : colors){
 				System.out.println(
@@ -19,6 +38,11 @@ public class paletteDriver {
 							i[0], i[1], i[2]));
 		}
 	}
+	
+	/**
+	 * <div class="zh">进行测试</div><div class="en">run the test</div>
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		try {
 			//BufferedImage img = ImageIO.read(new File("F:/tmp/styles/mediterranean/bedroom/pipi059126993.png"));

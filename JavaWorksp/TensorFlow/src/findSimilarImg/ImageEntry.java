@@ -15,10 +15,14 @@ import static java.lang.Math.sqrt;
 import static java.lang.Math.abs;
 
 /**
- * This class represents an instance in the algorithm described in
+ * <div class="en">This class encapsulates an image instance in the algorithm described in
  * <a href="http://grail.cs.washington.edu/projects/query/mrquery.pdf">this paper</a><br>
+ *  Now the color space is actually YIQ,
+ * but I do bother to change the variable names</div>
+ * <div class="zh">这个类封装了<a href="http://grail.cs.washington.edu/projects/query/mrquery.pdf">这个论文</a>中的单个图片对象<br>
  * 现在用的颜色空间其实是YIQ，
  * 因为改变量名很麻烦所以没改
+ * </div>
  */
 public class ImageEntry implements Comparable<ImageEntry>,Serializable{
 
@@ -29,14 +33,17 @@ public class ImageEntry implements Comparable<ImageEntry>,Serializable{
 	private String pairedImprID;
 	private BufferedImage compressed;
 	
-	//0,1,2: h,s,b
+	/** 0,1,2: h,s,b*/
 	public ArrayList<Float> average;
 	
 	private float[][] matrixH;
 	private float[][] matrixS;
 	private float[][] matrixB;
 	
+	/** <span class="zh">宽</span><span class="en">width</span>
+	 */
 	public static final int W = 128;//128
+	/** <span class="zh">高</span><span class="en">height</span>*/
 	public static final int H = 128;//128
 	private static int TOP_M=60;//60
 	

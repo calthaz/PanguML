@@ -27,8 +27,10 @@ import tools.LabelGenerator;
 
 
 /**
- * This class carries out the algorithm described in
- * <a href="http://grail.cs.washington.edu/projects/query/mrquery.pdf">this paper</a><br>
+ * <div class="en">This class carries out the algorithm described in
+ * <a href="http://grail.cs.washington.edu/projects/query/mrquery.pdf">this paper</a></div>
+ * <div class="zh">这个类执行的是<a href="http://grail.cs.washington.edu/projects/query/mrquery.pdf">这个论文</a>中的算法</div>
+ * 
  */
 public class fastQuerying {
 	private static final String DATA_EXT = ".fqdata";
@@ -42,9 +44,12 @@ public class fastQuerying {
 
 	private String resultFile;
 	/**
-	 * stores the feature map of a collection of files
+	 * <div class="en">stores the feature map of a collection of files
 	 * follows this pattern: {@code [random prefix]-[currentTimeMillis][DATA_EXT]}
-	 * therefore next time the program loads this dir it will look for the latest map and loads it
+	 * therefore next time the program loads this dir it will look for the latest map and loads it</div>
+	 * <div class="zh">按照这个格式：{@code [random prefix]-[currentTimeMillis][DATA_EXT]}
+	 * 储存特征数据表，下次加载时会去寻找</div>
+	 * 
 	 */
 	private String dataFile = "-"+System.currentTimeMillis()+DATA_EXT;
 	
@@ -55,10 +60,10 @@ public class fastQuerying {
 	private String RESULT_FILE_NAME = "-fq-result.txt";
 	
 	/**
-	 * 最强大的
 	 * 
-	 * @param draftPath 跟别人比较的图片
-	 * @param inputPaths 用来和draft比较的图片路径/目录路径
+	 * <div class="zh">最强大的构造函数</div><div class="en">The most powerful constructor</div>
+	 * @param draftPath <span class="zh">跟别人比较的图片</span><span class="en"></span>
+	 * @param inputPaths <span class="zh">用来和draft比较的图片路径/目录路径</span><span class="en"></span>
 	 */
 	public fastQuerying(String draftPath, String[] inputPaths) {
 		rootPaths = trimFiles(inputPaths);
@@ -109,7 +114,8 @@ public class fastQuerying {
     	
 	}
 	/**
-	 * 读该目录下所有文件并且在此处生成fqdata文件
+	 * <div class="en">reads all the files under current dir and generate fqdata file</div>
+	 * <div class="zh">读该目录下所有文件并且在此处生成fqdata文件</div>
 	 */
 	public fastQuerying(){
 		rootPaths = new ArrayList<String>();
@@ -138,9 +144,9 @@ public class fastQuerying {
 	}
 	
 	/**
-	 * 传入图片路径在当前目录下寻找保存过的特征图然后比较计算
-	 * 
-	 * @param draftPath
+	 * <div class="zh">传入图片路径在当前目录下寻找保存过的特征图然后比较计算</div>
+	 * <div class="en">Use a locally stored fqdata file to find similar images for the draft </div>
+	 * @param draftPath <span class="zh">跟别人比较的图片</span><span class="en"></span>
 	 */
 	public fastQuerying(String draftPath){
 		rootPaths = new ArrayList<String>();
@@ -204,15 +210,18 @@ public class fastQuerying {
 	}
 
 	/**
-	 * delete redundant paths and nonexistent paths. 
-	 * 示例:
-	 * inputPaths: [F:/tmp/foo, F:/tmp/root2, F:/tmp/root/ignore-l3, F:/tmp/root/l2/ignore-l2-2/l2-2-1, F:/tmp/root/l2/l2-1, 
+	 * <div class="en">delete redundant paths and nonexistent paths.</div>
+	 * <div class="zh">删除多余和不存在的路径</div> 
+	 * <span class="zh">示例:</span><span class="en">For example:</span>
+	 * <pre>
+inputPaths: [F:/tmp/foo, F:/tmp/root2, F:/tmp/root/ignore-l3, F:/tmp/root/l2/ignore-l2-2/l2-2-1, F:/tmp/root/l2/l2-1, 
 		F:/tmp/root/l2/ignore-l2-2/sc9.png, F:/tmp/root/l1/sc0.png, F:/tmp/root/l2/l2-1/sc0.png]
-	 * return: [F:/tmp/root2, F:/tmp/root/l2/l2-1, F:/tmp/root/l1/sc0.png]
-	 * @param inputPaths
-	 * @return
+return: [F:/tmp/root2, F:/tmp/root/l2/l2-1, F:/tmp/root/l1/sc0.png]
+</pre>
+	 * @param inputPaths <span class="zh">需要修剪的列表</span><span class="en">paths to trim</span>
+	 * @return trimed paths
 	 */
-	private static ArrayList<String> trimFiles(String[] inputPaths) {
+	public static ArrayList<String> trimFiles(String[] inputPaths) {
 		//candiPathList is initialized
 		ArrayList<String> paths = new ArrayList<String>();
 		for(String str : inputPaths){
@@ -313,16 +322,29 @@ public class fastQuerying {
 	}
 	
 	/**
+	 * <div class="en">
 	 * read entries from saved data if it is listed on {@code candiPathList}
-	 * searchArray must be initialized here.<br>
+	 * searchArray must be initialized here.
 	 * <b>Note: if multiple ImageEntries that have the same path are parsed, 
 	 * only the first instance is saved into the {@code candiList}, 
 	 * but all are saved into {@code searchArray}</b>, 
 	 * because the cost to remove all the occurrences of the other ImageEntries 
 	 * in {@code searchArray} is simply not worth it. 
-	 * @param savedMap
-	 * @throws ClassNotFoundException
-	 * @throws IOException
+	 * </div>
+	 * <br>
+	 * <div class="zh">
+	 * 从{@code candiPathList}中列出已保存数据的条目
+	 * searchArray必须在这里初始化
+	 * <b>注意：如果具有相同路径的多个ImageEntries被解析，
+	 * 只有第一个对象被保存到{@code candiList}中，
+	 * 但所有都保存到{@code searchArray} </ b>中，
+	 * 因为在{@code searchArray}删除所有其他ImageEntries的成本太大
+	 * 根本不值得。</div>
+	 * @param savedMap <span class="zh">已保存的特征数据路径</span><span class="en">path to saved map</span>
+	 * @throws ClassNotFoundException 
+	 * <span class="zh">保存的数据不可读成fq特征图</span>
+	 * <span class="en">The stored map is not a fq feature map</span>
+	 * @throws IOException <span class="zh">读文件出错</span><span class="en">if an I/O error occurs while reading stream header</span>
 	 */
 	private void parseFeatureMap(String savedMap) throws ClassNotFoundException, IOException{		
 		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(savedMap)));
@@ -352,13 +374,26 @@ public class fastQuerying {
 	}
 
 	/**
-	 * ignore {@code candiPathList}
-	 * searchArray must be initialized here.<br>
+	 * <div class="en">
+	 * <b>ignore {@code candiPathList}</b><br>
+	 * read entries from saved data if it is listed on {@code candiPathList}
+	 * searchArray must be initialized here.
 	 * <b>Note: if multiple ImageEntries that have the same path are parsed, 
 	 * only the first instance is saved into the {@code candiList}, 
 	 * but all are saved into {@code searchArray}</b>, 
 	 * because the cost to remove all the occurrences of the other ImageEntries 
 	 * in {@code searchArray} is simply not worth it. 
+	 * </div>
+	 * <br>
+	 * <div class="zh">
+	 *  <b>无视{@code candiPathList}</b><br>
+	 * 从{@code candiPathList}中列出已保存数据的条目
+	 * searchArray必须在这里初始化
+	 * <b>注意：如果具有相同路径的多个ImageEntries被解析，
+	 * 只有第一个对象被保存到{@code candiList}中，
+	 * 但所有都保存到{@code searchArray} </ b>中，
+	 * 因为在{@code searchArray}删除所有其他ImageEntries的成本太大
+	 * 根本不值得。</div>
 	 * @param savedMap
 	 * @throws ClassNotFoundException
 	 * @throws IOException
@@ -513,7 +548,11 @@ public class fastQuerying {
  	   
 	}
 	
-	
+	/**
+	 * <span class="zh">读已有fqdata和args[0]比较</span>
+	 * <span class="en">read existing fqdata and compare with args[0]</span>
+	 * @param args
+	 */
 	public static void main(String args[]){
 		//String rootPath = "";
 		//String draftPath = "";

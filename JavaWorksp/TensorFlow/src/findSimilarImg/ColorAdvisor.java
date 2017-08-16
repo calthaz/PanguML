@@ -11,9 +11,18 @@ import javax.imageio.ImageIO;
 
 import tools.TFUtils;
 
+/**
+ * <div class="en">Get similar images based on main colors</div>
+ * <div class="zh">根据主色调匹配相似图片</div>
+ *
+ */
 public class ColorAdvisor {
 	
-	
+	/**
+	 * <div class="en">Get similar images based on main colors</div>
+	 * <div class="zh">根据主色调匹配相似图片</div>
+	 * @return
+	 */
 	public static ArrayList<ImagePalette> getSimilarImages(BufferedImage img, String database){
 		//int[][] colors = ce.getPalette(img, TOP_N);
 		ImagePalette input = new ImagePalette(img);
@@ -48,13 +57,18 @@ public class ColorAdvisor {
 	//public static String getSimilarImages(BufferedImage img, String database, ArrayList<int[]> palette){
 		
 	//}
+	/**
+	 * <div class="en">Test</div>
+	 * <div class="zh">测试</div>
+	 * @param args 
+	 */
 	public static void main(String[] args) {
 		
 		BufferedImage input;
 		try {
-			input = ImageIO.read(new File("F:/TensorFlowDev/training-materials/hardware/p-wall-paper/sc39.png"));
+			input = ImageIO.read(new File("training-materials/hardware/p-wall-paper/sc39.png"));
 			long time = System.currentTimeMillis();
-			ArrayList<ImagePalette> results = getSimilarImages(input, "F:/TensorFlowDev/training-materials/hardware");
+			ArrayList<ImagePalette> results = getSimilarImages(input, "training-materials/hardware");
 			int count = 0;
 			for(ImagePalette imp : results){
 				System.out.println(String.format("<img class=\"target-image\" src=\"%s\">", imp.getPath()));

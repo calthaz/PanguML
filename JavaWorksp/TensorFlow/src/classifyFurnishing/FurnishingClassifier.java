@@ -5,13 +5,39 @@ import general.DevConstants;
 import tools.NativeUtils;
 
 /**
+ * <b class="en">Notice: Don't run it as it is because modelDir and libs are hardcoded here</b>
+ * <b class="zh">注意: 不要直接运行因为modelDir和libs是编码在源文件里的</b>
+ * <div class="en">
  * classifies only three categories, wall-paper, wooden-floor, floor-tile
+ * </div>
+ * <div class="zh">
+ * 分类3类贴图：墙纸、墙砖、地板
+ * </div>
+ <pre>
+ 0|||floor-tile
+1|||wall-paper
+2|||wooden-floor
+ </pre>
  */
 public class FurnishingClassifier extends Classifier{
 	private static final int IMG_SIZE = 128;
 	private static final int BATCH_SIZE = 20;
 	private static final String IMG_NORMALIZE_METHOD = "resize";
-	
+	/**
+	 * <div class="en">
+	 * classifies only three categories, wall-paper, wooden-floor, floor-tile <br>
+	 *  In python the corresponding classifier is HardwareClassifier
+	 * </div>
+	 * <div class="zh">
+	 * 分类3类贴图：墙纸、墙砖、地板， 对应python为HardwareClassifier
+	 * </div>
+	 * @param inputPaths  paths to all inputs. 
+	 * <span class="en">if first element of this array is a dir, 
+	 * the result file is saved there; if not, 
+	 * the result file is saved alongside with this file</span>
+	 * <span class="zh">如果该数组的第一个元素是文件夹，
+	 * 结果列表储存在该文件夹中，否则储存在第一个文件所在的文件夹中</span>
+	 */
 	public FurnishingClassifier(String[] inputPaths) {
 		
 		modelPath =  NativeUtils.loadOrExtract(DevConstants.MOD_ROOT+"model-fur-no-text-1"+"/frozen_graph.pb", 
@@ -27,6 +53,10 @@ public class FurnishingClassifier extends Classifier{
     
 	}
 	
+	/**
+	 * construct this classifier
+	 * @param args input paths for constructor
+	 */
 	public static void main(String[] args){
 		String rootPath = "";
 		String[] inputPaths = new String[1];

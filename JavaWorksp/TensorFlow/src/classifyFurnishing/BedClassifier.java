@@ -5,15 +5,44 @@ import general.DevConstants;
 import tools.NativeUtils;
 
 /**
- * deal with six categories of beds: <br>
- * single-bed, hammock, double-bed, baby-bed(cot), bunk-bed, round-bed
- *
+ * <b class="en">Notice: Don't run it as it is because modelDir and libs are hardcoded here</b>
+ * <b class="zh">注意: 不要直接运行因为modelDir和libs是编码在源文件里的</b>
+ * <div class="en">
+ * A Classifier dealing with six categories of beds: <br>
+ * single-bed, hammock, double-bed, baby-bed(cot), bunk-bed, round-bed 
+ * </div>
+ * <div class="zh">
+ * 分类6类床：单人床、吊床、双人床、宝宝床（有栏杆的）、双层床和圆床的分类器
+ * </div>
+ <pre>
+ 0|||baby-bed
+1|||bunk-bed
+2|||double-bed
+3|||hammock
+4|||round-bed
+5|||single-bed
+</pre>
  */
 public class BedClassifier extends Classifier{
-	public static final int IMG_SIZE = 224;//32;
-	public static final int BATCH_SIZE = 20;
+	private static final int IMG_SIZE = 224;//32;
+	private static final int BATCH_SIZE = 20;
 	private static final String IMG_NORMALIZE_METHOD = "resize";
 	
+	/**
+	 * <div class="en">
+	 * classify beds: <br>
+	 * single-bed, hammock, double-bed, baby-bed(cot), bunk-bed, round-bed 
+	 * </div>
+	 * <div class="zh">
+	 * 分类6类床：单人床、吊床、双人床、宝宝床（有栏杆的）、双层床和圆床
+	 * </div>
+	 * @param inputPaths  paths to all inputs. 
+	 * <span class="en">if first element of this array is a dir, 
+	 * the result file is saved there; if not, 
+	 * the result file is saved alongside with this file</span>
+	 * <span class="zh">如果该数组的第一个元素是文件夹，
+	 * 结果列表储存在该文件夹中，否则储存在第一个文件所在的文件夹中</span>
+	 */
 	public BedClassifier(String[] inputPaths){
 		String modelDir = "F:/TensorFlowDev/PythonWorksp/TensorFlow/FurnitureClassifier/models/";
 		//modelPath = NativeUtils.loadOrExtract(DevConstants.MOD_ROOT+"model-no-text-1/frozen_graph.pb",
@@ -29,6 +58,10 @@ public class BedClassifier extends Classifier{
 		loadAndRun(inputPaths);
 	}
 	
+	/**
+	 * construct this classifier
+	 * @param args input paths for constructor
+	 */
 	public static void main(String[] args){
 		String rootPath = "";
 		String[] inputPaths = new String[1];
