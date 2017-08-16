@@ -18,9 +18,11 @@ if(isset($_POST['method'])&&isset($_FILES['upload'])){
 	if($_POST['method'] =='inception'){
 		$commandStr = 'java -jar tensorflow/inception5h.jar '.$tmp_name_string.' ';
 	}elseif($_POST['method']=='bed'){
-		$commandStr = 'java -jar tensorflow/bedClassifier.jar '.$tmp_name_string.' ';
-	}else{
+		$commandStr = 'java -jar tensorflow/bedClassifier224.jar '.$tmp_name_string.' ';
+	}elseif($_POST['method']=='fur'){
 		$commandStr = 'java -jar tensorflow/materialClassifier.jar '.$tmp_name_string.' ';
+	}else{
+		$commandStr = 'java -jar tensorflow/styleClassifier.jar '.$tmp_name_string.' ';
 	}
 
 	$output="";

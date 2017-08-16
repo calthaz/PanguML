@@ -22,6 +22,7 @@ $(function(){
 				'<a class="teal-text infer-pic bed">识别</a>'+
 				'<a class="blue-text infer-pic inception">识别</a>'+
         '<a class="purple-text infer-pic fur">识别</a>'+
+        '<a class="brown-text infer-pic style">识别</a>'+
 				'<a class="orange-text delete-pic">删除</a></div>'+
 			'</div>')
     	}
@@ -67,6 +68,10 @@ $(function(){
       inferAll("fur");
     });
 
+    $("button.start-infer.style").click(function(){
+      inferAll("style");
+    });
+
   	$("main").on("click", "a.delete-pic", function(event){
   		var filename = $(event.target).parents("div.img-wrapper").find("img").attr("src");
   		//console.log(filename);
@@ -106,5 +111,8 @@ $(function(){
   	});
     $("main").on("click", "a.infer-pic.fur", function(event){
       inferPic(event, "fur");
+    });
+    $("main").on("click", "a.infer-pic.style", function(event){
+      inferPic(event, "style");
     });
 })
