@@ -1,0 +1,6 @@
+results/
+*.o
+*.obj
+*.lib
+*.mexmaci
+*.mexw64

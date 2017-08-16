@@ -1,0 +1,14 @@
+
+mex -c MexAndCpp.cpp
+mex -c MatlabToOpenCV.cpp
+mex  OSX_CPPRansacToGetAffineClosestN.cpp MexAndCpp.o MatlabToOpenCV.o /Users/opencv/libcv.dylib /Users/opencv/libhighgui.dylib /Users/opencv/libcxcore.dylib
+
+mex  OSX_BlockWiseKLTPropose.cpp MexAndCpp.o MatlabToOpenCV.o /Users/opencv/libcv.dylib /Users/opencv/libhighgui.dylib /Users/opencv/libcxcore.dylib
+
+mex OSX_CPPMeanShiftCluster.cpp MexAndCpp.o
+
+mex OSX_InverseTPSThread.cpp MexAndCpp.o MatlabToOpenCV.o /Users/opencv/libcv.dylib /Users/opencv/libhighgui.dylib /Users/opencv/libcxcore.dylib
+
+mex OSX_MSBPLocalAlignByPass.cpp
+
+mex OSX_TemplateMatching.cpp MexAndCpp.o MatlabToOpenCV.o /Users/opencv/libcv.dylib /Users/opencv/libhighgui.dylib /Users/opencv/libcxcore.dylib
