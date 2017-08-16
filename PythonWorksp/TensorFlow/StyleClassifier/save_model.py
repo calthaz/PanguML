@@ -10,20 +10,20 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.framework import graph_util
 
-import general_cifar as general
+import general_Zeiler as general
 import read_image
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('save_dir', './logs/style-save',
+tf.app.flags.DEFINE_string('save_dir', './logs/style224-4-save',
                            """Directory where to write event logs.""")
 tf.app.flags.DEFINE_string('eval_data', 'test',
                            """Either 'test' or 'train_eval'.""")
-tf.app.flags.DEFINE_string('checkpoint_dir', './logs/style128-4-style', 
+tf.app.flags.DEFINE_string('checkpoint_dir', './logs/style224-4-style', 
                            """Directory where to read model checkpoints.""")
 tf.app.flags.DEFINE_integer('num_examples', 1000,
                             """Number of examples to run.""")
-tf.app.flags.DEFINE_string('model_dir', './models/style128-4-style-', 
+tf.app.flags.DEFINE_string('model_dir', './models/style224-4-style-123-', 
                             """Directory where to save model""")
 #tf.app.flags.DEFINE_integer('eval_batch_size', 10,
                             #"""Number of examples to run.""")

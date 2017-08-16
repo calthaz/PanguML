@@ -5,7 +5,7 @@ from tensorflow.python import debug as tf_debug
 LABEL_SEP = "|||"
 image_dic = {}
 NUM_CLASS = 4
-IMAGE_SIZE = 128
+IMAGE_SIZE = 224
 TRAIN_LABEL_FILE = "F:/TensorFlowDev/training-materials/styles/style-only/train/tf-images-with-labels.txt"
 EVAL_LABEL_FILE = "F:/TensorFlowDev/training-materials/styles/style-only/eval/tf-images-with-labels.txt"
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 500

@@ -152,7 +152,7 @@ def main(_):
 
     # 保存二进制模型  
     output_graph_def = tf.graph_util.convert_variables_to_constants(sess, sess.graph_def, output_node_names=['y_conv_output_add'])  
-    with tf.gfile.FastGFile('/model/mnist-32.pb', mode='wb') as f:  
+    with tf.gfile.FastGFile('model/mnist-32.pb', mode='wb') as f:  
       f.write(output_graph_def.SerializeToString())  
 
 if __name__ == '__main__':

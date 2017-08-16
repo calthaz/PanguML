@@ -9,16 +9,16 @@ import time
 import numpy as np
 import tensorflow as tf
 
-import general
+import general_Zeiler as general
 import read_image
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('eval_dir', './logs/hard-eval',
+tf.app.flags.DEFINE_string('eval_dir', './logs/style224-eval',
                            """Directory where to write event logs.""")
 tf.app.flags.DEFINE_string('eval_data', 'test',
                            """Either 'test' or 'train_eval'.""")
-tf.app.flags.DEFINE_string('checkpoint_dir', './logs/hard128',
+tf.app.flags.DEFINE_string('checkpoint_dir', './logs/style224-4-style-3300',
                            """Directory where to read model checkpoints.""")
 tf.app.flags.DEFINE_integer('num_examples', 1000,
                             """Number of examples to run.""")
@@ -34,7 +34,7 @@ def evaluate():
     summary_op: Summary op.
   """
   with tf.Graph().as_default() as g:
-    # Get images and labels for CIFAR-10.
+    # Get images and labels for evaluation.
     eval_data = FLAGS.eval_data == 'test'
     images, labels = read_image.inputs(eval_data, FLAGS.eval_batch_size)
 
@@ -56,7 +56,6 @@ def evaluate():
     variables_to_restore = variable_averages.variables_to_restore()
     saver = tf.train.Saver(variables_to_restore)
 
-    merged_summary = tf.summary.merge_all()
     # Build the summary operation based on the TF collection of Summaries.
     summary_op = tf.summary.merge_all()
 

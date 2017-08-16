@@ -56,7 +56,7 @@ def evaluate():
     variables_to_restore = variable_averages.variables_to_restore()
     saver = tf.train.Saver(variables_to_restore)
 
-    merged_summary = tf.summary.merge_all()
+    
     # Build the summary operation based on the TF collection of Summaries.
     summary_op = tf.summary.merge_all()
 

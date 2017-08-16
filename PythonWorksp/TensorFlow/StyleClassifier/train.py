@@ -41,16 +41,16 @@ import time
 
 import tensorflow as tf
 
-import general_cifar as general
+import general_Zeiler as general
 import read_image
 #import my_eval
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('train_dir', './logs/style128-4-style-',
+tf.app.flags.DEFINE_string('train_dir', './logs/style128-4-style-3300-',
                            """Directory where to write event logs """
                            """and checkpoint.""")
-tf.app.flags.DEFINE_integer('max_steps', 10000, #1000000,
+tf.app.flags.DEFINE_integer('max_steps', 3300, #1000000,
                             """Number of batches to run.""")
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
