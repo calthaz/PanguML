@@ -44,3 +44,7 @@ tmp/
 
 *.dll
 *.so
+
+training-materials/
+MATLABAndLib/
+tmp-resources/
