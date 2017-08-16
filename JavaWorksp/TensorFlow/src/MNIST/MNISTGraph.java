@@ -101,7 +101,7 @@ public class MNISTGraph {
       /**
        * Let me try to use Java to normalize the image
        * x = tf.placeholder(tf.float32, [None, 784], name="input_tensor") 
-       * ���񶼿��԰�,[784]��[1,28,28,1]����������, LabelImage���־��Ǻ���
+       * [784][1,28,28,1], LabelImage
        * @param imageBytes
        * @return
        * output = (255-value)/255
@@ -134,9 +134,9 @@ public class MNISTGraph {
 		  	  g = raw[i]>>8 & 0xff;
 		  	  b = raw[i] & 0xff;
 		  	  //if(i%100==0) System.out.println(r+"  "+g+"  "+b+"  "+(1-(r+g+b)/(255f*3)));
-		  	  //output[0][i%PIC_SIZE][i/PIC_SIZE][0] = 1-(r+g+b)/(255f*3);MNIST�������, ����ͳһӦ�þͺ���
+		  	  //output[0][i%PIC_SIZE][i/PIC_SIZE][0] = 1-(r+g+b)/(255f*3);MNIST
 		  	  //i = y*scansize + x
-		  	  output[0][i/PIC_SIZE][i%PIC_SIZE][0] = 1-(r+g+b)/(255f*3);//ע�� �ƺ������ֳ���[y][x]
+		  	  output[0][i/PIC_SIZE][i%PIC_SIZE][0] = 1-(r+g+b)/(255f*3);//[y][x]
 		  }
 		  return output;
 		  

@@ -33,7 +33,7 @@ public class SampleHelper {
 		});<br>
 	 * </div>
 	 */
-	private interface ImgProcessor{
+	public interface ImgProcessor{
 		public BufferedImage process(BufferedImage img); 
 	}
 	private static final String SEP = "/";

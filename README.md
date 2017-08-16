@@ -6,7 +6,6 @@ __基于tensorflow的混合项目__
 * MATLAB
 * C, C++
 
-# Before leaving Sub-horizon
 ## Environment requirements 
 ### Python - TensorFlow related
 >Env:
