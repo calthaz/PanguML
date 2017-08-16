@@ -162,9 +162,13 @@ public class GraphDriver implements Closeable{
 	    		float[] probas = result.copyTo(new float[1][nlabels])[0];
 	    		
 	    		int bestLabelIdx = TFUtils.maxIndex(probas);
+	    		for(int i=0; i<probas.length;i++){
+	    			System.out.print(labels.get(i)+": "+probas[i]+"; ");
+	    		}
+	    		System.out.println();
 	    		System.out.println(
 	    				String.format(
-	    						"BEST MATCH: %s (%.2f%% likely)",
+	    						"BEST MATCH: %s (%.2f)",
 	    						labels.get(bestLabelIdx), probas[bestLabelIdx]));
 	    		return labels.get(bestLabelIdx)+LabelGenerator.LABEL_SEP+String.format("%.2f", probas[bestLabelIdx]);
 	    	}
@@ -221,7 +225,7 @@ public class GraphDriver implements Closeable{
 		    		int bestLabelIdx = TFUtils.maxIndex(probas[i]);
 		    		System.out.println(
 		    				String.format(
-		    						"No.%d BEST MATCH: %s (%.2f%% likely)",
+		    						"No.%d BEST MATCH: %s (%.2f)",
 		    						i, labels.get(bestLabelIdx), probas[i][bestLabelIdx]));
 		    		textResults[i] = labels.get(bestLabelIdx)+LabelGenerator.LABEL_SEP+String.format("%.2f", probas[i][bestLabelIdx]);
 	    		}
@@ -256,7 +260,7 @@ public class GraphDriver implements Closeable{
 		    		int bestLabelIdx = TFUtils.maxIndex(probas[i]);
 		    		System.out.println(
 		    				String.format(
-		    						"No.%d BEST MATCH: %s (%.2f%% likely)",
+		    						"No.%d BEST MATCH: %s (%.2f)",
 		    						i, labels.get(bestLabelIdx), probas[i][bestLabelIdx]));
 		    		textResults[i] = labels.get(bestLabelIdx)+LabelGenerator.LABEL_SEP+String.format("%.2f", probas[i][bestLabelIdx]);
 	    		}

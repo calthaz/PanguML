@@ -10,8 +10,8 @@ public class SearchGUIDriver {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
             	
-                new SearchGUI(new ImprManager());
-                //new SearchGUI(new QueryManager());
+                //new SearchGUI(new ImprManager());
+                new SearchGUI(new QueryManager());
             }
         });
 	}

@@ -29,6 +29,7 @@ public class TestServer extends HttpServlet {
         //System.out.println(111);
     	//workers.put("192.168.1.226", 0);
     	workers.put("192.168.1.227:80/infer.php", 0);
+    	//workers.put("http://ec2-34-208-42-160.us-west-2.compute.amazonaws.com/tensorflow/www/infer.php", 0);
     	//workers.put("192.168.1.228", 0);
     	//workers.put("192.168.1.229", 0);
     }

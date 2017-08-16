@@ -12,7 +12,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridBagLayout;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,9 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import general.Utils;
-import imprSearch.Impression;
 import imprSearch.ColorConverter;
-import imprSearch.ImprManager;
 
 /**
  * this class shows how bad I extract main colors from an image
@@ -41,6 +38,10 @@ import imprSearch.ImprManager;
  */
 public class MainColorExtractor extends JFrame implements ActionListener{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2617625046673787757L;
 	private JButton load, analyse;
 	private JLabel currentFile;
 	private BufferedImage chart, myPic;

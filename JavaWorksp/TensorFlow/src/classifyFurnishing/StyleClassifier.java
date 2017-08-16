@@ -4,15 +4,15 @@ import general.Classifier;
 import tools.NativeUtils;
 
 public class StyleClassifier extends Classifier{
-	private static final int IMG_SIZE = 128;//128;
+	private static final int IMG_SIZE = 224;//128;
 	private static final int BATCH_SIZE = 20;
 	private static final String IMG_NORMALIZE_METHOD = "resize";
 	
 	public StyleClassifier(String[] inputPaths) {
 		String modelDir = "F:/TensorFlowDev/PythonWorksp/TensorFlow/StyleClassifier/models/";
-		modelPath =  NativeUtils.loadOrExtract(modelDir+"style128-4-style-1"+"/frozen_graph.pb", 
+		modelPath =  NativeUtils.loadOrExtract(modelDir+"style224-4-style-7245-1"+"/frozen_graph.pb", 
 				"/tf-models/model-fur-no-text-1/frozen_graph.pb");;
-		batchModelPath =  NativeUtils.loadOrExtract(modelDir+"style128-4-style-"+BATCH_SIZE+"/frozen_graph.pb", 
+		batchModelPath =  NativeUtils.loadOrExtract(modelDir+"style224-4-style-7245-"+BATCH_SIZE+"/frozen_graph.pb", 
 				"/tf-models/model-fur-no-text-"+BATCH_SIZE+"/frozen_graph.pb");
 		labelPath = NativeUtils.loadOrExtract("F:/TensorFlowDev/training-materials/styles/style-only/eval/tf-labels-to-text.txt",
 				"/labels/styles/tf-labels-to-text.txt");

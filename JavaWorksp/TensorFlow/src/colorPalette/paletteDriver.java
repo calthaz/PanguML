@@ -9,9 +9,9 @@ import javax.imageio.ImageIO;
 import tools.ColorPaletteReader;
 
 public class paletteDriver {
-	public static final String FULL_PAL = "palettes/md-full.txt";
-	public static final String BRIGHT_PAL = "palettes/md-original-pure.txt";
-	public static final String DES_PAL = "palettes/md-desaturate-pure.txt";
+	public static final String FULL_PAL = "palettes/md-full.palette";
+	public static final String BRIGHT_PAL = "palettes/md-original-pure.palette";
+	public static final String DES_PAL = "palettes/md-desaturate-pure.palette";
 	private static void printColorBlocks(int[][] colors){
 		for(int[] i : colors){
 				System.out.println(

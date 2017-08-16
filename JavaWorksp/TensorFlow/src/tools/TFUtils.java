@@ -404,7 +404,7 @@ public class TFUtils {
 			System.out.println(labels.get(i)+":"+result[i]);
 		}
 		System.out.println("total:"+result[labels.size()]);
-		result = checkAccuracy("F:/TensorFlowDev/training-materials/styles/style-only/eval/furn-128-tf-inference-results.txt", 
+		result = checkAccuracy("F:/TensorFlowDev/training-materials/styles/style-only/eval/furn-224-7245-tf-inference-results.txt", 
 				"F:/TensorFlowDev/training-materials/styles/style-only/eval/tf-labels-to-text.txt");
 		labels = LabelGenerator.readLabelsFromFile("F:/TensorFlowDev/training-materials/styles/style-only/eval/tf-labels-to-text.txt");
 		for(int i=0; i<labels.size(); i++){
@@ -436,6 +436,12 @@ public class TFUtils {
 		japanese:0.6220095693779905
 		chinese:0.5957446808510638
 		total:0.5661322645290581
+		224 eval global_step=7245
+		western-sim:0.5263157894736842
+		western-lux:0.5308641975308642
+		japanese:0.625
+		chinese:0.594306049822064
+		total:0.5671342685370742
 		 */
 	}
 }
