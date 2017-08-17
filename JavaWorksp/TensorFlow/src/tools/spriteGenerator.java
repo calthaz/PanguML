@@ -10,20 +10,32 @@ import java.util.Scanner;
 import javax.imageio.ImageIO;
 
 /**
- * generate a sprite image of fixed size. <br>
- * sprite标准参照<br>
- * <a href="https://www.tensorflow.org/versions/master/get_started/embedding_viz">TensorBoard: Embedding Visualization</a>
+ * <div class="en">Generate a sprite image of fixed size.</div>
+ * <div class="zh">生成固定大小的sprite图片</div>
+ * @see <a href="https://www.tensorflow.org/versions/master/get_started/embedding_viz">TensorBoard: Embedding Visualization</a>
  *
  */
 public class spriteGenerator {
 	//public static final int MAX_SPRITE_SIZE = 8192;//probably too big
 	/**
-	 *  maximum size of the sprite image, smaller than the maximun supported size on 
+	 *  <span class="zh">sprite图像的最大尺寸小于最大支持尺寸</span>
+	 *  <span class="en">Maximum size of the sprite image, smaller than the maximun supported size on </span>
 	 *  <a href="https://www.tensorflow.org/versions/master/get_started/embedding_viz">TensorBoard: Embedding Visualization</a>
 	 */
 	public static int MAX_SPRITE_SIZE = 3000;
+	/**
+	 *  <span class="zh">sprite图像里单张图片的尺寸</span>
+	 *  <span class="en">Size of a thumbnail in the sprite image </span>
+	 */
 	public static int THUMB_SIZE = 40;
-
+	
+	/**
+	 *  <span class="zh">运行</span>
+	 *  <span class="en">Run</span>
+	 *  spriteGenerator.
+	 *  @param args <span class="zh">数组中的第一个元素是标准的图像与标签文件。</span>
+	 *  <span class="en">The first element in the array is a standard images-with-labels file.</span>
+	 */
 	public static void main(String[] args) {
 		if(args.length!=1){
 			System.out.println("supply one argument as the tf-images-with-labels.txt file");

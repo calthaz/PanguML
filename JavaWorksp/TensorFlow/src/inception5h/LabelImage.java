@@ -13,7 +13,6 @@ limitations under the License.
 ==============================================================================*/
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -37,8 +36,13 @@ import tools.LabelGenerator;
 import tools.NativeUtils;
 import tools.TFUtils;
 
-/** Sample use of the TensorFlow Java API to label images using a pre-trained model. */
+/**
+ *  <div class="en"> Sample use of the TensorFlow Java API to label images using a pre-trained inception5h model. </div>
+ *  <div class="zh">使用TensorFlow Java API的示例。使用预先训练的inception5h模型来标记图像。</div>
+ */
 public class LabelImage {
+  /** <span class="zh">用来读列表和打印结果文件的分隔符</span>
+   * <span class="en">separator used in the result file and to read label files</span> */
   public static final String LABEL_SEP = LabelGenerator.LABEL_SEP;
   static {
 		try {
@@ -69,6 +73,11 @@ public class LabelImage {
     s.println("<image file> is the path to a JPEG image file");
   }
 
+  /**
+   * <div class="en">Give classes for paths in args</div>
+   * <div class="zh">给args里的文件做出分类</div>
+   * @param args
+   */
   public static void main(String[] args) {
     if (args.length < 1) {
       printUsage(System.err);
@@ -203,7 +212,11 @@ public class LabelImage {
     }
     return best;
   }
-
+  /**
+   * <span class="zh">读取文件所有数据，如果失败则{@code System.exit(1);}</span>
+   * @param path
+   * @return
+   */
   public static byte[] readAllBytesOrExit(Path path) {
     try {
       return Files.readAllBytes(path);
@@ -224,9 +237,9 @@ public class LabelImage {
     return null;
   }
 
-  // In the fullness of time, equivalents of the methods of this class should be auto-generated from
-  // the OpDefs linked into libtensorflow_jni.so. That would match what is done in other languages
-  // like Python, C++ and Go.
+  /** In the fullness of time, equivalents of the methods of this class should be auto-generated from
+   the OpDefs linked into libtensorflow_jni.so. That would match what is done in other languages
+  like Python, C++ and Go.*/
   static class GraphBuilder {
     GraphBuilder(Graph g) {
       this.g = g;

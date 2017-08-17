@@ -1,4 +1,4 @@
-package tools;
+package colorPalette;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,10 +9,29 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * <div class="en">
+ * Reads a file that contains one hex color in every line and store into an ArrayList.<br>
+ * </div>
+ * <div class="zh">
+ * 读取一个在每行中包含一个十六进制颜色的文件，并存储到一个ArrayList中
+ * </div>
+ *
+ */
 public class ColorPaletteReader {
 	private ArrayList<Integer> colors;
-	private static final String PALETTE_ENDING = ".palatte";
-	
+	private static final String PALETTE_ENDING = ".serpalatte";
+	/**
+	 * <div class="en">
+	 * Reads a file that contains one hex color in every line and store into an {@code ArrayList<Integer>}.<br>
+	 * format: #123456, 0x000fff
+	 * </div>
+	 * <div class="zh">
+	 * 读取一个在每行中包含一个十六进制颜色的文件，并存储到一个{@code ArrayList<Integer>}中
+	 * 格式：＃123456，0x000fff
+	 * </div>
+	 *
+	 */
 	public ColorPaletteReader(String path){
 		colors = new ArrayList<Integer>();
 		File text = new File(path);
@@ -50,10 +69,19 @@ public class ColorPaletteReader {
 		}
 	}
 	
+	/**
+	 * <div class="en">get the raw color</div>
+	 * <div class="zh">返回原始颜色</div>
+	 * @return an {@code ArrayList<Integer>} of colors
+	 */
 	public ArrayList<Integer> getRawPalette(){
 		return colors;
 	}
-	
+	/**
+	 * <div class="en">get the color in rgb[]</div>
+	 * <div class="zh">返回分解成rgb的颜色</div>
+	 * @return an {@code ArrayList<int[]>} of colors
+	 */
 	public ArrayList<int[]> getRGBPalette(){
 		ArrayList<int[]> ret = new ArrayList<int[]>();
 		for(int c : colors){
@@ -65,7 +93,14 @@ public class ColorPaletteReader {
 		}
 		return ret;
 	}
-	
+	/**
+	 * <div class="en">Save the color palette into a serialized object</div>
+	 * <div class="zh">将色板保存到序列化对象中</div>
+	 * @param name <span class="zh">不带后缀的文件路径</span>
+	 * <span class="en">path to the file with no file ending</span>
+	 * @return <div class="en">path to the saved serialized object</div>
+	 * <div class="zh">保存的序列化对象的路径</div>
+	 */
 	public String savePaletteAsSerialized(String name){
 		try {
 			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File(name+PALETTE_ENDING)));
@@ -77,6 +112,14 @@ public class ColorPaletteReader {
 		return name+PALETTE_ENDING;
 	}
 	
+	/**
+	 * <div class="en">Save the color palette into a txt file.<br>Format: #123456</div>
+	 * <div class="zh">将色板保存到文本文档中。<br>格式: #123456</div>
+	 * @param name <span class="zh">不带后缀的文件路径</span>
+	 * <span class="en">path to the file with no file ending</span>
+	 * @return <div class="en">path to the saved txt file</div>
+	 * <div class="zh">保存的文本文档象的路径</div>
+	 */
 	public String savePaletteAsText(String name){
 		try {
 			PrintWriter wr=new PrintWriter(name+".txt","UTF-8");
@@ -114,7 +157,11 @@ public class ColorPaletteReader {
 		}
 		return name+".less";
 	}*/
-	
+	/**
+	 * <div class="en">Test</div>
+	 * <div class="zh">测试</div>
+	 * @param args 
+	 */
 	public static void main(String[] args) {
 		int c = Integer.parseInt("ffffff", 16);
 		System.out.println(c);

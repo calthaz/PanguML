@@ -19,7 +19,9 @@ import static java.lang.Math.abs;
  * <a href="http://grail.cs.washington.edu/projects/query/mrquery.pdf">this paper</a><br>
  *  Now the color space is actually YIQ,
  * but I do bother to change the variable names</div>
- * <div class="zh">这个类封装了<a href="http://grail.cs.washington.edu/projects/query/mrquery.pdf">这个论文</a>中的单个图片对象<br>
+ * <div class="zh">这个类封装了
+ * <a href="http://grail.cs.washington.edu/projects/query/mrquery.pdf">这个论文</a>
+ * 中的单个图片对象<br>
  * 现在用的颜色空间其实是YIQ，
  * 因为改变量名很麻烦所以没改
  * </div>
@@ -33,7 +35,8 @@ public class ImageEntry implements Comparable<ImageEntry>,Serializable{
 	private String pairedImprID;
 	private BufferedImage compressed;
 	
-	/** 0,1,2: h,s,b*/
+	/** <span class="zh">0,1,2 对应 h,s,b</span>
+	 * <span class="en">0,1,2 correspond to h,s,b</span>*/
 	public ArrayList<Float> average;
 	
 	private float[][] matrixH;
@@ -48,20 +51,34 @@ public class ImageEntry implements Comparable<ImageEntry>,Serializable{
 	private static int TOP_M=60;//60
 	
 	/**
+	 * <pre>
 	 * dimension: value<br>
-	 * 1st:       channel and sign [H+, H-, S+, S-, B+, B-]; <br> 
-	 * 2rd:       coordinates;
-	 * int[]      contains coefficients at [i,j]<br>	
+	 * 1st:       channel and sign [H+, H-, S+, S-, B+, B-] 通道和符号
+	 * 2rd:       coordinates 坐标
+	 * int[]      contains coefficients at [i,j]位置的系数
+	 * </pre>	
 	 */
 	public ArrayList<ArrayList<int[]>> coefficients;
 	private String myID;
-
+	
+	/**
+	 * <div class="en">Use an image to initialize and process, so this.path is null.</div>
+	 * <div class="zh">使用图片进行初始化和处理，因此this.path为null。</div>
+	 * @param src
+	 * @param ID
+	 */
 	public ImageEntry(BufferedImage src, String ID){
 		path=null;
 		myID=ID;
 		process(src);
 	}
-	
+	/**
+	 * <div class="en">Use an image to initialize and process</div>
+	 * <div class="zh">使用文件进行初始化和处理</div>
+	 * @param path
+	 * @param ID
+	 * @throws IOException <span class="zh">如果文件读取失败</span><span class="en">If fails to read image </span>
+	 */
 	public ImageEntry(String path, String ID) throws IOException{
 		myID=ID;
 		this.path=path;
@@ -70,8 +87,11 @@ public class ImageEntry implements Comparable<ImageEntry>,Serializable{
 	}
 	
 	/**
-	 * creat a bare, uninitialized ImageEntry reference with a score field 
-	 * @param path path to the image, no explicit file check
+	 * <div class="zh">创建一个光秃秃，未初始化的图像实体，有score，ID和path</div>
+	 * <div class="en">creat a bare, uninitialized ImageEntry with a score field, ID and a path</div>
+	 * @param path 
+	 * <span class="zh">图像的路径，没有尝试读取它</span>
+	 * <span class="en">path to the image, no attempt to read it</span>
 	 */
 	public ImageEntry(String path) {
 		myID="raw"+(int)Math.random()*100000;
@@ -154,6 +174,7 @@ public class ImageEntry implements Comparable<ImageEntry>,Serializable{
 	/**
 	 * Still I don't know what this method does.<br>
 	 * It says it's Haar wavelet in <a href="http://grail.cs.washington.edu/projects/query/mrquery.pdf">that paper</a>
+	 * <a href="http://grail.cs.washington.edu/projects/query/mrquery.pdf">这个论文</a>说是Haar小波分析
 	 * @param arr
 	 */
 	private static void decomposeArray(float[] arr) {
@@ -177,13 +198,16 @@ public class ImageEntry implements Comparable<ImageEntry>,Serializable{
 	}
 	
 	/**
-	 * |1 2 3|    |1 4 7|<br>
-	 * |4 5 6| -> |2 5 8|<br>
-	 * |7 8 9|    |3 6 9|<br>
+	 * <pre>
+	 * |1 2 3|    |1 4 7|
+	 * |4 5 6| -> |2 5 8|
+	 * |7 8 9|    |3 6 9|
+	 * </pre>
 	 * 
 	 * @param matrix must be a square. No checking here
+	 * @throws IndexOutOfBoundsException
 	 */
-	public static void transpose(float[][] matrix) throws IndexOutOfBoundsException{
+	private static void transpose(float[][] matrix) throws IndexOutOfBoundsException{
 		for(int row=0;row<matrix.length;row++){
 			for(int col=0; col<row;col++){
 				float temp=matrix[row][col];
@@ -247,14 +271,27 @@ public class ImageEntry implements Comparable<ImageEntry>,Serializable{
 	public String getPath(){
 		return path;
 	}
+	/**
+	 * <div class="en">get the matrix of the 1st color channel</div>
+	 * <div class="zh">得到第一个颜色通道的矩阵</div>
+	 * @return
+	 */
 	public float[][] getMatrixH() {
 		return matrixH;
 	}
-
+	/**
+	 * <div class="en">get the matrix of the 2nd color channel</div>
+	 * <div class="zh">得到第二个颜色通道的矩阵</div>
+	 * @return
+	 */
 	public float[][] getMatrixS() {
 		return matrixS;
 	}
-
+	/**
+	 * <div class="en">get the matrix of the 3rd color channel</div>
+	 * <div class="zh">得到第三个颜色通道的矩阵</div>
+	 * @return
+	 */
 	public float[][] getMatrixB() {
 		return matrixB;
 	}
@@ -274,10 +311,20 @@ public class ImageEntry implements Comparable<ImageEntry>,Serializable{
 		this.score = score;
 	}
 	
+	/**
+	 * <div class="en">get id of another ImageEntry used to compare with this object.</div>
+	 * <div class="zh">获取用于与此对象进行比较的另一个ImageEntry的id</div>
+	 * @return id
+	 */
 	public String getPairedImprID() {
 		return pairedImprID;
 	}
-
+	
+	/**
+	 * <div class="en">set id of another ImageEntry used to compare with this object.</div>
+	 * <div class="zh">设置用于与此对象进行比较的另一个ImageEntry的id</div>
+	 * @param pairedImprID
+	 */
 	public void setPairedImprID(String pairedImprID) {
 		this.pairedImprID = pairedImprID;
 	}
@@ -317,12 +364,22 @@ public class ImageEntry implements Comparable<ImageEntry>,Serializable{
 		if (score>rhs.getScore())return 1;
 		else return path.compareTo(rhs.getPath()); 
 	}
-
+	
+	/**
+	 * 
+	 * @return <div class="en">Original image that is compressed to {@code this.W} by {@code this.H}</div>
+	 * <div class="zh">压缩成{@code this.W} x {@code this.H}的原始图片</div>
+	 */
 	public BufferedImage getDraft() {
 		
 		return compressed;
 	}
-
+	
+	/**
+	 * 
+	 * @return <div class="en">Original image that is compressed to {@code this.W} by {@code this.H}</div>
+	 * <div class="zh">压缩成{@code this.W} x {@code this.H}的原始图片</div>
+	 */
 	public BufferedImage display() {
 		return getDraft();
 	}
@@ -340,7 +397,9 @@ public class ImageEntry implements Comparable<ImageEntry>,Serializable{
 	}
 
 	/**
-	 * only for testing
+	 * <div class="en">Test</div>
+	 * <div class="zh">测试</div>
+	 * @param args 
 	 */
 	public static void main(String[] args){
 		float[][] matrix = {{(float) 0.7,(float) 0.2,(float) 0.3,(float) 0.5},
@@ -362,8 +421,13 @@ public class ImageEntry implements Comparable<ImageEntry>,Serializable{
 	}
 	
 	/**
-	 * delete unnecessary data so that this entry can be saved in a map
-	 * @return
+	 * 
+	 * <div class="en">delete coefficients and other unnecessary data so that this entry can be saved in a map</div>
+	 * <div class="zh">删除coefficients和其他不必要的数据，以便该条目可以保存在map中</div>
+	 * @return 
+	 * <div class="en">an new bare ImageEntry with the average 
+	 * and the path that are the same as this ImageEntry's</div>
+	 * <div class="zh">另一个裸的ImageEntry，他有和这个ImageEntry一样的path和average.</div>
 	 */
 	public ImageEntry strip() {
 		ImageEntry ret = new ImageEntry(this.path);

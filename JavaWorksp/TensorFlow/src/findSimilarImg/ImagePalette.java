@@ -7,7 +7,6 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import colorPalette.ColorExtractor;
-import colorPalette.ColorThief;
 import colorPalette.OctTree;
 import tools.LabelGenerator;
 

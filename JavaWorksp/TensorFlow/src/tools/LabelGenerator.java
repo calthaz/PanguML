@@ -15,15 +15,38 @@ import javax.imageio.ImageIO;
 
 import general.DevConstants;
 
+/**
+ * <div class="en">Generate or parse</div>
+ * <div class="zh"></div>
+ */
 public class LabelGenerator {
 	//private File rootDir;
 	//private File labelDir;
 	//private PrintWriter wr;
+	/** <div class="zh">图片标签文件的名称
+	   * <b>注意：要和Python文件里一致</b></div>
+	   * <div class="en">a file with images and assigned labels
+	   * <b>Note: must be in sync with that in Pthon files</b></div> */
 	public static final String LABEL_FILE_NAME = "tf-images-with-labels.txt";
+	/** <div class="zh">标签数字对应文字的文件的名称
+	   * <b>注意：要和Python文件里一致</b></div>
+	   * <div class="en">a file with tha translation of the integers to text labels
+	   * <b>Note: must be in sync with that in Pthon files</b></div> */
 	public static final String LABEL_TEXT_FILE_NAME = "tf-labels-to-text.txt";
+	 /** 
+	  * <div class="zh">系统文件路径分隔符</div>
+	  * <div class="en">path separator in the system</div> */
 	public static final String SEP = "/";
+	  /** <div class="zh">用来读取和打印标签文件、结果文件的分隔符
+	   * <b>注意：要和Python文件里一致</b></div>
+	   * <div class="en">separator used to read and write label files and result files
+	   * <b>Note: must be in sync with that in Pthon files</b></div> */
 	public static final String LABEL_SEP = "|||";
 	//private int counter = 0;
+	/**
+	 * <div class="en">text labels with indices of the corresponding integer labels</div>
+	 * <div class="zh">具有相应整数标签索引的文本标签列表</div>
+	 */
 	public ArrayList<String> labels = new ArrayList<String>();
 	private File rootDir;
 	private File labelDir;
@@ -31,16 +54,33 @@ public class LabelGenerator {
 	private boolean withSeparateEval;
 	
 	/**
+	 * <div class="en">
 	 * creates a label file like: <br>
 	 * path\to\filename.jpg[{@code LabelGenerator.LABEL_SEP}]label<br>
 	 * and an int-to-text file like: <br>
 	 * 0[{@code LabelGenerator.LABEL_SEP}]label1<br>
 	 * <br>
 	 * Assumes that imgs are stored this way: 
-	 * root/catagory1; root/catagory2; root/catagory3; ... no nesting
-	 * acts like {@code LabelGenerator(rootDir, labelDir, 1)}but do not need to call run() afterwards
+	 * root/catagory1; root/catagory2; root/catagory3; ... no nesting<br>
+	 * acts like {@code LabelGenerator(rootDir, labelDir, 1)}
+	 * <b>but do not call run() afterwards. Thus you can't specify the order of the labels</b>
+	 * </div>
+	 * <br>
+	 * <div class="zh">
+	 * 创建一个标签文件，如：<br>
+	 * path\to\filename.jpg [{@code LabelGenerator.LABEL_SEP}]标签<br>
+	 * 和一个int-to-text文件，如：<br>
+	 * 0 [{@code LabelGenerator.LABEL_SEP}] 标签1 <br>
+	 * <br>
+	 * 假设图片以这种方式存储：
+	 * 根/类别1; 根/类别2; 根/类别3; ...没有嵌套<br>
+	 * 像{@code LabelGenerator(rootDir，labelDir，1)}的行为，
+	 * <b>但不需要在之后调用run()，因此也不能自定义标签顺序</b>
+	 * </div>
 	 * @param rootDir
-	 * @param labelDir where you can find the label files
+	 * @param labelDir 
+	 * <span class="zh">两个标签文件的存储位置</span>
+	 * <span class="en">where you can find the 2 label files</span>
 	 */
 	public LabelGenerator(File rootDir, File labelDir){
 		try {
@@ -85,6 +125,7 @@ public class LabelGenerator {
 	}
 	
 	/**
+	 * <div class="en">
 	 * creates a label file like: <br>
 	 * path\to\filename.jpg[{@code LabelGenerator.LABEL_SEP}]label<br>
 	 * and an int-to-text file like: <br>
@@ -94,15 +135,42 @@ public class LabelGenerator {
 	 * root/nest1/nest2/xxx.img
 	 * label for "xxx.img" is then "nest1/nest2"<br>
 	 * <br>
-	 * must call run() to actually generate the files, 
+	 * <b>
+	 * must call run() to actually generate the files, </b>
 	 * before calling run(), {@code this.labels} can be manually filled with 
-	 * specific labels and their indices will be used instead of the order read by {@code dir.listFiles()}
-	 * @param rootDir where the images are
-	 * @param labelDir where you can find the label files
-	 * @param depth the number of parents an image have to reach the rootDir. 
+	 * specific labels and their indices will be used 
+	 * instead of the order read by {@code dir.listFiles()}
+	 * </div>
+	 * <div class="zh">
+	 * 创建一个标签文件，如：<br>
+	 * path\to\filename.jpg [{@code LabelGenerator.LABEL_SEP}]标签<br>
+	 * 和一个int-to-text文件，如：<br>
+	 * 0 [{@code LabelGenerator.LABEL_SEP}] 标签1 <br>
+	 * <br>
+	 * 假设imgs以这种方式存储：<br>
+	 * 根/嵌套1/嵌套2/xxx.img
+	 * 则“xxx.img”的标签是“嵌套1/嵌套2”<br>
+	 * <br>
+	 * <b>必须调用run()来实际生成文件，</b>
+	 * 在调用run()之前，{@code this.labels}可以手动填充
+	 * 将使用特定标签及其索引，而不是按{@code dir.listFiles()}读取的顺序作为索引
+	 * </div>
+	 * @param rootDir <span class="zh">根文件</span><span class="en">root directory</span>
+	 * @param labelDir <span class="zh">两个标签文件的存储位置</span><span class="en">where you can find the 2 label files</span>
+	 * @param depth 
+	 * <div class="en">
+	 * the number of parents an image have
+	 * to reach the rootDir. 
 	 * For example: <br>
 	 * root/nest1/nest2/xxx.png has depth=2<br>
-	 * If the specified depth = 2, root/nest1/foo.jpg will not appear in the label files.
+	 * If the specified depth = 2, root/nest1/foo.jpg <b>will not appear</b> in the label files.
+	 * </div>
+	 * <div class="zh">
+	 * 图像达到rootDir经过的父文件夹数目。
+     * 例如：<br>
+     * 根/嵌套1/嵌套2/xxx.img的depth = 2 <br>
+     * 如果指定的depth = 2，则根/嵌套1/foo.jpg<b>不会</b>出现在标签文件中。
+     * </div>
 	 */
 	public LabelGenerator(File rootDir, File labelDir, int depth){
 		this.withSeparateEval = false;
@@ -112,6 +180,7 @@ public class LabelGenerator {
 		//generateNestedLabels(rootDir, labelDir, depth);
 	}
 	/**
+	 * <div class="en">
 	 * creates a label file like: <br>
 	 * path\to\filename.jpg[{@code LabelGenerator.LABEL_SEP}]label<br>
 	 * and an int-to-text file like: <br>
@@ -121,18 +190,47 @@ public class LabelGenerator {
 	 * root/nest1/nest2/xxx.img
 	 * label for "xxx.img" is then "nest1/nest2"<br>
 	 * <br>
-	 * must call run() to actually generate the files, 
+	 * <b>
+	 * must call run() to actually generate the files, </b>
 	 * before calling run(), {@code this.labels} can be manually filled with 
-	 * specific labels and their indices will be used instead of the order read by {@code dir.listFiles()}
-	 * @param rootDir where the images are
-	 * @param labelDir where you can find the label files
-	 * @param depth the number of parents an image have to reach the rootDir, 
-	 * <b>or train/eval if {@code withSeparateEval == true}.</b>
+	 * specific labels and their indices will be used 
+	 * instead of the order read by {@code dir.listFiles()}
+	 * </div>
+	 * <div class="zh">
+	 * 创建一个标签文件，如：<br>
+	 * path\to\filename.jpg [{@code LabelGenerator.LABEL_SEP}]标签<br>
+	 * 和一个int-to-text文件，如：<br>
+	 * 0 [{@code LabelGenerator.LABEL_SEP}] 标签1 <br>
+	 * <br>
+	 * 假设imgs以这种方式存储：<br>
+	 * 根/嵌套1/嵌套2/xxx.img
+	 * 则“xxx.img”的标签是“嵌套1/嵌套2”<br>
+	 * <br>
+	 * <b>必须调用run()来实际生成文件，</b>
+	 * 在调用run()之前，{@code this.labels}可以手动填充
+	 * 将使用特定标签及其索引，而不是按{@code dir.listFiles()}读取的顺序作为索引
+	 * </div>
+	 * @param rootDir <span class="zh">根文件</span><span class="en">root directory</span>
+	 * @param labelDir <span class="zh">两个标签文件的存储位置</span><span class="en">where you can find the 2 label files</span>
+	 * @param depth 
+	 * <div class="en">
+	 * the number of parents an image have
+	 * to reach the rootDir. 
 	 * For example: <br>
 	 * root/nest1/nest2/xxx.png has depth=2<br>
-	 * If the specified depth = 2, root/nest1/foo.jpg will not appear in the label files.
-	 * @param withSeparateEval if true, it looks for rootDir/train and rootDir/eval 
-	 * and generate label files in these two folders. the index of the labels are the same
+	 * If the specified depth = 2, root/nest1/foo.jpg <b>will not appear</b> in the label files.
+	 * </div>
+	 * <div class="zh">
+	 * 图像达到rootDir经过的父文件夹数目。
+     * 例如：<br>
+     * 根/嵌套1/嵌套2/xxx.img的depth = 2 <br>
+     * 如果指定的depth = 2，则根/嵌套1/foo.jpg<b>不会</b>出现在标签文件中。
+     * </div>
+	 * @param withSeparateEval 
+	 * <div class="en">If true, it looks for rootDir/train and rootDir/eval 
+	 * and generate label files in these two folders. The index of the labels are the same.</div>
+	 * <div class ="zh">如果为true，则查找rootDir/train和rootDir/eval
+	 * 并在这两个文件夹中生成标签文件。 标签的索引是相同的</div>
 	 */
 	public LabelGenerator(File rootDir, File labelDir, int depth, boolean withSeparateEval){
 		this.withSeparateEval = withSeparateEval;
@@ -141,7 +239,8 @@ public class LabelGenerator {
 		this.depth = depth;
 	}
 	/**
-	 * generate the label files
+	 * <span class="zh">按照预设生成标签</span>
+	 * <span class="en">generate the label files by preset params</span>
 	 */
 	public void run(){
 		if(!withSeparateEval){
@@ -223,9 +322,11 @@ public class LabelGenerator {
 	}
 	/**
 	 * 
-	 * @param path path to the label file, utf-8 encoded
-	 * @return an ArrayList of labels read from the label file as separated by LABEL_SEP<br> 
-	 * for example "0LABEL_SEPtree" => labels.get(0)==tree
+	 * @param path <span class="zh">utf-8编码的标签文件的路径</span><span class="en">path to the label file, utf-8 encoded</span>
+	 * @return <div class = "en">an ArrayList of labels read from the label file as separated by LABEL_SEP<br> 
+	 * for example {@code "0LABEL_SEPtree" => labels.get(0)==tree}</div>
+	 * <div class="zh">从标签文件读取由LABEL_SEP分隔的标签到ArrayList<br>
+	 * 例如{@code "0LABEL_SEPtree" => labels.get(0)==tree}</div>
 	 */
 	public static ArrayList<String> readLabelsFromFile(String path){
 		ArrayList<String> labels = new ArrayList<String>();
@@ -251,13 +352,19 @@ public class LabelGenerator {
 		return labels;
 	}
 	/**
-	 * Fill the return array with strings separated by {@code LabelGenerator.LABEL_SEP}
-	 * @param line
+	 *
+	 * <div class="en"> Fill the return array with strings split up by {@code LabelGenerator.LABEL_SEP}</div>
+	 * <div class="zh">用{@code LabelGenerator.LABEL_SEP}分割字符串，填充返回数组</div>
+	 * @param line <span class="zh">用于解析的字符串</span><span class="en">String to be parsed</span>
 	 * @param fieldCount
-	 * @return array of length {@code fieldCount}. 
+	 * @return <div class="en">array of length {@code fieldCount}. 
 	 * if {@code fieldCount} is larger than the actual number of fields in {@code line}, 
 	 * the extra parts of the array are {@code null}; if {@code fieldCount} is less than the actual number of fields, 
-	 * only the first {@code fieldCount} fields are returned.
+	 * only the first {@code fieldCount} fields are returned.</div>
+	 * <div class="zh">长度为{@code fieldCount}的数组。
+	 * 如果{@code fieldCount}大于{@code line}中实际的字段数，
+	 * 数组的额外部分是{@code null}; 如果{@code fieldCount}小于实际的字段数，
+	 * 只返回前{@code fieldCount}个字段。</div>
 	 */
 	public static String[] parseResultLine(String line, int fieldCount){
 		String[] result = new String[fieldCount];
@@ -286,7 +393,11 @@ public class LabelGenerator {
 		}
 		return str;
 	}
-
+	
+	/**
+	 * <span class="zh">样例</span><span class="en">example</span>
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		String rootPath = "";
 		if(args.length<1){

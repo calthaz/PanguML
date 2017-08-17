@@ -29,7 +29,6 @@ import java.io.*;
  * A simple library class which helps with loading dynamic libraries stored in the
  * JAR archive. These libraries usualy contain implementation of some methods in
  * native code (using JNI - Java Native Interface).
- * 
  * @see http://adamheinrich.com/blog/2012/how-to-load-native-jni-library-from-jar
  * @see https://github.com/adamheinrich/native-utils
  * @see https://www.adamheinrich.com/blog/2012/12/how-to-load-native-jni-library-from-jar/#comment-1760518031
@@ -43,16 +42,32 @@ public class NativeUtils {
     }
  
     /**
+     * <div class="en">
      * Loads library from current JAR archive
-     * 
+     * <br>
      * The file from JAR is copied into system temporary directory and then loaded. The temporary file is deleted after exiting.
      * Method uses String as filename because the pathname is "abstract", not system-dependent.
-     * 
-     * @param path The path of file inside JAR as absolute path (beginning with '/'), e.g. /package/File.ext
-     * @return 
-     * @throws IOException If temporary file creation or read/write operation fails
-     * @throws IllegalArgumentException If source file (param path) does not exist
-     * @throws IllegalArgumentException If the path is not absolute or if the filename is shorter than three characters (restriction of {@see File#createTempFile(java.lang.String, java.lang.String)}).
+     * </div>
+     * <div class ="zh">
+     * 从当前JAR中加载库文件<br>
+     * JAR中的文件被复制到系统临时目录中，然后加载。 退出后临时文件被删除。
+     * 方法使用String作为文件名，因为路径名是“抽象的”，而不是依赖于系统的。
+     * </div>
+     * @see https://www.adamheinrich.com/blog/2012/12/how-to-load-native-jni-library-from-jar/#comment-1760518031
+     * @param path 
+     * <span class="zh">JAR内文件的路径为绝对路径（以'/'开始），例如/package/File.ext</span>
+     * <span class="en">The path of file inside JAR as absolute path (beginning with '/'), e.g. /package/File.ext</span>
+     * @throws IOException 
+     * <span class="zh">如果临时文件创建或读/写操作失败</span>
+     * <span class="en">If temporary file creation or read/write operation fails</span>
+     * @throws IllegalArgumentException 
+     * <span class="zh">如果源文件（path）不存在</span>
+     * <span class="en">If source file (path) does not exist</span>
+     * @throws IllegalArgumentException 
+     * <span class="zh">如果路径不是绝对路径，或者文件名
+     * 短于三个字符(限制{@see File＃createTempFile(java.lang.String，java.lang.String)})。</span>
+     * <span class="en">If the path is not absolute or if the filename is 
+     * shorter than three characters (restriction of {@see File#createTempFile(java.lang.String, java.lang.String)}).</span>
      */
     public static void loadLibraryFromJar(String path) throws IOException {
  
@@ -111,6 +126,8 @@ public class NativeUtils {
         // Finally, load the library
         System.load(temp.getAbsolutePath());
         
+        //the following part comes from the comment link above 
+        //-- deals with library files that can't be deleted on exit
         final String libraryPrefix = prefix;
         final String lockSuffix = ".lock";
         
@@ -149,16 +166,31 @@ public class NativeUtils {
     }
     
     /**
-     * Extract files from current JAR archive
-     * 
-     * The file from JAR is copied into system temporary directory and then loaded. The temporary file is deleted after exiting.
+     * <div class="en">
+     * Loads files from current JAR archive
+     * <br>
+     * The file from JAR is copied into system temporary directory. The temporary file is deleted after exiting.
      * Method uses String as filename because the pathname is "abstract", not system-dependent.
-     * 
-     * @param path The path of file inside JAR as absolute path (beginning with '/'), e.g. /package/File.ext
-     * @return the absolute path of the extracted file
-     * @throws IOException If temporary file creation or read/write operation fails
-     * @throws IllegalArgumentException If source file (param path) does not exist
-     * @throws IllegalArgumentException If the path is not absolute or if the filename is shorter than three characters (restriction of {@see File#createTempFile(java.lang.String, java.lang.String)}).
+     * </div>
+     * <div class ="zh">
+     * 从当前JAR中加载文件<br>
+     * JAR中的文件被复制到系统临时目录中。 退出后临时文件被删除。
+     * 方法使用String作为文件名，因为路径名是“抽象的”，而不是依赖于系统的。
+     * </div>
+     * @param path 
+     * <span class="zh">JAR内文件的路径为绝对路径（以'/'开始），例如/package/File.ext</span>
+     * <span class="en">The path of file inside JAR as absolute path (beginning with '/'), e.g. /package/File.ext</span>
+     * @throws IOException 
+     * <span class="zh">如果临时文件创建或读/写操作失败</span>
+     * <span class="en">If temporary file creation or read/write operation fails</span>
+     * @throws IllegalArgumentException 
+     * <span class="zh">如果源文件（path）不存在</span>
+     * <span class="en">If source file (path) does not exist</span>
+     * @throws IllegalArgumentException 
+     * <span class="zh">如果路径不是绝对路径，或者文件名
+     * 短于三个字符(限制{@see File＃createTempFile(java.lang.String，java.lang.String)})。</span>
+     * <span class="en">If the path is not absolute or if the filename is 
+     * shorter than three characters (restriction of {@see File#createTempFile(java.lang.String, java.lang.String)}).</span>
      */
     public static String extractFileFromJar(String path) throws IOException {
  
@@ -214,50 +246,19 @@ public class NativeUtils {
             is.close();
         }
         
-        final String libraryPrefix = prefix;
-        final String lockSuffix = ".lock";
-        
-        // create lock file
-        final File lock = new File( temp.getAbsolutePath() + lockSuffix);
-        lock.createNewFile();
-        lock.deleteOnExit();
-     
-        // file filter for library file (without .lock files)
-        FileFilter tmpDirFilter =
-          new FileFilter()
-          {
-            public boolean accept(File pathname)
-            {
-              return pathname.getName().startsWith( libraryPrefix) && !pathname.getName().endsWith( lockSuffix);
-            }
-          };
-          
-        // get all library files from temp folder  
-        String tmpDirName = System.getProperty("java.io.tmpdir");
-        File tmpDir = new File(tmpDirName);
-        File[] tmpFiles = tmpDir.listFiles(tmpDirFilter);
-        
-        // delete all files which don't have n accompanying lock file
-        for (int i = 0; i < tmpFiles.length; i++)
-        {
-          // Create a file to represent the lock and test.
-          File lockFile = new File( tmpFiles[i].getAbsolutePath() + lockSuffix);
-          if (!lockFile.exists())
-          {
-            System.out.println( "deleting: " + tmpFiles[i].getAbsolutePath());
-            tmpFiles[i].delete();
-          }
-        } 
-        
         // Finally, return the path
         return temp.getAbsolutePath();
         
     }
     /**
-     * load the file from system if loadPath exists, else extract file from JAR using extractPath
+     * <div class="en">load the file from system if {@code loadPath} exists, else extract file from JAR using {@code extractPath}</div>
+     * <div class="zh">如果存在{@code loadPath}，则从系统加载文件，否则使用{@code extractPath}从JAR提取文件</div>
+     * 
      * @param loadPath
      * @param extractPath
-     * @return path to the desired file, null if failed to load
+     * @return path 
+     * <span class="zh">指向所需文件的路径，如果加载失败，则返回null</span>
+     * <span class="en">path to the desired file, null if failed to load</span>
      */
     public static String loadOrExtract(String loadPath, String extractPath){
     	File f = new File(loadPath);

@@ -6,8 +6,6 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import tools.ColorPaletteReader;
-
 /**
  * <div class="en">test ColorPalette and algorithms to extract colors</div>
  * <div class="zh">测试ColorPalette和颜色提取算法</div>

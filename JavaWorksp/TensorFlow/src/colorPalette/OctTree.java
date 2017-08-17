@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
-import tools.ColorPaletteReader;
 import tools.TFUtils;
 /**
  * <div class="en">Use an Octree to extract main colors. See the links below.</div>

@@ -15,8 +15,15 @@ import org.tensorflow.Tensor;
 import general.DevConstants;
 import tools.TFUtils;
 
+/**
+ * 
+ *  <div class="en">Use TensorFlow Java API to label hand-written digits using a pre-trained model. </div>
+ *  <div class="zh">使用TensorFlow Java API和预先训练的模型来分类手写数字图片。</div>
+ *
+ */
 public class MNISTGraph {
-	
+	/** <span class="en">pic size required by the pre-trained model</span>
+	 * <span class="zh">分类器要求的正方形图片边长</span>*/
 	public static final int PIC_SIZE = 28;
 	
 	static {
@@ -28,6 +35,11 @@ public class MNISTGraph {
 		  }
 	}
 	
+	  /**
+	   * <div class="en">Give classes for paths in args</div>
+	   * <div class="zh">给args里的文件做出分类</div>
+	   * @param args
+	   */
 	public static void main(String[] args) {  
         String labels = "0123456789";  
         String[] files = args;
@@ -103,14 +115,20 @@ public class MNISTGraph {
        * x = tf.placeholder(tf.float32, [None, 784], name="input_tensor") 
        * [784][1,28,28,1], LabelImage
        * @param imageBytes
-       * @return
-       * output = (255-value)/255
-	     because in MNIST data set, 1 looks like
-	      0   0   0   0   0   0   0 
-	      0   0   0   1   0   0   0
-	      0   0   0.2 1   0   0   0
-	      0   0   0.1 1   0   0   0
-	      0   0   0   1   0.3 0   0
+       * @return 
+		output = (255-value)/255<br>
+		because in MNIST data set, 1 looks like
+<pre>
+0   0   0   0   0   0   0 
+0   0   0   1   0   0   0
+0   0   0.2 1   0   0   0
+0   0   0.1 1   0   0   0
+0   0   0   1   0.3 0   0
+0   0   0.2 1   0   0   0
+0   0   0.1 1   0   0   0
+0   0   0   0.2 0   0   0
+0   0   0   0   0   0   0 
+</pre>
        */
       private static float[][][][] toMNIST(String path) throws IOException{
     	  float[][][][] output = new float[1][PIC_SIZE][PIC_SIZE][1];

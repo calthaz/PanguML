@@ -16,34 +16,56 @@ import javax.imageio.ImageIO;
 import general.DevConstants;
 
 /**
- * extend image samples by random crop<br>
- * jpgs and pngs only
+ * <span class="en">
+ * An utility class to process training samples.<br>
+ * </span>
+ * <span class="zh">
+ * 一个处理培训样本的工具类。
+ * </span>
  *
  */
 public class SampleHelper {
 	
 	/**
-	 * Must implements {@code public BufferedImage process(BufferedImage img);} <br>
-	 * usage: just like FilenameFilter
-	 * <div style="font-family: monospace">
-	 * String[] myFiles = directory.list(new FilenameFilter() {<br>
-		    public boolean accept(File directory, String fileName) {<br>
-		        return fileName.endsWith(".txt");<br>
-		    }<br>
-		});<br>
-	 * </div>
+	 * <span class="en">Must implements {@code public BufferedImage process(BufferedImage img);} <br>
+	 * Usage: just like FilenameFilter<br></span>
+	 * <span class="zh">必须实现{@code public BufferedImage process(BufferedImage img);} <br>
+	 * 用法：就像FilenameFilter一样</span>
+	 * 
+	 * <pre>
+String[] myFiles = directory.list(new FilenameFilter() {
+	public boolean accept(File directory, String fileName) {
+		return fileName.endsWith(".txt");
+	}
+});
+	 * </pre>
 	 */
 	public interface ImgProcessor{
+		/** 
+		 * <span class="zh">处理图片</span>
+		 * <span class="en">Process an image</span>
+		 * @param img
+		 * @return <span class="zh">处理后的图片</span><span class="en">the processed image</span>
+		 */
 		public BufferedImage process(BufferedImage img); 
 	}
 	private static final String SEP = "/";
 	
+	private SampleHelper(){
+		
+	}
 	/**
-	 * Extends the number of examples by random cropping.<br>
+	 *  <span class="en">Extends the number of examples by random cropping.<br>
 	 *  crop portion is specified by {@code TFUtils.cropRate}<br>
 	 *  new images saved in the same dir but with new names starting with "ext-"<br>
-	 *  <b>Note: not recursive</b>
-	 * @param directoryPath
+	 *  <b>Note: not recursive</b><br></span>
+	 *  <span class="zh">通过随机裁剪来扩展样本的数量
+	 * 裁剪部分由{@code TFUtils.cropRate} <br>指定
+	 * 新图像保存在同一个目录中，但以“ext-”开头的新名称<br>
+	 * <b>注意：没有递归</b></span>
+	 * @param directoryPath 
+	 * <span class="zh">样本目录，只有该目录下文件会被扩充</span>
+	 * <span class="en">Sample directory, only the files in the directory will be extended</span>
 	 */
 	public static void extendSamples(String directoryPath){
 		File directory = new File(directoryPath);
@@ -72,12 +94,17 @@ public class SampleHelper {
 	}
 	
 	/**
-	 * Copy the entire structure of {@code inputDir} to {@code outputDir/inputDirName} 
-	 * with images processed by processor inside. <br>
-	 * <b>Note:recursive</b>
+	 * <span class="en">Copy the entire structure of {@code inputDir} to {@code outputDir/inputDirName} 
+	 * with images processed by a processor inside. <br>
+	 * <b>Note:recursive</b></span>
+	 * <span class="zh">将{@code inputDir}的整个结构复制到{@code outputDir / inputDirName}
+	 * 由处理器内部处理的图像。<br>
+	 * <b>注意：递归</b></span>
 	 * @param inputDir
 	 * @param outputDir
-	 * @param prefix rename images with "prefix"+randInt<br>
+	 * @param prefix 
+	 * <span class="zh">用"prefix"+randInt重命名文件</span>
+	 * <span class="en">rename images with "prefix"+randInt<br></span>
 	 * @param processor {@code outputImg = processor.process(inputImg);}
 	 */
 	public static void batchEditImages(String inputDir, String outputDir, String prefix, ImgProcessor processor){
@@ -153,14 +180,24 @@ public class SampleHelper {
 		}
 	}
 	/**
-	 * copy dir structure and images in inputDir, 
-	 * and output resized images to outputDir/inputDirname/ in corresponding structure. 
-	 * rename images with "scale-"+randInt<br>
-	 * <b>Note:recursive</b>
+	 * <span class="en">
+	 * Copy dir structure and images in inputDir, 
+	 * and output resized images to outputDir/inputDirname/ in corresponding structure. <br>
+	 * Rename images with "scale-"+randInt<br>
+	 * <b>Note:recursive</b><br>
+	 * </span>
+	 * <span class ="zh">
+	 * 复制dir结构和图像在inputDir中，
+	 * 并在相应的结构中输出调整大小的图像到outputDir/inputDirname/。
+	 * 用"scale - "+ randInt <br>重命名图像
+	 * <b>注意：递归</b>
+	 * </span>
 	 * @param inputDir
 	 * @param outputDir
-	 * @param maxSize max size of the output image, 
-	 * whose all sides are less than or equal to {@code maxSize}
+	 * @param maxSize <span class="zh">输出图像的最大尺寸，
+	 * 图像的所有边都小于或等于{@code maxSize}</span>
+	 * <span class="en">max size of the output image, 
+	 * whose all sides are less than or equal to {@code maxSize}</span>
 	 */
 	public static void scaleImageDir(String inputDir, String outputDir, int maxSize){
 		batchEditImages(inputDir, outputDir, "scale-", new ImgProcessor(){
@@ -178,10 +215,11 @@ public class SampleHelper {
 		});
 	}
 	/**
-	 * <b>Note:recursive</b>
+	 * <b class="en">Note:recursive</b>
+	 * <b class="zh">注意:递归</b>
 	 * @param dir
 	 */
-	private static void deleteEmptyDirs(File dir) {
+	public static void deleteEmptyDirs(File dir) {
 		if(dir.list().length==0){
 			//dir.delete();
 			System.out.println("Delete"+dir.getPath());
@@ -219,15 +257,20 @@ public class SampleHelper {
 	    file.renameTo(new   File(name+".jpg"));   //改名 
 	}*/
 	/**
-	 * Print paths to images that does not meet any of the requirements
-	 * <b>Note:recursive</b>
-	 * @param rootDir div to be checked
+	 * <span class="en">Print paths to images that does not meet any of the requirements
+	 * <b>Note:recursive</b></span>
+	 * <span class="zh">打印不符合任何要求的图像路径
+	 * <b>注意：递归</b></span>
+	 * 
+	 * @param rootDir <span class="zh">检查的文件夹</span><span class="en">div to be checked</span>
 	 * @param minW
 	 * @param minH
-	 * @param maxW if maxW<=0, it is ignored
-	 * @param maxH if maxH<=0, it is ignored
-	 * @param divs if not null, paths to the unqualified images are stored there
-	 * @param outputDir if not null, unqualified images are moved to this dir
+	 * @param maxW <span class="zh">如果{@code maxW<=0}, 无视它</span><span class="en">If {@code maxW<=0}, it is ignored</span>
+	 * @param maxH <span class="zh">如果{@code maxH<=0}, 无视它</span><span class="en">If {@code maxH<=0}, it is ignored</span>
+	 * @param divs <span class="zh">如果不为null，则存储不合格图像的原始路径</span>
+	 * <span class="en">if not null, original paths to the unqualified images are stored there</span>
+	 * @param outputDir <span class="zh">如果不为null，则不合格的图像被移动到该目录</span>
+	 * <span class="en">if not null, unqualified images are moved to this dir</span>
 	 */
 	public static void checkDimensionsRec(File rootDir, int minW, int minH, int maxW, int maxH, ArrayList<String> divs, String outputDir){
 			for(File entry : rootDir.listFiles()){
@@ -256,8 +299,10 @@ public class SampleHelper {
 								System.out.println(entry.getPath()+"'s height is larger than "+maxW);
 								add=true;
 							}
-							if(add&&divs!=null&&outputDir!=null){
+							if(add&&divs!=null){
 								divs.add(entry.getName());
+							}
+							if(add&&outputDir!=null){
 								entry.delete();
 								ImageIO.write(img, "jpg", new File(outputDir+SEP+entry.getName()));
 							}
@@ -283,8 +328,8 @@ public class SampleHelper {
 	private static void checkDimensions(File root, int minW, int minH, int maxW, int maxH) {
 		ArrayList<String> divs = new ArrayList<String>();
 		String webPath = "img/tietu/";
-		checkDimensionsRec(root, minW, minH, maxW, maxH, divs, "F:/tmp");
-		System.out.println("F:/tmp");
+		checkDimensionsRec(root, minW, minH, maxW, maxH, divs, "/tmp");
+		System.out.println("/tmp");
 		for(String name : divs){
 			System.out.println(String.format("<div style=\"background-image: url('%s%s');"
 					, webPath, name)+ "height: 536px; width: 100%; border: 2px solid green;\">"
@@ -301,7 +346,7 @@ public class SampleHelper {
 	 * chinese/suit2/living-room<br>
 	 * chinese/suit2/dining-room<br>
 	 * chinese/suit2/foo<br>
-	 * <b>will become<br></b>
+	 * <b>will become 会变成<br></b>
 	 * chinese/living-room<br>
 	 * chinese/dining-room<br>
 	 * <b>Note:not recursive</b>
@@ -352,12 +397,20 @@ public class SampleHelper {
 		}
 	}
 	/**
-	 * generate randomly selected files for training and evaluation from a processed dataset
-	 * <b>Note:recursive</b>
-	 * @param rootPath create folders "train" and "eval" under the root dir and
-	 * keep the structure of the root dir inside these new dirs. 
-	 * @param percentForEval with a probability of percentForEval/1, 
-	 * files in the root dir are copied to the eval dir, the rest are copied to the train dir
+	 * <span class="en">Generate randomly selected files for training and evaluation from a processed dataset
+	 * <b>Note:recursive</b></span>
+	 * <span class="zh">从处理过的数据集生成随机选择的训练和评估文件
+	 * <b>注意：递归</b></span>
+	 * @param rootPath 
+	 * <span class="zh">在根目录下创建文件夹"train"和"eval"
+	 * 将根目录的结构保留在这些新的目录下。</span>
+	 * <span class="en">Create folders "train" and "eval" under the root dir and
+	 * Keep the structure of the root dir inside these new dirs. </span>
+	 * @param percentForEval 
+	 * <span class="zh">以percentForEval/1的概率，
+	 * 根目录中的文件被复制到eval目录中，其余的将被复制到train目录中.</span>
+	 * <span class="en">With a probability of percentForEval/1, 
+	 * files in the root dir are copied to the eval dir, the rest are copied to the train dir.</span>
 	 */
 	public static void generateTrainAndEvalSets(String rootPath, double percentForEval){
 		File f = new File(rootPath);
@@ -454,7 +507,11 @@ public class SampleHelper {
 		}
 		
 	}
-
+	/**
+	 * <span class="en">Test</span>
+	 * <span class="zh">测试</span>
+	 * @param args 
+	 */
 	public static void main(String[] args) {
 		//deleteEmptyDirs(new File("));
 

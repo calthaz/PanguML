@@ -41,7 +41,7 @@ public abstract class Classifier {
 	
 	/**
 	 * 
-	 * @return <span class="en"></span>
+	 * @return <span class="en">pic size required by the pre-trained model</span>
 	 * <span class="zh">分类器要求的正方形图片边长</span>
 	 */
 	public abstract int getImageSize();

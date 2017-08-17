@@ -13,15 +13,30 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
-
+/**
+ * <span class="en">
+ * An utility class<br>
+ * </span>
+ * <span class="zh">
+ * 一个工具类。
+ * </span>
+ *
+ */
 public class TFUtils {
+	private TFUtils(){
+		
+	}
 	public static double cropRate = 0.7;
 	public static final String SEP = "/";
 	
 	/**
-	 * random crop, since normal cropping is not complicated. 
-	 * crop portion is specified by {@code TFUtils.cropRate}
-	 * @return a randomly selected region from {@code img}
+	 * 
+	 * <span class="zh">随机裁剪，因为正常裁剪并不复杂。
+	 * 裁剪部分大小由{@code TFUtils.cropRate}指定</span>
+	 * <span class="en">random crop, since normal cropping is not complicated. 
+	 * crop portion is specified by {@code TFUtils.cropRate}</span>
+	 * @return <span class="zh">来自{@code img}的随机选择区域</span>
+	 * <span class="en">a randomly selected region from {@code img}</span>
 	 */
 	public static BufferedImage randomCropImage(BufferedImage img){
 		int w = (int) (img.getWidth()*cropRate);
@@ -36,12 +51,13 @@ public class TFUtils {
 		return output;
 	}
 	/**
-	 * 
+	 * <span class="zh">中心裁剪</span>
 	 * @param img
 	 * @param width
 	 * @param height
 	 * @return cropped img
-	 * @throws if img is smaller than the desired size
+	 * @throws IllegalArgumentException <span class="zh">如果图片小于目标尺寸</span>
+	 * <span class="en">if img is smaller than the desired size</span>
 	 */
 	public static BufferedImage centerCrop(BufferedImage img, int width, int height) throws IllegalArgumentException{
 		int w = img.getWidth();
@@ -58,12 +74,15 @@ public class TFUtils {
 		return output;
 	}
 	/**
-     * create a new BufferedImage and and draw a scaled version of the original on the new one.<br>
-     * 方法来自<a href="https://stackoverflow.com/questions/4216123/how-to-scale-a-bufferedimage">this stackoverflow page</a>
+	 * <div class="zh">创建一个新的BufferedImage，并按照
+	 * <a href="https://stackoverflow.com/questions/4216123/how-to-scale-a-bufferedimage">此stackoverflow页面</a>上的建议，
+	 * 绘制缩放的图片 </div>
+	 * <div class="en">Create a new BufferedImage and and draw a scaled version of the original on the new one, as suggested
+     * by <a href="https://stackoverflow.com/questions/4216123/how-to-scale-a-bufferedimage">this stackoverflow page</a></div>
      * @param original
      * @param newWidth
      * @param newHeight
-     * @return a scaled img
+     * @return <span class="zh">缩放后的图片</span><span class="en">a scaled img</span>
      */
     public static BufferedImage getScaledImage(BufferedImage original, int newWidth, int newHeight){
   	  BufferedImage resized = new BufferedImage(newWidth, newHeight, original.getType());
@@ -77,7 +96,8 @@ public class TFUtils {
     }
     
     /**
-     * similar to {@code tf.argmax(tensor, axis = 0)}
+     * <span class="zh">和{@code tf.argmax(tensor, axis = 0)}相似</span>
+     * <span class="en">similar to {@code tf.argmax(tensor, axis = 0)}</span>
      * @param probabilities
      * @return
      */
@@ -92,10 +112,11 @@ public class TFUtils {
     } 
     
     /**
-     * read files and put paths to the files in ArrayList files
+     * <span class="zh">递归读取文件并把路径放在ArrayList里面</span>
+     * <span class="en">read files and put paths to the files in ArrayList files</span>
      * 
      * @param f
-     * @param files 
+     * @param files <span class="zh">储存路径</span><span class="en">store the paths</span>
      * @return
      */
 	public static void readFilesRecursively(File f, ArrayList<String> files) {
@@ -111,11 +132,14 @@ public class TFUtils {
 		}
 	}
 	
-	 /**
-     * read files, check if they are readable images, 
-     * and put paths to the files in to the passed-in arraylist
+    /**
+     * <span class="zh">递归读取文件，检查它们是否是可读取的图像，
+     * 并将文件的路径放入传入的ArrayList中</span>
+     * <span class="en">Read files, check if they are readable images, 
+     * and put paths to the files in to the passed-in ArrayList</span>
+     * 
      * @param f
-     * @param files 
+     * @param files <span class="zh">储存路径</span><span class="en">store the paths</span>
      * @return
      */
 	public static void readImageFilesRecursively(File f, ArrayList<String> files) {
@@ -142,7 +166,8 @@ public class TFUtils {
 	}
 	
 	/**
-	 * get a transparent image of {@code TYPE_INT_ARGB} of given size
+	 * <span class="zh">获取给定尺寸的{@code TYPE_INT_ARGB}的透明图像</span>
+	 * <span class="en">Get a transparent image of {@code TYPE_INT_ARGB} of given size</span>
 	 * @param w
 	 * @param h
 	 * @return image
@@ -153,10 +178,12 @@ public class TFUtils {
 	}
 	
 	/**
-	 * make at least one side equal to destination size, 
-	 * and ensure the whole returned dimension can be contained in the destination area,
-	 * leaving empty space if necessary.<br> 
-	 * <b>Keep aspect ratio. </b>
+	 * <span class="en">make at least one side equal to destination size, 
+	 * and ensure the whole returned dimension can be contained in the destination area<br> 
+	 * <b>Keep aspect ratio.</b></span>
+	 * <span class="zh">使至少一边等于目的大小，
+	 * 并确保整个返回的尺寸可以包含在目的区域内。<br> 
+	 * <b>保持纵横比。</b></span>
 	 * @param origW
 	 * @param origH
 	 * @param destiW
@@ -176,9 +203,13 @@ public class TFUtils {
 		return d;
 	}
 	/**
-	 * make at least one side equal to destination size, 
+	 * <span class="zh">使至少一边等于目的地大小，
+	 * 填满目的地区域，并有可能有额外区域<br>
+	 * <b>保持纵横比。</b></span>
+	 * <span class="en">make at least one side equal to destination size, 
 	 * fill the destination region and leave out some extra area of the origin object<br> 
-	 * <b>Keep aspect ratio. </b>  
+	 * <b>Keep aspect ratio. </b>  </span>
+	 * 
 	 * @param origW
 	 * @param origH
 	 * @param destiW
@@ -200,15 +231,19 @@ public class TFUtils {
 	
 	
 	/**
-	 * Check accuracy in a fool-proof way
+	 * <span class="zh">以原始的方式检查预测准确率。</span>
+	 * <span class="en">Check accuracy in a foolproof way.</span>
 	 * <pre>
 	 * if(path.indexOf(label)!=-1)correct[index]++;
 	 * </pre>
 	 * 
 	 * @param resultFile
 	 * @param labelFile
-	 * @return accuracy = (machine got it right)/(machine thought it to be in this class)<br>
-	 * i.e. 1-accuracy = false positive rate<br>
+	 * @return double[classIndex]=accuracy<br><div class="zh">
+	 * 精度=（机器判断正确）/（机器认为是在这个类）<br>
+	 * 即1-精度=假阳性率(?)</div>
+	 * <div class="en">accuracy = (machine got it right)/(machine thought it to be in this class)<br>
+	 * i.e. 1-accuracy = false positive rate</div>
 	 * <br>
 	 */
 	public static double[] checkAccuracy(String resultFile, String labelFile){
@@ -253,7 +288,8 @@ public class TFUtils {
 	}
 	
 	/**
-	 * Copy files into separate folders according to machine's classification in outputDir
+	 * <span class="zh">根据{@code resultFile}中的机器的分类结果将文件复制到{@code outputPath}下单独的文件夹中</span>
+	 * <span class="en">Copy files into separate folders in {@code outputPath} according to machine's classification in {@code resultFile}</span>
 	 * @param resultFile
 	 * @param labelFile
 	 * @param outputPath
@@ -306,7 +342,11 @@ public class TFUtils {
 
 		}
 	}
-	
+	/**
+	 * <span class="en">Test</span>
+	 * <span class="zh">测试</span>
+	 * @param args 
+	 */
 	public static void main(String args[]){
 		//deleteEmptyDirs(new File("c:/tmp/test"));
 		
