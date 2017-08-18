@@ -1,6 +1,8 @@
 # TensorFlowDemo
 这是一个非常简单的演示，使用[我的java类](http://null_560_5360.oschina.io/tensorflow/index.html)和[TensorFlow的cifar10模型](https：//github.com/tensorflow/models/tree/master/tutorials/image/cifar10)。
-> ENV：
+解压training-materials里的文件，
+运行train.py，再运行my_eval.py，准确率应该在66%左右。
+> ENV 和 LIB：
 > * Python 3
 > * 具有GPU支持的TensorFlow 1.2(您可能可以运行不支持GPU的相同代码)  
 > * 及其依赖项
@@ -239,7 +241,7 @@ Tensor result = sess.runner().feed("input_tensor", image).fetch("output_tensor")
 或者阅读我的例子，因为这文章很长。  
 在Python中：
 ```python
-x = tf.placeholder(tf.float32, [None，784], name ="input_tensor")
+x = tf.placeholder(tf.float32, [None, 784], name ="input_tensor")
 ....
 with tf.variable_scope('softmax_linear')as scope: 
 	y_conv = tf.add(tf.matmul(h_fc1_drop, W_fc2), b_fc2, name ='output_tensor')
@@ -254,7 +256,7 @@ output_graph_def = graph_util.convert_variables_to_constants(
 		output_node_names.split(",")#输出节点名称用于选择有用的节点
 	)
 	#最后，我们将输出图序列化并转储到文件系统
-	with tf.gfile.GFile("frozen_graph.pb"，"wb") as f：
+	with tf.gfile.GFile("frozen_graph.pb", "wb") as f: 
 		f.write(output_graph_def.SerializeToString())
 ```
 在Java中：

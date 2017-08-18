@@ -14,11 +14,11 @@ import read_image
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('eval_dir', '../logs/eval7000',
+tf.app.flags.DEFINE_string('eval_dir', '../logs/eval5000',
                            """Directory where to write event logs.""")
 tf.app.flags.DEFINE_string('eval_data', 'test',
                            """Either 'test' or 'train_eval'.""")
-tf.app.flags.DEFINE_string('checkpoint_dir', '../logs/train7000',
+tf.app.flags.DEFINE_string('checkpoint_dir', '../logs/train5000',
                            """Directory where to read model checkpoints.""")
 tf.app.flags.DEFINE_integer('num_examples', 1000,
                             """Number of examples to run.""")

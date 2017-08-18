@@ -1,5 +1,8 @@
 # TensorFlowDemo
 This is a very simple demo to complete a moderately simple classification task with [my java classes](http://null_560_5360.oschina.io/tensorflow/index.html) and a slightly adapted version of [TensorFlow's cifar10 model](https://github.com/tensorflow/models/tree/master/tutorials/image/cifar10).
+Extract rar files in training-materials/, 
+then run train.py then my_eval.py.    
+The accuracy should be around 66%.  
 >Env and lib:
 > * Python 3
 > * TensorFlow 1.2 with GPU support (you might be able to run the same code without GPU supported)

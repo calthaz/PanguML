@@ -11,8 +11,8 @@ public class DemoClassifier extends Classifier {
 	
 	public DemoClassifier(){
 		GraphDriver.LIB_PATH  = "tensorflow_jni.dll";
-		this.modelPath = "models/train3500-1/frozen_graph.pb";
-		this.batchModelPath = "models/train3500-"+BATCH_SIZE+"/frozen_graph.pb";
+		this.modelPath = "models/train5000-1/frozen_graph.pb";
+		this.batchModelPath = "models/train5000-"+BATCH_SIZE+"/frozen_graph.pb";
 		this.labelPath = "training-materials/ready/eval/"+LabelGenerator.LABEL_TEXT_FILE_NAME;
 		System.out.println(batchModelPath);
 	}

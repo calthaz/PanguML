@@ -37,21 +37,12 @@ public class Eval {
 		flower\daisy:0.6192893401015228
 		total:0.660844250363901
 		
-		training-materials/ready/eval/7000-tf-inference-results.txt
-		takes 7000 steps to train, while
-		training-materials/ready/eval/3500-tf-inference-results.txt
-		only takes 3500.
-		However, their accuracy are exactly the same
-		Well, this is just a nasty coincidence. 
-		In most cases, these two results should differ slightly. 
-		But it proves that more steps on a small training set have no benefit
-		
 		 */
 		
 		//Now, if we want to get a feeling of how this model classifies images, 
 		///we let it sort the pics according to its prediction
 		//First, create "training-materials/result"
-		TFUtils.sortByClass(classifier.getResultPath(), classifier.getLabelPath(), "training-materials/result");
+		//TFUtils.sortByClass(classifier.getResultPath(), classifier.getLabelPath(), "training-materials/result");
 		//now you can find some ridiculous results! 
 	}
 }

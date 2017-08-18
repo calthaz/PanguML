@@ -6,7 +6,7 @@ IMAGE_SIZE = visualize.IMAGE_SIZE
 FLAGS = tf.app.flags.FLAGS
 
 # Basic model parameters.
-tf.app.flags.DEFINE_string('checkpoint_dir', '../logs/train3500',
+tf.app.flags.DEFINE_string('checkpoint_dir', '../logs/train5000',
 						   """Directory where to read model checkpoints.""")
 tf.app.flags.DEFINE_string('vis_dir', '../logs/visualize',
 						   """Directory where to write event logs """
@@ -14,16 +14,9 @@ tf.app.flags.DEFINE_string('vis_dir', '../logs/visualize',
 def main(_):
 
 	FLAGS.batch_size = 1
-	pic_set = ["../training-materials/ready/eval/bed/baby-bed/scale-14829022665.png",
-				"../training-materials/ready/eval/bed/hammock/scale-3442018430.png",
-				"../training-materials/ready/eval/bed/round-bed/scale-24974183283.png",
-				"../training-materials/ready/eval/flower/daisy/scale-57310047825.png",
-				"../training-materials/ready/eval/flower/dandelion/scale-19088761090.png",
-				"../training-materials/ready/eval/flower/roses/scale-28875778650.png",
-				"../training-materials/ready/eval/flower/sunflowers/scale-26979924182.png",
-				"../training-materials/ready/eval/flower/tulips/scale-63149357270.png"]
+	pic_set = ["../training-materials/ready/eval/flower/sunflowers/scale-154857551.png"]
 	with tf.name_scope('input'):#
-		img_path=pic_set[7]
+		img_path=pic_set[0]
 		filename_queue = tf.train.string_input_producer([img_path])#
 		reader = tf.WholeFileReader()
 		key, value = reader.read(filename_queue)

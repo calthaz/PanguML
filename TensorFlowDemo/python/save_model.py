@@ -15,13 +15,11 @@ import read_image
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('save_dir', '../logs/save3500',
+tf.app.flags.DEFINE_string('save_dir', '../logs/save5000',
                            """Directory where to write event logs.""")
-tf.app.flags.DEFINE_string('checkpoint_dir', '../logs/train3500', 
+tf.app.flags.DEFINE_string('checkpoint_dir', '../logs/train5000', 
                            """Directory where to read model checkpoints.""")
-tf.app.flags.DEFINE_integer('num_examples', 1000,
-                            """Number of examples to run.""")
-tf.app.flags.DEFINE_string('model_dir', '../models/train3500-', 
+tf.app.flags.DEFINE_string('model_dir', '../models/train5000-', 
                             """Directory where to save model""")
 
 #https://blog.metaflow.fr/tensorflow-how-to-freeze-a-model-and-serve-it-with-a-python-api-d4f3596b3adc
