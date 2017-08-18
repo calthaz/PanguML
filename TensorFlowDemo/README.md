@@ -1,5 +1,12 @@
 # TensorFlowDemo
-This is a very simple demo to complete a moderately simple classification task with [my java classes](http://null_560_5360.oschina.io/tensorflow/index.html) and a slightly adapted version of [TensorFlow's cifar10 model](https://github.com/tensorflow/models/tree/master/tutorials/image/cifar10). 
+This is a very simple demo to complete a moderately simple classification task with [my java classes](http://null_560_5360.oschina.io/tensorflow/index.html) and a slightly adapted version of [TensorFlow's cifar10 model](https://github.com/tensorflow/models/tree/master/tutorials/image/cifar10).
+>Env:
+> * Python 3
+> * TensorFlow 1.2 with GPU support (you might be able to run the same code without GPU supported)
+> * and its dependencies...
+> * Java 8
+> * [TensorFlow libs for java](https://www.tensorflow.org/install/install_java)  
+
 ## Folder Structure Overview
 * __src - Java source files__
 	- prepare - processing images and generate data sets for training and evaluation
@@ -17,9 +24,9 @@ This is a very simple demo to complete a moderately simple classification task w
 	- read_image.py - read label files produced by java with a `slice_input_producer`
 	- general_cifar.py - structure of the neuron network
 	- train.py - uses a `MonitoredTrainingSession` to train the model
-	- my_eval.py - eval the model with eval data set\*
+	- my_eval.py - eval the model with eval data set
 	- save_model.py - save model(s) with `convert_variables_to_constants` and `output_graph_def.SerializeToString()` as well as `SavedModelBuilder`
-	- visualize.py - attatch a deconv net to the cifar structure and visualize activations. https://arxiv.org/pdf/1311.2901.pdf
+	- visualize.py - attatch a deconv net to the cifar structure and visualize activations. (https://arxiv.org/pdf/1311.2901.pdf)
 	- visualize_test.py - run visualize.py with a given input image
 * __training-materials__
 	* raw-data - Images collected from the Internet
@@ -31,7 +38,7 @@ This is a very simple demo to complete a moderately simple classification task w
 		- others - Compressed images 
 	* result - Images in eval data set are sorted into corresponding folders according to the model's classification
 
-## Creating a Image Data Sets
+## Creating Image Data Sets
 [*src/SampleProcessor.java*](src/SampleProcessor.java)
 ### `SampleHelper.batchEditImages`: one tool for everything you want
 I find this fuction very handy, since it can process all the images under a folder without altering the original ones -- because it just makes a copy of this folder... 
@@ -167,7 +174,7 @@ saver = tf.train.Saver()# no params, save all variables
 summary_writer = tf.summary.FileWriter(checkpoint_dir)
 with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer())
-	for i in range(2000):#20000
+	for i in range(2000):
 		batch = mnist.train.next_batch(50)
 		if i % 100 == 0:
 			train_accuracy = accuracy.eval(....)
@@ -186,6 +193,7 @@ If you want to extend your graph, you will have to specify what to look for in t
 variable_averages = tf.train.ExponentialMovingAverage(
 general.MOVING_AVERAGE_DECAY)
 variables_to_restore = variable_averages.variables_to_restore()
+# The following variables are inside the new graph so should not try to read
 del variables_to_restore['input/vis-image/ExponentialMovingAverage']
 del variables_to_restore['input/vis-image/Adam_1']
 del variables_to_restore['train/beta2_power']
@@ -196,7 +204,7 @@ saver = tf.train.Saver(variables_to_restore)
 And you still need to initialize your new variables:
 ```python
 with tf.Session() as sess:
-		sess.run(tf.global_variables_initializer())
+	sess.run(tf.global_variables_initializer())
 ```
 ### `tf.saved_model.builder.SavedModelBuilder` builds "SavedModel" protocol buffers
 In Java, use `SavedModelBundel` to load a "SavedModel", but a "SavedModel" contains three files so is not convenient to distribute. In the end I replace all these builders with serialized graph. 
@@ -216,11 +224,11 @@ with tf.Session() as sess:
 
   print('test accuracy %g' % accuracy.eval(....))
 
-  builder.add_meta_graph_and_variables(sess,[tag])
+  builder.add_meta_graph_and_variables(sess,["tag"])
   builder.save(True)
   # or just builder.save() if you don't want to read it
 ```
-In Java
+In Java:
 ```java
 SavedModelBundle smb = SavedModelBundle.load(modelPath, "tag");
 Session sess = smb.session();
@@ -229,7 +237,7 @@ Tensor result = sess.runner().feed("input_tensor", image).fetch("output_tensor")
 ```
 ### `graph_util.convert_variables_to_constants` and `SerializeToString`
 Read this [article](https://blog.metaflow.fr/tensorflow-how-to-freeze-a-model-and-serve-it-with-a-python-api-d4f3596b3adc).
-Or read my example, since that example is very long.   
+Or read my example, since that example is very long.     
 In Python:
 ```python
 x = tf.placeholder(tf.float32, [None, 784], name="input_tensor")
@@ -260,3 +268,21 @@ Tensor image = Tensor.create(toMatrix(imgs))
 Tensor result = sess.runner().feed("input_tensor", image).fetch("softmax_linear/output_tensor").run().get(0)
 ```
 ## Visualization with TensorBoard
+*python/\*.py*\
+[*python/visualize.py*](python/visualize.py)\
+[*python/visualize_test.py*](python/visualize_test.py)
+
+TensorBoard is simply awsome. As well as [this TF article](https://www.tensorflow.org/get_started/summaries_and_tensorboard).
+```
+ $ TensorBoard --logdir logs
+``` 
+Run every runnable python file, find the corresponding logs and explore TensorBoard yourself.   
+I will just highlight some special functions
+### `tf.summary.image` can display almost anything with rank 4
+In fact, anything looks like this: [batch_size, height, width, channels] where channels is 1, 3, or 4.  
+First display it, then think about what it means.  
+### `name_scope`and `variable_scope` make your graph more readable
+That's it. 
+## Distributed TensorFlow
+See [TF: Deploy](https://www.tensorflow.org/deploy/)    
+Or [implemented distributed TF](../PythonWorksp/TensorFlow/distributed)

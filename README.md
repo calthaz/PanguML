@@ -24,7 +24,7 @@ __基于tensorflow的混合项目__
 > * Java 8
 > * TensorFlow libs for java  
 
-**[Javadoc](http://null_560_5360.oschina.io/tensorflow)**
+**[Javadoc](http://null_560_5360.oschina.io/tensorflow/index.html)**
 
 ### Web
 >Env:
