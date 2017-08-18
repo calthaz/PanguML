@@ -1,6 +1,6 @@
 # TensorFlowDemo
 This is a very simple demo to complete a moderately simple classification task with [my java classes](http://null_560_5360.oschina.io/tensorflow/index.html) and a slightly adapted version of [TensorFlow's cifar10 model](https://github.com/tensorflow/models/tree/master/tutorials/image/cifar10).
->Env:
+>Env and lib:
 > * Python 3
 > * TensorFlow 1.2 with GPU support (you might be able to run the same code without GPU supported)
 > * and its dependencies...
@@ -14,12 +14,10 @@ This is a very simple demo to complete a moderately simple classification task w
 	- eval - helper functions to eval the model
 * __logs - TensorFlow training chackpoints and save/eval event files__
 	- train3500 - stops at step=3500
-	- train7000 - stops at step=7000
 	- eval - my_eval logs
 	- save - save_model logs
 * __models - TensorFlow SavedModelBundle and graph_defs__
 	- train3500 - stops at step=3500
-	- train7000 - stops at step=7000
 * __python - Python code__
 	- read_image.py - read label files produced by java with a `slice_input_producer`
 	- general_cifar.py - structure of the neuron network

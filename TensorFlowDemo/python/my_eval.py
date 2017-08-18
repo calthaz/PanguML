@@ -14,11 +14,11 @@ import read_image
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('eval_dir', '../logs/eval-train3500',
+tf.app.flags.DEFINE_string('eval_dir', '../logs/eval7000',
                            """Directory where to write event logs.""")
-tf.app.flags.DEFINE_string('eval_data', 'train_eval',
+tf.app.flags.DEFINE_string('eval_data', 'test',
                            """Either 'test' or 'train_eval'.""")
-tf.app.flags.DEFINE_string('checkpoint_dir', '../logs/train3500',
+tf.app.flags.DEFINE_string('checkpoint_dir', '../logs/train7000',
                            """Directory where to read model checkpoints.""")
 tf.app.flags.DEFINE_integer('num_examples', 1000,
                             """Number of examples to run.""")
@@ -114,11 +114,7 @@ def evaluate():
       coord.request_stop()
       coord.join(threads, stop_grace_period_secs=10)
 
-def main(argv=None):  # pylint: disable=unused-argument
-  #cifar10.maybe_download_and_extract()
-  if tf.gfile.Exists(FLAGS.eval_dir):
-    tf.gfile.DeleteRecursively(FLAGS.eval_dir)
-  tf.gfile.MakeDirs(FLAGS.eval_dir)
+def main(argv=None):  
   evaluate()
 
 

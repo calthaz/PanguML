@@ -14,12 +14,10 @@
 	- eval - 帮助评估模型
 * __logs - TensorFlow训练chackpoints和保存/eval事件文件__
 	- train3500 - 在step = 3500停止
-	- train7000 - 在step = 7000停止
 	- eval - my_eval日志
 	- save - save_model日志
 * __models - TensorFlow SavedModelBundle和graph_defs__
 	- train3500 - 在step = 3500停止
-	- train7000 - 在step = 7000停止
 	- eval - my_eval日志
 	- save - save_model日志
 * __python - Python代码__
@@ -78,13 +76,13 @@ SampleHelper.batchEditImages("training-materials/raw-data", "training-materials"
 有多少形式的输入，就有多少种input producer。  
 这是我们在这里使用的，因为我们有两个单独的图像和标签列表，"slice_input_producer"将它们彼此关联起来。
 ```python
-tf.train.slice_input_producer([images，labels]，shuffle = True)
+tf.train.slice_input_producer([images, labels], shuffle = True)
 ```
 \
 如果您只想阅读一个图像，可以使用
 ```python
 filename_queue = tf.train.string_input_producer(["xxx/xxxx.jpg"])
-key，value = reader.read(filename_queue)
+key, value = reader.read(filename_queue)
 my_img = tf.image.decode_jpeg(value)
 ```
 如[*python/visualize_test.py*](python/visualize_test.py)  
@@ -93,7 +91,7 @@ my_img = tf.image.decode_jpeg(value)
 ```python
 #启动输入入队线程
 coord = tf.train.Coordinator()
-threads = tf.train.start_queue_runners(sess = sess，coord = coord)
+threads = tf.train.start_queue_runners(sess = sess, coord = coord)
 
 try:
     while not coord.should_stop():
@@ -116,7 +114,7 @@ sess.close()
 ![文件队列动画](https://www.tensorflow.org/images/AnimatedFileQueues.gif)
 有关读取数据的更多信息，请访问[TF：读取数据](https://www.tensorflow.org/programmers_guide/reading_data)。
 
-## 培训
+## 训练
 [*python/train.py*](python/train.py)
 
 ### `tf.train.MonitoredTrainingSession`和`tf.train.SessionRunHook`
@@ -174,17 +172,17 @@ checkpoint_dir ="logs"
 #创建一个Saver对象来保存变量
 saver = tf.train.Saver()#没有参数，保存所有变量
 summary_writer = tf.summary.FileWriter(checkpoint_dir)
-with tf.Session() as sess：
+with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer())
-	for i in range(2000)：
+	for i in range(2000):
 		batch = mnist.train.next_batch(50)
-		if i％100 == 0：
+		if i%100 == 0:
 			train_accuracy = accuracy.eval(....)
-			print('步骤％d，训练准确度％g'％(i，train_accuracy))
+			print('步骤%d，训练准确度%g'%(i, train_accuracy))
 		train_step.run(....)
-        
-    #训练完成，保存变量
-    saver.save(sess，checkpoint_dir +'/ newpath'，global_step = 2000)
+			
+	#训练完成，保存变量
+	saver.save(sess, checkpoint_dir +'/ newpath', global_step = 2000)
 	#"newpath"是文件前缀：newpath-2000.data-00000-of-00001
 ```
 非常反直觉的一点是，如果你不调用`tf.train.import_meta_graph`，但是调用`saver.restore`，**你不会得到你的图**。为了正确使用这些变量，你必须再次构造一个图来使用变量。
@@ -204,60 +202,60 @@ saver = tf.train.Saver(variables_to_restore)
 ```
 而您仍然需要初始化新变量：
 ```python
-with tf.Session() as sess：
+with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer())
 ```
 ### `tf.saved_model.builder.SavedModelBuilder`构建"SavedModel"协议缓冲区
 在Java中，使用"SavedModelBundel"加载"SavedModel"，但"SavedModel"包含三个文件，因此不方便打包。最后我用序列化的图替换所有这些构建器。
 在Python中：
 ```python
-x = tf.placeholder(tf.float32，[None，784]，name ="input_tensor")
+x = tf.placeholder(tf.float32, [None, 784], name ="input_tensor")
 ....
-y_conv = tf.add(tf.matmul(h_fc1_drop，W_fc2)，b_fc2，name ='output_tensor')
-with tf.Session() as sess：
-  sess.run(tf.global_variables_initializer())
-  builder = tf.saved_model.builder.SavedModelBuilder("model");
-  for i in range(1000)：
-  	batch = mnist.train.next_batch(50)
-  	if i％100 == 0：
-    	train_accuracy = accuracy.eval(......)
-    train_step.run(....)
+y_conv = tf.add(tf.matmul(h_fc1_drop, W_fc2), b_fc2, name ='output_tensor')
+with tf.Session() as sess: 
+  sess.run(tf.global_variables_initializer())
+  builder = tf.saved_model.builder.SavedModelBuilder("model");
+  for i in range(1000):
+    batch = mnist.train.next_batch(50)
+    if i%100 == 0:
+        train_accuracy = accuracy.eval(......)
+    train_step.run(....)
 
-  print('测试精度％g'％accuracy.eval(....))
+  print('测试精度%g'%accuracy.eval(....))
 
-  builder.add_meta_graph_and_variables(SESS，[ "标签"])
-  builder.save(True)
-  #或者只是builder.save()，如果你不想读它
+  builder.add_meta_graph_and_variables(sess, [ "标签"])
+  builder.save(True)
+  #或者只是builder.save()，如果你不想读它
 ```
 在Java中：
 ```java
-SavedModelBundle smb = SavedModelBundle.load(modelPath，"标签");
+SavedModelBundle smb = SavedModelBundle.load(modelPath, "标签");
 Session sess = smb.session();
 Tensor image = Tensor.create(toMatrix(imgs))
-Tensor result = sess.runner()。feed("input_tensor"，image).fetch("output_tensor")。run()。get(0)
+Tensor result = sess.runner().feed("input_tensor", image).fetch("output_tensor").run().get(0)
 ```
 ### `graph_util.convert_variables_to_constants`和`SerializeToString`
 阅读[这篇文章](https://blog.metaflow.fr/tensorflow-how-to-freeze-a-model-and-serve-it-with-a-python-api-d4f3596b3adc)。
 或者阅读我的例子，因为这文章很长。  
 在Python中：
 ```python
-x = tf.placeholder(tf.float32，[None，784]，name ="input_tensor")
+x = tf.placeholder(tf.float32, [None，784], name ="input_tensor")
 ....
-with tf.variable_scope('softmax_linear')as scope：
-	y_conv = tf.add(tf.matmul(h_fc1_drop，W_fc2)，b_fc2，name ='output_tensor')
-    
+with tf.variable_scope('softmax_linear')as scope: 
+	y_conv = tf.add(tf.matmul(h_fc1_drop, W_fc2), b_fc2, name ='output_tensor')
+			
 output_node_names ="softmax_linear/output_tensor"
 graph = tf.get_default_graph()
 input_graph_def = graph.as_graph_def()
-with tf.Session() as sess：
+with tf.Session() as sess:
 output_graph_def = graph_util.convert_variables_to_constants(
-          sess，#该Session用于获取变量
-          input_graph_def，#graph_def用于检索节点
-          output_node_names.split("，")#输出节点名称用于选择有用的节点
-      )
-    #最后，我们将输出图序列化并转储到文件系统
-    with tf.gfile.GFile("frozen_graph.pb"，"wb") as f：
-          f.write(output_graph_def.SerializeToString())
+		sess, #该Session用于获取变量
+		input_graph_def, #graph_def用于检索节点
+		output_node_names.split(",")#输出节点名称用于选择有用的节点
+	)
+	#最后，我们将输出图序列化并转储到文件系统
+	with tf.gfile.GFile("frozen_graph.pb"，"wb") as f：
+		f.write(output_graph_def.SerializeToString())
 ```
 在Java中：
 ```java
@@ -266,7 +264,7 @@ Graph g = new Graph();
 g.importGraphDef(graphDef);
 Session sess = new Session(g);
 Tensor image = Tensor.create(toMatrix(imgs))
-Tensor result = sess.runner().feed("input_tensor"，image).fetch("softmax_linear/output_tensor").run().get(0)
+Tensor result = sess.runner().feed("input_tensor", image).fetch("softmax_linear/output_tensor").run().get(0)
 ```
 ## 用TensorBoard可视化
 *python/\*.py*  
