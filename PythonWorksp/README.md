@@ -1,6 +1,6 @@
 In PythonWorksp, there are many files that differ from one another in some very subtle ways, so here is an overview of these files.
 ## TensorFlow related
->Env:
+>Env and libs:
 > * Python 3
 > * TensorFlow 1.2 with GPU support
 > * and its dependencies...
@@ -8,11 +8,10 @@ In PythonWorksp, there are many files that differ from one another in some very 
 ### General in CIFAR 
   
 **[TensorFlow/StyleClassifier/general_cifar.py](TensorFlow/StyleClassifier/general_cifar.py)**  
-和  
+and 
 **[TensorFlow/FurnitureClassifier/general_cifar.py](TensorFlow/FurnitureClassifier/general_cifar.py)**  
-只有
-`INITIAL_LEARNING_RATE`
-不同
+only differ in
+`INITIAL_LEARNING_RATE`.   
   
 **[TensorFlow/HardwareClassifier/general.py](TensorFlow/HardwareClassifier/general.py)**  
 and  
@@ -141,11 +140,11 @@ extends
 with a hashbang, to send headers, retrieve post data and print json result.
 
 ## OpenCV related
->Env:
+>Env and libs:
 > * Python 2
 > * OpenCV 3
 > * PIL
-> * and its dependencies... I was using Anaconda. [See: managing packages.](https://conda.io/docs/using/pkgs.html)
+> * and their dependencies... I was using Anaconda. [See: managing packages.](https://conda.io/docs/using/pkgs.html)
 
 **[objectDetector/contour_furn.py](objectDetector/contour_furn.py)**  
 uses `cv2.RETR_TREE`
@@ -163,4 +162,4 @@ extends
 **[objectDetector/recognize_digits.py](objectDetector/recognize_digits.py)**  
 with a hashbang, to send headers, retrieve post data and print json result.  
 It also pads the cropped digits to a square to assist further inferring with
-[../www/tensorflow/infer_MNIST.cgi](../www/tensorflow/infer_MNIST.cgi)
+**[../www/tensorflow/infer_MNIST.cgi](../www/tensorflow/infer_MNIST.cgi)**

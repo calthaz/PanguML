@@ -4,7 +4,7 @@ from __future__ import print_function
 import tensorflow as tf 
 import numpy as np
 from tensorflow.python import debug as tf_debug 
-import general
+import general_cifar as general
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -61,9 +61,9 @@ def main_wrong(argv=None):
 		#so the following method will fail
 
 		image, label = get_noise_image()
-		#logits = general.inference(image)
-		#score = loss(logits, label)
-		#train_op = approach(score)
+		logits = general.inference(image)
+		score = loss(logits, label)
+		train_op = approach(score)
 
 		tf.summary.image('vis-image', image)
 		#tf.summary.histogram('logits', logits)
@@ -90,7 +90,7 @@ def main(argv=None):
 	# Restore the moving average version of the learned variables for eval.
 	variable_averages = tf.train.ExponentialMovingAverage(
 	general.MOVING_AVERAGE_DECAY)
-	variables_to_restore = variable_averages.variables_to_restore()#moving_avg_variables=tf.moving_average_variables() still lack somthing
+	variables_to_restore = variable_averages.variables_to_restore()#moving_avg_variables=tf.moving_average_variables() still lack something
 	del variables_to_restore['input/vis-image/ExponentialMovingAverage']
 	del variables_to_restore['input/vis-image/Adam_1']
 	del variables_to_restore['train/beta2_power']

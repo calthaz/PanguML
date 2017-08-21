@@ -145,10 +145,10 @@ def inputs(eval_data, batch_size):
 	"""
 	if not eval_data:
 		image_list, label_list = read_labeled_image_list(TRAIN_LABEL_FILE)
-	    num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN
-  	else:
-	    image_list, label_list = read_labeled_image_list(EVAL_LABEL_FILE)
-	    num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_EVAL
+		num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN
+	else:
+		image_list, label_list = read_labeled_image_list(EVAL_LABEL_FILE)
+		num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_EVAL
 
 	for f in image_list:
 		if not tf.gfile.Exists(f):

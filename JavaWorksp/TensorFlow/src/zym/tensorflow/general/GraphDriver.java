@@ -29,7 +29,15 @@ import zym.tensorflow.tools.TFUtils;
  *
  */
 public class GraphDriver implements Closeable{
-	
+	/**
+	 * <span class="en"><b>Notice: Do not directly use this path in your own development. Set it to yours.</b><br>
+	 * Also, if this link is not satisfied,
+	 * there is a fall back to load the library from jar with the last name in the path.</span><br>
+	 * <span class="zh"><b>注意：不要直接在自己的开发中使用这个路径。 将其设置为您的</b><br>
+	 * 另外，如果这个链接无效，
+	 * 会试图从jar中加载路径中的库的名称。</span>
+	 */
+	public static String LIB_PATH = DevConstants.RES_ROOT+"tensorflow_jni.dll";
 	private final int PIC_SIZE;
 	private String inputName;
 	private String outputName;
@@ -41,10 +49,10 @@ public class GraphDriver implements Closeable{
 	static {
 		try {
 			//System.load(DevConstants.RES_ROOT+"jni/libtensorflow_jni.so");
-			System.load(DevConstants.RES_ROOT+"tensorflow_jni.dll");
+			System.load(LIB_PATH);
 		} catch (UnsatisfiedLinkError e) {
 			try {    
-				NativeUtils.loadLibraryFromJar("/tensorflow_jni.dll"); 
+				NativeUtils.loadLibraryFromJar("/"+new File(LIB_PATH).getName()); //"/tensorflow_jni.dll"
 				//System.out.println(path);
 			} catch (IOException e2) {    
 				e2.printStackTrace(); // This is probably not the best way to handle exception :-)  

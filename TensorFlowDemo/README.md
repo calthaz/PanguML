@@ -286,4 +286,9 @@ First display it, then think about what it means.
 That's it. 
 ## Distributed TensorFlow
 See [TF: Deploy](https://www.tensorflow.org/deploy/)    
-Or [implemented distributed TF](../PythonWorksp/TensorFlow/distributed)
+Or [implemented distributed TF](../PythonWorksp/TensorFlow/distributed)\
+**Note:** If you want each parameter server(PS) save its copy of checkpoints, be sure to set 
+```python
+saver = tf.train.Saver(sharded=True)
+#this is not by default
+```

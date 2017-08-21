@@ -261,11 +261,11 @@ public class TFUtils {
 					String path = line.substring(0,line.indexOf(LabelGenerator.LABEL_SEP));
 					String m = line.substring(line.indexOf(LabelGenerator.LABEL_SEP)+LabelGenerator.LABEL_SEP.length());
 					String label = m.substring(0,m.indexOf(LabelGenerator.LABEL_SEP));
-					
+					/*
 					if(label.indexOf("\\")!=-1){
 						//label = label.substring(0,label.indexOf("\\"));
 						label = label.substring(label.indexOf("\\")+1);
-					}
+					}*/
 					
 					int index = labels.indexOf(label);
 					sum[index]++;

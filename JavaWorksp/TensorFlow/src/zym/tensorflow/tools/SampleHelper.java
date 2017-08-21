@@ -136,8 +136,9 @@ String[] myFiles = directory.list(new FilenameFilter() {
 				}else{
 					System.out.println("Probably not an image: "+inputRoot.getPath());
 				}
-			}catch  (IOException e){
+			}catch  (Exception e){
 				System.out.println("Error while reading "+inputRoot.getPath());
+				e.printStackTrace();
 			}
 		}
 		System.out.println();
@@ -173,8 +174,9 @@ String[] myFiles = directory.list(new FilenameFilter() {
 					}else{
 						System.out.println("Probably not an image: "+f.getPath());
 					}
-				}catch  (IOException e){
+				}catch  (Exception e){
 					System.out.println("Error while reading "+f.getPath());
+					e.printStackTrace();
 				}
 			}
 		}
@@ -398,9 +400,9 @@ String[] myFiles = directory.list(new FilenameFilter() {
 	}
 	/**
 	 * <span class="en">Generate randomly selected files for training and evaluation from a processed dataset
-	 * <b>Note:recursive</b></span>
+	 * <b>Note:recursive; skips folders with {@code DevConstants.IGNORE_PREFIX}</b></span>
 	 * <span class="zh">从处理过的数据集生成随机选择的训练和评估文件
-	 * <b>注意：递归</b></span>
+	 * <b>注意：递归；跳过有{@code DevConstants.IGNORE_PREFIX}的文件夹</b></span>
 	 * @param rootPath 
 	 * <span class="zh">在根目录下创建文件夹"train"和"eval"
 	 * 将根目录的结构保留在这些新的目录下。</span>

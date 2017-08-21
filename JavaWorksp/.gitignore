@@ -1,3 +1,15 @@
+*.dll
+*.jar
+*.txt
+
+# Package Files #
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+*.gz
+*.tgz
 
 .metadata
 bin/
@@ -50,3 +62,4 @@ local.properties
 .worksheet
 
 ImprSearch/
+img/

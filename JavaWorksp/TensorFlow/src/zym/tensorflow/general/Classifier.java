@@ -22,11 +22,38 @@ public abstract class Classifier {
 	 * <span class="zh">结果文件的基础名称，前面有随机前缀</span>
 	 */
 	public static final String RESULT_FILE_NAME = "tf-inference-results.txt";	
+	/**
+	 * <span class="en">Path to the int-to-text label file, {@code LabelGenerator.LABEL_TEXT_FILE_NAME}</span>
+	 * <span class="zh">标签数字对应文字的文件, 名称为{@code LabelGenerator.LABEL_TEXT_FILE_NAME} </span>
+	 */
 	protected String labelPath;
+	/**
+	 * <span class="en">Path to the graph_def with {@code BATCH_SIZE = 1}.</span>
+	 * <span class="zh">{@code BATCH_SIZE = 1} 的 graph_def 路径。</span>
+	 */
 	protected String modelPath;
+	/**
+	 * <span class="en">Path to the graph_def with {@code BATCH_SIZE > 1}</span>
+	 * <span class="zh">{@code BATCH_SIZE > 1} 的 graph_def 路径。</span>
+	 */
 	protected String batchModelPath;
+	/**
+	 * <span class="en">GraphDriver with {@code BATCH_SIZE = 1}.</span>
+	 * <span class="zh">{@code BATCH_SIZE = 1} 的GraphDriver。</span>
+	 */
 	protected GraphDriver gd;
+	/**
+	 * <span class="en">GraphDriver with {@code BATCH_SIZE > 1}.</span>
+	 * <span class="zh">{@code BATCH_SIZE > 1} 的 GraphDriver。</span>
+	 */
 	protected GraphDriver bgd;
+	
+	/**
+	 * <span class="en">Path to the last result file. Null if no inference has been made.</span>
+	 * <span class="zh">到最后结果文件的路径。 如果没有计算，则为空。</span>
+	 */
+	protected String lastResultPath = null;
+	
 	private static final String SEP = LabelGenerator.SEP;
 	
 	/**
@@ -55,11 +82,26 @@ public abstract class Classifier {
 	public abstract int getBatchSize();
 	/**
 	 * 
-	 * @return <span class="en">Image preprocessing method</span>
-	 * <span class="zh">图片预处理方法</span>
+	 * @return <span class="en">Image preprocessing method. "resize" or "crop"</span>
+	 * <span class="zh">图片预处理方法。"resize" 或 "crop"</span>
 	 */
 	public abstract String getNormMethod();
-	
+	/**
+	 * 
+	 * @return <span class="en">Path to the int-to-text label file, {@code LabelGenerator.LABEL_TEXT_FILE_NAME}</span>
+	 * <span class="zh">标签数字对应文字的文件, 名称为{@code LabelGenerator.LABEL_TEXT_FILE_NAME} </span>
+	 */
+	public String getLabelPath(){
+		return this.labelPath;
+	}
+	/**
+	 * 
+	 * @return <span class="en">Path to the last result file. Null if no inference has been made.</span>
+	 * <span class="zh">到最后结果文件的路径。 如果没有计算，则为空。</span>
+	 */
+	public String getResultPath(){
+		return lastResultPath;
+	}
 	/**
 	 * <span class="en">load images, run graphs, 
 	 * print results as {@code System.out} 
@@ -75,11 +117,11 @@ public abstract class Classifier {
 	 * 结果列表储存在该文件夹中，否则储存在第一个文件所在的文件夹中</span>
 	 *  
 	 */
-	public void loadAndRun(String[] inputPaths){
+	public String loadAndRun(String[] inputPaths){
 		long time = System.currentTimeMillis();
 		if(modelPath==null||batchModelPath==null||labelPath==null){
 			System.err.println("Resources failed to load");
-			return;
+			return null;
 		}
 		gd = new GraphDriver(modelPath, 
   			  "input_tensor", "softmax_linear/softmax_linear",
@@ -124,9 +166,12 @@ public abstract class Classifier {
 			
 			gd.close();
 			bgd.close();
+			this.lastResultPath = resultPath;
+			return resultPath;
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+  	    return null;
 	}
 	/**
 	 * Execute Graph by Batch: 
@@ -163,7 +208,7 @@ public abstract class Classifier {
 				continue;
 			}					
 
-			if(count%BATCH_SIZE==0){
+			if(count%BATCH_SIZE==0&&subset[0]!=null){
 				//end of a batch
 				String[] results = bgd.inferAndGetScore(subset, getNormMethod());
 				for(int j=0; j<BATCH_SIZE; j++){

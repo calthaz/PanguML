@@ -48,8 +48,6 @@ public class FurnishingClassifier extends Classifier{
 				"/labels/furpics/tf-labels-to-text.txt");
 		
   	    loadAndRun(inputPaths); 
-  	    
-  	    
     
 	}
 	
