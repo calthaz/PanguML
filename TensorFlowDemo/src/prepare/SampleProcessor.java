@@ -16,7 +16,7 @@ public abstract class SampleProcessor {
 	public static void main(String[] args) {
 		//to save training time and repository space
 		//we first compress the images and make a copy
-		/*SampleHelper.batchEditImages(
+		SampleHelper.batchEditImages(
 				"training-materials/raw-data", 
 				"training-materials", "scale-", new SampleHelper.ImgProcessor() {
 					@Override
@@ -32,7 +32,7 @@ public abstract class SampleProcessor {
 						return st;
 						
 					}
-				});*/
+				});
 		
 		//in training-materials I rename "raw-data" to "ready"
 		SampleHelper.generateTrainAndEvalSets("training-materials/ready", 0.27);
