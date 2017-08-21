@@ -42,7 +42,7 @@ public class Eval {
 		//Now, if we want to get a feeling of how this model classifies images, 
 		///we let it sort the pics according to its prediction
 		//First, create "training-materials/result"
-		//TFUtils.sortByClass(classifier.getResultPath(), classifier.getLabelPath(), "training-materials/result");
+		TFUtils.sortByClass(classifier.getResultPath(), classifier.getLabelPath(), "training-materials/result");
 		//now you can find some ridiculous results! 
 	}
 }

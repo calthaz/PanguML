@@ -287,7 +287,7 @@ TensorBoard很棒。 [这个TF文章](https://www.tensorflow.org/get_started/sum
 ## 分布式TensorFlow
 请参阅[TF：部署](https://www.tensorflow.org/deploy/)   
 或者[我实现的distributed TF](../PythonWorksp/TensorFlow/distributed)\
-**注意：**如果要让每个参数服务器（PS）保存其checkpoint的副本，请务必设置
+**注意：** 如果要让每个参数服务器（PS）保存其checkpoint的副本，请务必设置
 ```python
 saver = tf.train.Saver(sharded = True)
 #这不是默认的

@@ -1,0 +1,6 @@
+#this folder contains tensorflow models
+*.pb
+*.pbtxt
+#and so on...
+*.data-00000-of-00001
+*.index

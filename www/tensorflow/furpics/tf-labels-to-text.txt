@@ -1,0 +1,3 @@
+0|||floor-tile
+1|||wall-paper
+2|||wooden-floor

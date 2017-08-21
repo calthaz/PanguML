@@ -56,7 +56,7 @@ public class FastQuerying {
 	private ArrayList<String> pathsRead = new ArrayList<String>();
 	private ArrayList<ImageEntry> candiList = new ArrayList<ImageEntry>();
 	private String RESULT_FILE_NAME = "-fq-result.txt";
-	
+
 	/**
 	 * 
 	 * <span class="zh">最强大的构造函数</span><span class="en">The most powerful constructor</span>
@@ -575,5 +575,13 @@ return: [F:/tmp/root2, F:/tmp/root/l2/l2-1, F:/tmp/root/l1/sc0.png]
 		//new FastQuerying(draftPath, inputPaths);
 		//new FastQuerying();*/
 		new FastQuerying(args[0]);
+	}
+	/**
+	 * 
+	 * @return <span class="en">Path to the last result file. Null if no query has been made.</span>
+	 * <span class="zh">到最后结果文件的路径。 如果没有计算，则为空。</span>
+	 */
+	public String getLastResultPath(){
+		return resultFile;
 	}
 }

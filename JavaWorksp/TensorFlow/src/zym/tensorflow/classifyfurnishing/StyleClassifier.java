@@ -1,6 +1,7 @@
 package zym.tensorflow.classifyfurnishing;
 
 import zym.tensorflow.general.Classifier;
+import zym.tensorflow.general.DevConstants;
 import zym.tensorflow.tools.NativeUtils;
 
 /**
@@ -40,12 +41,12 @@ public class StyleClassifier extends Classifier{
 	 * 结果列表储存在该文件夹中，否则储存在第一个文件所在的文件夹中</span>
 	 */
 	public StyleClassifier(String[] inputPaths) {
-		String modelDir = "F:/TensorFlowDev/PythonWorksp/TensorFlow/StyleClassifier/models/";
-		modelPath =  NativeUtils.loadOrExtract(modelDir+"style224-4-style-7245-1"+"/frozen_graph.pb", 
+		
+		modelPath =  NativeUtils.loadOrExtract(DevConstants.RES_ROOT+"tf-models/style224-4-style-1"+"/frozen_graph.pb", 
 				"/tf-models/model-fur-no-text-1/frozen_graph.pb");;
-		batchModelPath =  NativeUtils.loadOrExtract(modelDir+"style224-4-style-7245-"+BATCH_SIZE+"/frozen_graph.pb", 
+		batchModelPath =  NativeUtils.loadOrExtract(DevConstants.RES_ROOT+"tf-models/style224-4-style-"+BATCH_SIZE+"/frozen_graph.pb", 
 				"/tf-models/model-fur-no-text-"+BATCH_SIZE+"/frozen_graph.pb");
-		labelPath = NativeUtils.loadOrExtract("F:/TensorFlowDev/training-materials/styles/style-only/eval/tf-labels-to-text.txt",
+		labelPath = NativeUtils.loadOrExtract(DevConstants.RES_ROOT+"styles/tf-labels-to-text.txt",
 				"/labels/styles/tf-labels-to-text.txt");
 		
   	    loadAndRun(inputPaths); 

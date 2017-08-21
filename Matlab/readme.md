@@ -1,8 +1,8 @@
 # [Deformed Lattice Detection](http://vision.cse.psu.edu/research/deformedLattice/Deformed_Lattice_Detection.html)
 Authors: Minwoo Park, Kyle Brocklehurst, Robert T. Collins, and Yanxi Liu.
 the package is downloaded at\
-http://vision.cse.psu.edu/research/deformedLattice/Deformed_Lattice_Detection.html\
-I have edited some matlab files and DEMO1, extended it to DEMO2
+http://vision.cse.psu.edu/research/deformedLattice/Deformed_Lattice_Detection.html    
+I have edited some matlab files and DEMO1, extended it to DEMO2.   
 Run DEMO1 or DEMO2 in MATLAB to understand what it does. 
 
 ## 原来的readme

@@ -30,9 +30,6 @@ hs_err_pid*
 img/
 furniture/
 
-#other notes
-*.txt
-
 #auto generated css map
 *.map
 
