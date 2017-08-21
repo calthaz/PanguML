@@ -206,6 +206,14 @@ And you still need to initialize your new variables:
 ```python
 with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer())
+	sess.run(tf.local_variables_initializer())
+	ckpt = tf.train.get_checkpoint_state(mnist_saver.checkpoint_dir)
+	if ckpt and ckpt.model_checkpoint_path:
+		saver.restore(sess, ckpt.model_checkpoint_path)
+		global_step = ckpt.model_checkpoint_path.split('/')[-1].split('-')[-1]
+	else:
+		print('No checkpoint file found')
+		return
 ```
 ### `tf.saved_model.builder.SavedModelBuilder` builds "SavedModel" protocol buffers
 In Java, use `SavedModelBundel` to load a "SavedModel", but a "SavedModel" contains three files so is not convenient to distribute. In the end I replace all these builders with serialized graph. 

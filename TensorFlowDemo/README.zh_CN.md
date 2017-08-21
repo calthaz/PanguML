@@ -206,6 +206,14 @@ saver = tf.train.Saver(variables_to_restore)
 ```python
 with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer())
+	sess.run(tf.local_variables_initializer())
+	ckpt = tf.train.get_checkpoint_state(mnist_saver.checkpoint_dir)
+	if ckpt and ckpt.model_checkpoint_path:
+		saver.restore(sess, ckpt.model_checkpoint_path)
+		global_step = ckpt.model_checkpoint_path.split('/')[-1].split('-')[-1]
+	else:
+		print('No checkpoint file found')
+		return
 ```
 ### `tf.saved_model.builder.SavedModelBuilder`构建"SavedModel"协议缓冲区
 在Java中，使用"SavedModelBundel"加载"SavedModel"，但"SavedModel"包含三个文件，因此不方便打包。最后我用序列化的图替换所有这些构建器。
