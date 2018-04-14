@@ -25,7 +25,7 @@ fclose($fp);
 ?>
 <html>
 <body>
-<p>It is important to notice that when using curl to post form data and you use an array for CURLOPT_POSTFIELDS option, the post will be in multipart format</p>
+<p style="color: red;">It is important to notice that when using curl to post form data and you use an array for CURLOPT_POSTFIELDS option, the post will be in multipart format</p>
 
 <?php
 	$params=['name'=>'John', 'surname'=>'Doe', 'age'=>36];
@@ -42,45 +42,47 @@ fclose($fp);
 
 ?>
 <p>
-This produce the following post header:
-
---------------------------fd1c4191862e3566
-Content-Disposition: form-data; name="name"
-
-Jhon
---------------------------fd1c4191862e3566
-Content-Disposition: form-data; name="surnname"
-
-Doe
---------------------------fd1c4191862e3566
-Content-Disposition: form-data; name="age"
-
-36
---------------------------fd1c4191862e3566--
-
-Setting CURLOPT_POSTFIELDS as follow produce a standard post header
-
-CURLOPT_POSTFIELDS => http_build_query($params),
-
-Which is:
-name=John&surname=Doe&age=36
-
+This produce the following post header:<br>
+<br>
+--------------------------fd1c4191862e3566<br>
+Content-Disposition: form-data; name="name"<br>
+<br>
+Jhon<br>
+--------------------------fd1c4191862e3566<br>
+Content-Disposition: form-data; name="surnname"<br>
+<br>
+Doe<br>
+--------------------------fd1c4191862e3566<br>
+Content-Disposition: form-data; name="age"<br>
+<br>
+36<br>
+--------------------------fd1c4191862e3566--<br>
+<br>
+Setting CURLOPT_POSTFIELDS as follow produce a standard post header<br>
+<br>
+CURLOPT_POSTFIELDS => http_build_query($params),<br>
+<br>
+Which is:<br>
+name=John&surname=Doe&age=36<br>
+<br>
 This caused me 2 days of debug while interacting with a java service which was sensible to this difference, while the equivalent one in php got both format without problem.
 </p>
-php 
-$cSession = curl_init(); 
-//step2
-curl_setopt($cSession,CURLOPT_URL,"http://www.baidu.com");
-curl_setopt($cSession,CURLOPT_RETURNTRANSFER,true);
-curl_setopt($cSession,CURLOPT_HEADER, false); 
-//step3
-$result=curl_exec($cSession);
-
-echo curl_error($cSession);
-//step4
-curl_close($cSession);
-//step5
-//echo $result
+<pre>
+php <br>
+$cSession = curl_init(); <br>
+//step2<br>
+curl_setopt($cSession,CURLOPT_URL,"http://www.baidu.com");<br>
+curl_setopt($cSession,CURLOPT_RETURNTRANSFER,true);<br>
+curl_setopt($cSession,CURLOPT_HEADER, false); <br>
+//step3<br>
+$result=curl_exec($cSession);<br>
+<br>
+echo curl_error($cSession);<br>
+//step4<br>
+curl_close($cSession);<br>
+//step5<br>
+//echo $result<br>
+</pre>
 <?php
 //https://stackoverflow.com/questions/15200632/how-to-upload-file-using-curl-with-php
 $file_name_with_full_path="D:/TensorFlowDev/www/upload-files/9109_14991642540.jpg";
@@ -98,6 +100,65 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
 $result=curl_exec ($ch);
 curl_close ($ch);
 ?>
+<h2>
+<?php 
+$defaults = array(
+		CURLOPT_URL => 'localhost:8080/TestServer',
+		CURLOPT_POST => true,
+		CURLOPT_POSTFIELDS => ["dispatch"=>15]
+);
+//multipart/form-data
+$ch = curl_init();
+curl_setopt_array($ch, $defaults);
+curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+$ip=curl_exec($ch);
+echo $ip;
+?>
+</h2>
+<h2>
+<?php 
+$defaults = array(
+		CURLOPT_URL => 'localhost:8080/TestServer',
+		CURLOPT_POST => true,
+		CURLOPT_POSTFIELDS => http_build_query(["dispatch"=>15])
+);
+//application/x-www-form-urlencoded 
+$ch = curl_init();
+curl_setopt_array($ch, $defaults);
+curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+$ip=curl_exec($ch);
+echo $ip;
+?>
+</h2>
+<div>
+<?php 
+$defaults = array(
+		CURLOPT_URL => "localhost/post-dummy.php",
+		CURLOPT_POST => true,
+		CURLOPT_POSTFIELDS => http_build_query(["dispatch"=>15])
+);
+
+$ch = curl_init();
+curl_setopt_array($ch, $defaults);
+curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+$ip=curl_exec($ch);
+echo $ip;
+?>
+</div>
+<div>
+<?php 
+$defaults = array(
+		CURLOPT_URL => "localhost/post-dummy.php",
+		CURLOPT_POST => true
+);
+$ch = curl_init();
+curl_setopt_array($ch, $defaults);
+curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+$ip=curl_exec($ch);
+echo $ip;
+?>
+</div>
+
 
 </body>
 </html>

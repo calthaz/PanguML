@@ -6,24 +6,26 @@ IMAGE_SIZE = general.IMAGE_SIZE
 FLAGS = tf.app.flags.FLAGS
 
 # Basic model parameters.
-tf.app.flags.DEFINE_string('checkpoint_dir', 'D:/TensorFlowDev/PythonWorksp/TensorFlow/FurnitureClassifier/logs/furniture128',
+tf.app.flags.DEFINE_string('checkpoint_dir', 'F:/TensorFlowDev/PythonWorksp/TensorFlow/StyleClassifier/logs/style128-3-style-only-lr-0.08',
 						   """Directory where to read model checkpoints.""")
-tf.app.flags.DEFINE_string('vis_dir', './logs/vis-test',
+tf.app.flags.DEFINE_string('vis_dir', './logs/vis-test-style-lr-0.08',
 						   """Directory where to write event logs """
 						   """and checkpoint.""")
 def main(_):
 
 	FLAGS.batch_size = 1
-	pic_set = ["D:/TensorFlowDev/PythonWorksp/TensorFlow/furniture/bed/baby-bed/baby-bed356.jpg",
-				"D:/TensorFlowDev/PythonWorksp/TensorFlow/furniture/bed/hammock/hammock1476.jpg",
-				"D:/TensorFlowDev/PythonWorksp/TensorFlow/RetrainInception/flower_photos/tulips/3150964108_24dbec4b23_m.jpg",
-				"D:/TensorFlowDev/PythonWorksp/TensorFlow/RetrainInception/flower_photos/tulips/3105702091_f02ce75226.jpg",
-				"D:/TensorFlowDev/www/upload-files/6454_14991605780.jpg",
-				"D:/TensorFlowDev/www/upload-files/4589_14991507381.jpg",
-				"D:/TensorFlowDev/www/upload-files/7255_14991507381.jpg",
-				"D:/TensorFlowDev/PythonWorksp/TensorFlow/furniture/bed/bunk-bed/bunk-bed576.jpg"]
+	pic_set = ["F:/TensorFlowDev/PythonWorksp/TensorFlow/furniture/bed/baby-bed/baby-bed356.jpg",
+				"F:/TensorFlowDev/PythonWorksp/TensorFlow/furniture/bed/hammock/hammock1476.jpg",
+				"F:/TensorFlowDev/PythonWorksp/TensorFlow/RetrainInception/flower_photos/tulips/3150964108_24dbec4b23_m.jpg",
+				"F:/TensorFlowDev/PythonWorksp/TensorFlow/RetrainInception/flower_photos/tulips/3105702091_f02ce75226.jpg",
+				"F:/TensorFlowDev/www/upload-files/6454_14991605780.jpg",
+				"F:/TensorFlowDev/www/upload-files/4589_14991507381.jpg",
+				"F:/TensorFlowDev/www/upload-files/7255_14991507381.jpg",
+				"F:/TensorFlowDev/PythonWorksp/TensorFlow/furniture/bed/bunk-bed/bunk-bed576.jpg",
+				"F:/TensorFlowDev/www/upload-files/1501723500_05517.jpg",
+				"F:/TensorFlowDev/www/upload-files/1501723499_19721-n.jpg"]
 	with tf.name_scope('input'):#
-		img_path=pic_set[7]
+		img_path=pic_set[9]
 		filename_queue = tf.train.string_input_producer([img_path])#
 		reader = tf.WholeFileReader()
 		key, value = reader.read(filename_queue)

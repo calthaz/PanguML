@@ -1,0 +1,6 @@
+0|||baby-bed
+1|||bunk-bed
+2|||double-bed
+3|||hammock
+4|||round-bed
+5|||single-bed

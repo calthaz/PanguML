@@ -1,0 +1,6 @@
+/bin/
+*.pyc
+.classpath
+.project
+.settings/
+logs/train5000

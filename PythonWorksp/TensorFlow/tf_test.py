@@ -72,8 +72,20 @@ sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 # Runs the op.
 print(sess.run(conv1))
 print(sess.run(reverse))
-
+'''
 index = tf.argmax(i, 0)
+index = tf.cast(index, tf.int32)
 zeros = tf.zeros([4, index])
 concat = tf.concat([zeros, i], axis = 1)
 print(concat.eval())
+'''
+print("oprator test")
+#f = tf.constant(255.0, shape=[10, 10, 1])
+#r_channel = tf.truncated_normal([10, 10, 1], stddev=62)+f
+r_channel = tf.constant(120.0, shape=[10, 10, 1])
+g_channel = tf.constant(177.0, shape=[10, 10, 1])
+b_channel = tf.constant(30.0, shape=[10, 10, 1])
+ones = tf.ones([10, 10, 1])
+fs = tf.constant(255.0*3, shape=[10, 10, 1])
+normalized = ones - (r_channel+g_channel+b_channel)/fs
+print(normalized.eval())

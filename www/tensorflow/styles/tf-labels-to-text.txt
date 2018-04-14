@@ -1,0 +1,4 @@
+0|||western-sim
+1|||western-lux
+2|||japanese
+3|||chinese

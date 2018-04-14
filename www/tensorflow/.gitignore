@@ -1,0 +1,9 @@
+#MNIST demo checkpoint dir
+ckpt/*
+!ckpt/checkpoint
+
+#other models are stored here
+#tf-models/*/
+
+~/
+__pycache__/

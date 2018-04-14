@@ -22,73 +22,54 @@ $(function(){
 				'<a class="teal-text infer-pic bed">识别</a>'+
 				'<a class="blue-text infer-pic inception">识别</a>'+
         '<a class="purple-text infer-pic fur">识别</a>'+
+        '<a class="brown-text infer-pic style">识别</a>'+
 				'<a class="orange-text delete-pic">删除</a></div>'+
 			'</div>')
     	}
   	});
 
-  	$("button.start-infer.bed").click(function(){
-  		var $btn = $(event.target);
-  		$btn.text("...");
-  		$btn.css("pointer-events", "none");
-  		$.post("uploadHandler.php", {startAll:"bed"}).done(function(data){
-  			//console.log(data);
-            try{
-                data = JSON.parse(data);
-                for(var x in data.results){
-                	var filename = x.replace(/\\/g, "/");
-                	//console.log(filename+" is "+data[x]);
-                	$('img[src="'+filename+'"]').parent().find("span.label").text(data.results[x]);
-                }
-                $btn.text("识别");
-                $btn.css("pointer-events", "initial");
-                Materialize.toast(data.summary, 5000);
-            }catch(e){
-            	console.log(data);
-            }   
-  		});
-  	});
-  	$("button.start-infer.inception").click(function(){
-  		var $btn = $(event.target);
-  		$btn.text("...");
-  		$btn.css("pointer-events", "none");
-  		$.post("uploadHandler.php", {startAll:"inception"}).done(function(data){
-  			//console.log(data);
-            try{
-                data = JSON.parse(data);
-                for(var x in data.results){
-                	var filename = x.replace(/\\/g, "/");
-                	//console.log(filename+" is "+data[x]);
-                	$('img[src="'+filename+'"]').parent().find("span.label").text(data.results[x]);
-                }
-                $btn.text("识别");
-                $btn.css("pointer-events", "initial");
-                Materialize.toast(data.summary, 5000);
-            }catch(e){
-            	console.log(data);
-            }   
-  		});
-  	});
-    $("button.start-infer.fur").click(function(){
+    function inferAll(type) {
       var $btn = $(event.target);
       $btn.text("...");
       $btn.css("pointer-events", "none");
-      $.post("uploadHandler.php", {startAll:"fur"}).done(function(data){
-        //console.log(data);
+      $.post("inferManager.php", {startAll:type}).done(function(data){
             try{
                 data = JSON.parse(data);
-                for(var x in data.results){
-                  var filename = x.replace(/\\/g, "/");
-                  //console.log(filename+" is "+data[x]);
-                  $('img[src="'+filename+'"]').parent().find("span.label").text(data.results[x]);
+                var summary = "";
+                for (var i = data.inferData.length - 1; i >= 0; i--) {
+                  var output = JSON.parse(data.inferData[i]); 
+                  for(var x in output.results){
+                    var filename = "upload-files/"+x.replace(/\\/g, "/");
+                    //console.log(filename+" is "+data[x]);
+                    $('img[src="'+filename+'"]').parent().find("span.label").text(output.results[x]);
+
+                  }
+                  summary=summary+output.summary+"<br/>";
                 }
-                $btn.text("识别");
-                $btn.css("pointer-events", "initial");
-                Materialize.toast(data.summary, 5000);
+                Materialize.toast(summary, 5000);
             }catch(e){
               console.log(data);
             }   
+      }).always(function() {
+          $btn.text("识别");
+            $btn.css("pointer-events", "initial");
       });
+    };
+
+  	$("button.start-infer.bed").click(function(){
+  		inferAll("bed");
+  	});
+
+  	$("button.start-infer.inception").click(function(){
+  		inferAll("inception");
+  	});
+
+    $("button.start-infer.fur").click(function(){
+      inferAll("fur");
+    });
+
+    $("button.start-infer.style").click(function(){
+      inferAll("style");
     });
 
   	$("main").on("click", "a.delete-pic", function(event){
@@ -103,52 +84,35 @@ $(function(){
   		});
   	});
 
-  	$("main").on("click", "a.infer-pic.bed", function(event){
-  		var filename = $(event.target).parents("div.img-wrapper").find("img").attr("src");
-  		//console.log(filename);
-  		$.post("uploadHandler.php", {infer:filename, action:"bed"}).done(function(data){
-  			try{
-                data = JSON.parse(data);
-                for(var x in data.results){
-                	var filename = x.replace(/\\/g, "/");
-                	//console.log(filename+" is "+data[x]);
-                	$('img[src="'+filename+'"]').parent().find("span.label").text(data.results[x]);
-                }
-            }catch(e){
-            	console.log(data);
-            }  
-  		});
-  	});
-  	$("main").on("click", "a.infer-pic.inception", function(event){
-  		var filename = $(event.target).parents("div.img-wrapper").find("img").attr("src");
-  		//console.log(filename);
-  		$.post("uploadHandler.php", {infer:filename, action:"inception"}).done(function(data){
-  			try{
-                data = JSON.parse(data);
-                for(var x in data.results){
-                	var filename = x.replace(/\\/g, "/");
-                	//console.log(filename+" is "+data[x]);
-                	$('img[src="'+filename+'"]').parent().find("span.label").text(data.results[x]);
-                }
-            }catch(e){
-            	console.log(data);
-            }  
-  		});
-  	});
-    $("main").on("click", "a.infer-pic.fur", function(event){
+    function inferPic(event, type) {
       var filename = $(event.target).parents("div.img-wrapper").find("img").attr("src");
       //console.log(filename);
-      $.post("uploadHandler.php", {infer:filename, action:"fur"}).done(function(data){
+      $.post("inferManager.php", {infer:filename, action:type}).done(function(data){
         try{
                 data = JSON.parse(data);
-                for(var x in data.results){
-                  var filename = x.replace(/\\/g, "/");
+                var output = JSON.parse(data.inferData); 
+                for(var x in output.results){
+                  var filename = "upload-files/"+x.replace(/\\/g, "/");
                   //console.log(filename+" is "+data[x]);
-                  $('img[src="'+filename+'"]').parent().find("span.label").text(data.results[x]);
+                  $('img[src="'+filename+'"]').parent().find("span.label").text(output.results[x]);
                 }
             }catch(e){
               console.log(data);
             }  
       });
+    };
+
+  	$("main").on("click", "a.infer-pic.bed", function(event){
+  		inferPic(event, "bed");
+  	});
+
+  	$("main").on("click", "a.infer-pic.inception", function(event){
+  		inferPic(event, "inception");
+  	});
+    $("main").on("click", "a.infer-pic.fur", function(event){
+      inferPic(event, "fur");
+    });
+    $("main").on("click", "a.infer-pic.style", function(event){
+      inferPic(event, "style");
     });
 })

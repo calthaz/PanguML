@@ -2,10 +2,11 @@ import tensorflow as tf
 import numpy as np
 from tensorflow.python import debug as tf_debug 
 
-LABEL_SEP = "[*v*]"
+LABEL_SEP = "|||"
 image_dic = {}
-IMAGE_SIZE = 128
-LABEL_FILE = "../furniture/furpics/tf-images-with-labels.txt"
+IMAGE_SIZE = 224
+TRAIN_LABEL_FILE = "F:/TensorFlowDev/training-materials/bed/train/tf-images-with-labels.txt"
+EVAL_LABEL_FILE = "F:/TensorFlowDev/training-materials/bed/eval/tf-images-with-labels.txt"
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 500
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 100
 
@@ -23,10 +24,10 @@ def read_labels_dict(filename):
 				pass
 
 def get_num_classes():
-	return 3
+	return 6
 
 def get_num_examples():
-	read_labels_dict(LABEL_FILE)
+	read_labels_dict(TRAIN_LABEL_FILE)
 	return len(list(image_dic.keys()))
 '''
 def read_image(filename_queue):
@@ -63,7 +64,7 @@ def distorted_inputs( batch_size):
 	labels: Labels. 1D tensor of [batch_size] size.
   """
 	#read_labels_dict(r"D:\PythonWorksp\TensorFlow\furniture\bed\tf-labels.txt")
-	image_list, label_list = read_labeled_image_list(LABEL_FILE)
+	image_list, label_list = read_labeled_image_list(TRAIN_LABEL_FILE)
 	for f in image_list:
 		if not tf.gfile.Exists(f):
 			raise ValueError('Failed to find file: ' + f)
@@ -142,7 +143,13 @@ def inputs(eval_data, batch_size):
 	images: Images. 4D tensor of [batch_size, IMAGE_SIZE, IMAGE_SIZE, 3] size.
 	labels: Labels. 1D tensor of [batch_size] size.
 	"""
-	image_list, label_list = read_labeled_image_list(LABEL_FILE)
+	if not eval_data:
+		image_list, label_list = read_labeled_image_list(TRAIN_LABEL_FILE)
+		num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN
+	else:
+		image_list, label_list = read_labeled_image_list(EVAL_LABEL_FILE)
+		num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_EVAL
+
 	for f in image_list:
 		if not tf.gfile.Exists(f):
 			raise ValueError('Failed to find file: ' + f)

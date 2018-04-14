@@ -1,0 +1,8 @@
+0|||bed\round-bed
+1|||bed\hammock
+2|||bed\baby-bed
+3|||flower\tulips
+4|||flower\sunflowers
+5|||flower\roses
+6|||flower\dandelion
+7|||flower\daisy

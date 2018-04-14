@@ -1,4 +1,6 @@
-model128-/
-model128-20/
-model-fur-128-/
-model-fur-128-20/
+#this folder contains tensorflow models
+*.pb
+*.pbtxt
+#and so on...
+*.data-00000-of-00001
+*.index

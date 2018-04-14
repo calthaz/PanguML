@@ -1,7 +1,5 @@
 <?php
 	require "config.inc.php";
-
-	
 	if(isset($_FILES['upload'])){//? 
 		$paramName = 'upload';
 		$returnArray = array();
@@ -33,62 +31,6 @@
 	    	}
 		}
 		echo json_encode($returnArray); 
-	}elseif(isset($_POST['startAll'])){
- 		if($_POST['startAll'] =='inception'){
- 			$commandStr = 'java -jar tensorflow/inception5h.jar '.$filesDir.' ';
- 		}elseif($_POST['startAll']=='bed'){
- 			$commandStr = 'java -jar tensorflow/FurnishingClassifier.jar '.$filesDir.' ';
- 		}else{
- 			$commandStr = 'java -jar tensorflow/furnishing.jar '.$filesDir.' ';
- 		}
- 		$output="";
- 		exec($commandStr, $output);
- 		$summary = $output[count($output)-2];
- 		$resultFile = $output[count($output)-1];
- 		$results = file($resultFile);
-
- 		$returnArray = array();
- 		$map=array();
- 		for ($i=0; $i < count($results) ; $i++) { 
- 			# code...
- 			list($key, $label, $score) = explode($labelSep, trim($results[$i]));
- 			$map[$key] = $label."(".$score.")"; 
-	 		#$map[$key."-score"] = $score;
- 		}
- 		$returnArray["results"] = $map;
- 		$returnArray["summary"] = $summary;
- 		echo json_encode($returnArray);
-
-	}elseif(isset($_POST['infer'])&&isset($_POST['action'])){
-		
-		if(stripos($_POST['infer'], $filesDir)==0){
-			if($_POST['action']=='inception'){
-	 			$commandStr = 'java -jar tensorflow/inception5h.jar '.$_POST['infer'].' ';
-	 		}elseif($_POST['action']=='bed'){
-	 			$commandStr = 'java -jar tensorflow/FurnishingClassifier.jar '.$_POST['infer'].' ';
-	 		}else{
-	 			$commandStr = 'java -jar tensorflow/furnishing.jar '.$_POST['infer'].' ';
-	 		}
-			
-	 		$output="";
-	 		exec($commandStr, $output);
-	 		$resultFile = $output[count($output)-1];
-	 		$results = file($resultFile);
-	 		//print_r($output);
-	 		$returnArray = array();
-	 		$map=array();
-	 		for ($i=0; $i < count($results) ; $i++) { 
-	 			# code...
-	 			list($key, $label, $score) = explode($labelSep, trim($results[$i]));
-	 			$map[$key] = $label."(".$score.")"; 
-	 			#$map[$key."-score"] = $score;
-	 		}
-	 		$returnArray["results"] = $map;
-	 		echo json_encode($returnArray);
-		}else{
-			echo "illegal action";
-		}
- 		
 	}elseif(isset($_POST['delete'])){
 		//echo $_POST['delete'];
 		if(stripos($_POST['delete'], $filesDir)==0){
@@ -98,6 +40,35 @@
 			echo "illegal action";
 		}
  		
+	}elseif(isset($_FILES['uploadForMNIST'])){
+		$paramName = 'uploadForMNIST';
+		$error = $_FILES[$paramName]["error"];
+		//echo "in foreach"; 
+    	if ($error == UPLOAD_ERR_OK) {
+    		//echo "error ok"; 
+        	$tmp_name = $_FILES[$paramName]["tmp_name"];
+	        $name = basename($_FILES[$paramName]["name"]);
+
+	        $imageFileType = strtolower(pathinfo($name,PATHINFO_EXTENSION)) ;
+
+	        // Check file size
+			if ($_FILES[$paramName]["size"] < 10 * 1024 * 1024) { //unit: bytes
+				//echo "small enough"; 
+			    // Allow certain file formats
+				if($imageFileType == "jpg" || $imageFileType == "png" || $imageFileType == "jpeg"
+				|| $imageFileType == "gif" ) {
+					$title = $name;    
+		        	$filePrefix = rand(1000,9999);		        
+			        $filename = time()."_".$filePrefix.".".$imageFileType;
+
+				    move_uploaded_file($tmp_name, $filesDir."/MNIST/".$filename);
+				    echo json_encode($filesDir."/MNIST/".$filename); 
+				    
+				}
+			}
+    	}	
 	}
+
+	
 	
 ?>

@@ -42,6 +42,7 @@ import tarfile
 
 from six.moves import urllib
 import tensorflow as tf
+import read_image
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -55,7 +56,7 @@ tf.app.flags.DEFINE_boolean('use_fp16', False,
 
 # Global constants describing the CIFAR-10 data set.
 IMAGE_SIZE = 128
-NUM_CLASSES = 6
+NUM_CLASSES = read_image.NUM_CLASS
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 500
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 100
 
@@ -176,7 +177,7 @@ def inference(images):
     _activation_summary(conv1)
     
   with tf.variable_scope('conv1_visualization'):
-    '''
+    #16 activations
     # scale weights to [0 1], type is still float
     x_min = tf.reduce_min(kernel1)
     x_max = tf.reduce_max(kernel1)
@@ -188,7 +189,7 @@ def inference(images):
     layer1_image1 = conv1[0:1, :, :, 0:16]
     layer1_image1 = tf.transpose(layer1_image1, perm=[3,1,2,0])
     tf.summary.image("filtered_images_layer1", layer1_image1, max_outputs=16)
-    '''
+    
     #conv1 = tf.subtract(conv1, biases1)
     #conv1 = tf.nn.relu(conv1, name=scope.name)
     conv_trans = tf.nn.conv2d_transpose(conv1, kernel1, output_shape=[FLAGS.batch_size, IMAGE_SIZE, IMAGE_SIZE, 3], strides=[1,1,1,1], padding='SAME')
@@ -279,6 +280,16 @@ def inference(images):
       output_shape=[FLAGS.batch_size, int(IMAGE_SIZE/2), int(IMAGE_SIZE/2), 64], strides=[1,1,1,1], padding='SAME')
     trans = unpool1(max_trans, kernel1)
     tf.summary.image("reverse_max_conv2", trans, max_outputs=16)
+
+    for y in range(16):
+      max_index = y
+      max_slice = tf.slice(conv2, [0,0,0,max_index], [FLAGS.batch_size,int(IMAGE_SIZE/2),int(IMAGE_SIZE/2),1])
+      #max_filters = tf.concat([max_slice for x in range(64)], axis=3) output shape:[1,32,32,64,1]
+      max_filters = tf.concat([max_slice for x in range(64)], axis=3)
+      max_trans = tf.nn.conv2d_transpose(max_filters, kernel2, 
+        output_shape=[FLAGS.batch_size, int(IMAGE_SIZE/2), int(IMAGE_SIZE/2), 64], strides=[1,1,1,1], padding='SAME')
+      trans = unpool1(max_trans, kernel1)
+      tf.summary.image("filtered_images_layer2", trans, max_outputs=16)
       #image input: [batch_size, height, width, channels]
 
   # norm2

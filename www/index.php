@@ -29,6 +29,7 @@
 				<a class="teal-text infer-pic bed">识别</a>
 				<a class="blue-text infer-pic inception">识别</a>
 				<a class="purple-text infer-pic fur">识别</a>
+				<a class="brown-text infer-pic style">识别</a>
 				<a class="orange-text delete-pic">删除</a>
 				
 			</div>
@@ -39,7 +40,8 @@
 	<header>
 		<h1 id="page-title" class="teal bed">Simple Bed Classifier</h1>
 		<h1 id="page-title" class="blue bed">Inception5h Classifier</h1>
-		<h1 id="page-title" class="purple inception">Furnishing Classifier</h1>
+		<h1 id="page-title" class="purple bed">Furnishing Classifier</h1>
+		<h1 id="page-title" class="brown inception">Style Classifier</h1>
 	</header>
 	<main>
 		<div class="container">
@@ -51,7 +53,8 @@
 			<div class="fixed-action-btn">
 				<button class="btn-floating btn-large waves-effect waves-light start-infer teal lighten-1 bed">识别</button>	
 				<button class="btn-floating btn-large waves-effect waves-light start-infer blue lighten-1 inception">识别</button>
-				<button class="btn-floating btn-large waves-effect waves-light start-infer purple lighten-1 fur">识别</button>				
+				<button class="btn-floating btn-large waves-effect waves-light start-infer purple lighten-1 fur">识别</button>		
+				<button class="btn-floating btn-large waves-effect waves-light start-infer brown lighten-1 style">识别</button>			
 			</div>
 			<div id="gallery" class="row">
 				<?php 

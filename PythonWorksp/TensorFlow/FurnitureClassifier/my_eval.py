@@ -56,7 +56,7 @@ def evaluate():
     variables_to_restore = variable_averages.variables_to_restore()
     saver = tf.train.Saver(variables_to_restore)
 
-    merged_summary = tf.summary.merge_all()
+    
     # Build the summary operation based on the TF collection of Summaries.
     summary_op = tf.summary.merge_all()
 
@@ -100,8 +100,8 @@ def evaluate():
         # Compute precision @ 1.
         precision = true_count / total_sample_count
         accuracy_avg = accuracy_sum / step
-        print('%s: precision @ 1 = %.3f' % (datetime.now(), precision))
-        print('%s: accuracy @ 1 = %.3f' % (datetime.now(), accuracy_avg))
+        print('%s: precision @ 1 = %.4f' % (datetime.now(), precision))
+        print('%s: accuracy @ 1 = %.4f' % (datetime.now(), accuracy_avg))
         '''
         2017-06-29 17:44:36.120575: precision @ 1 = 0.396
         2017-06-29 17:44:36.120575: accuracy @ 1 = 0.411
